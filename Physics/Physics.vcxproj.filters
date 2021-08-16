@@ -53,6 +53,9 @@
     <ClCompile Include="Source\SceneCollision.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\SceneArchangel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Source\CSVReader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -107,6 +110,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\SceneCollision.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SceneArchangel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\CSVReader.h">
