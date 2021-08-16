@@ -24,7 +24,6 @@ public:
 
 	void RenderGO(GameObject *go);
 	
-
 	GameObject* FetchGO();
 
 protected:

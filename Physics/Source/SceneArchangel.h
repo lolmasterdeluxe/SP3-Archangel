@@ -22,7 +22,7 @@ public:
 	void ReturnGO(GameObject *go);
 	bool CheckCollision(GameObject* go1, GameObject* go2, float dt);
 	void CollisionResponse(GameObject* go1, GameObject* go2);
-	void SpawnBall();
+	void SpawnBullet(double dt);
 	void playerLogic(double dt);
 
 protected:
@@ -42,8 +42,7 @@ protected:
 	float m_speed, max_vel;
 	float m_worldWidth;
 	float m_worldHeight;
-	GameObject* m_ghost;
-	GameObject* m_square[50];
+	GameObject* m_ghost, * m_player;
 	int m_objectCount;
 	bool initPos, jump;
 	

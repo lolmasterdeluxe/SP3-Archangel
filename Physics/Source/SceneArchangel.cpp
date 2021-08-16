@@ -42,12 +42,15 @@ void SceneArchangel::Init()
 	newGO->hp = 100;
 	newGO->pos = Vector3(m_worldWidth * 0.5, 3, 0);
 
-	GameObject* newGO2 = FetchGO();
-	newGO2->active = true;
-	newGO2->type = GameObject::GO_CUBE;
-	newGO2->scale.Set(3, 3, 1);
-	newGO2->normal.Set(1, 0, 0);
-	newGO2->pos = Vector3(m_worldWidth * 0.5, 30, 0);
+	m_player = FetchGO();
+
+	// Set m_player stats
+	m_player->active = true;
+	m_player->type = GameObject::GO_CUBE;
+	m_player->pos = Vector3(m_worldWidth * 0.5, 30, 0);
+	m_player->normal.Set(1, 0, 0);
+	m_player->scale = Vector3(2, 2, 2);
+	m_player->bullet_delay = 0;
 
 }
 
@@ -165,7 +168,7 @@ void SceneArchangel::CollisionResponse(GameObject* go1, GameObject* go2)
 	}
 }
 
-void SceneArchangel::SpawnBall()
+void SceneArchangel::SpawnBullet(double dt)
 {
 	int w = Application::GetWindowWidth();
 	int h = Application::GetWindowHeight();
@@ -173,6 +176,32 @@ void SceneArchangel::SpawnBall()
 	Application::GetCursorPos(&x, &y);
 	//Mouse Section
 	static bool bLButtonState = false;
+	if (Application::IsMousePressed(0))
+	{
+		if (m_player->bullet_delay > 0.2f)
+		{
+			cout << "shooting" << endl;
+			GameObject* newGO = FetchGO();
+			newGO->active = true;
+			newGO->type = GameObject::GO_BULLET;
+			newGO->scale.Set(1, 1, 0);
+			newGO->pos = m_player->pos;
+			newGO->vel = Vector3((x / w * m_worldWidth) - newGO->pos.x, ((h - y) / h * m_worldHeight) - newGO->pos.y, 0).Normalize() * 100;
+			newGO->vel.Normalize()* 100;
+			m_player->bullet_delay = 0;
+		}
+	}
+	for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
+	{
+		GameObject* go = (GameObject*)*it;
+		if (go->active)
+		{
+			if (go->type == GameObject::GO_BULLET)
+			{
+				go->pos += go->vel * dt * 100;
+			}
+		}
+	}
 }
 
 void SceneArchangel::playerLogic(double dt)
@@ -271,12 +300,14 @@ void SceneArchangel::playerLogic(double dt)
 	}
 }
 
+
 void SceneArchangel::Update(double dt)
 {
 	// Update timers
+	m_player->bullet_delay += dt;
 
 	SceneBase::Update(dt);
-	SpawnBall();
+	SpawnBullet(dt);
 
 	playerLogic(dt);
 
@@ -480,7 +511,14 @@ void SceneArchangel::RenderGO(GameObject *go)
 		modelStack.PopMatrix();
 		break;
 
-	
+	case GameObject::GO_BULLET:
+		modelStack.PushMatrix();
+		modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
+		modelStack.Rotate(Math::RadianToDegree(atan2(go->vel.y, go->vel.x)), 0, 0, 1);
+		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
+		RenderMesh(meshList[GEO_BULLET], false);
+		modelStack.PopMatrix();
+		break;
 	}
 	glEnable(GL_DEPTH_TEST);
 }
