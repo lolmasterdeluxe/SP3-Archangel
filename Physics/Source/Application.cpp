@@ -14,6 +14,7 @@
 #include "SceneKinematics.h"
 #include "SceneAsteroid.h"
 #include "SceneCollision.h"
+#include "SceneArchangel.h"
 
 GLFWwindow* m_window;
 const unsigned char FPS = 60; // FPS of this game
@@ -93,7 +94,7 @@ void Application::Init()
 	//Create a window and create its OpenGL context
 	m_width = 1200;
 	m_height = 750;
-	m_window = glfwCreateWindow(m_width, m_height, "Gravity Ball", NULL, NULL);
+	m_window = glfwCreateWindow(m_width, m_height, "The Archangel", NULL, NULL);
 
 	//If the window couldn't be created
 	if (!m_window)
@@ -125,7 +126,7 @@ void Application::Init()
 void Application::Run()
 {
 	//Main Loop
-	Scene *scene = new SceneCollision();
+	Scene *scene = new SceneArchangel();
 	scene->Init();
 
 	m_timer.startTimer();    // Start timer to calculate how long it takes to render this frame

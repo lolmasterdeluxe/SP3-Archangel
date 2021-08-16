@@ -56,17 +56,18 @@ void SceneCollision::Init()
 	// Spawn walls
 	GameObject* newGO = FetchGO();
 	newGO->active = true;
-	newGO->type = GameObject::GO_CUBE;
-	newGO->scale.Set(2, 50, 1);
+	newGO->type = GameObject::GO_WALL;
+	newGO->scale.Set(50, 2, 1);
 	newGO->normal.Set(1, 0, 0);
-	newGO->pos = Vector3(m_worldWidth * 0.5 + 25, m_worldHeight * 0.5, 0);
+	newGO->pos = Vector3(m_worldWidth * 0.5 + 25, 0, 0);
 
+	// Spawn walls
 	GameObject* newGO2 = FetchGO();
 	newGO2->active = true;
-	newGO2->type = GameObject::GO_CUBE;
-	newGO2->scale.Set(2, 50, 1);
+	newGO2->type = GameObject::GO_WALL;
+	newGO2->scale.Set(50, 2, 1);
 	newGO2->normal.Set(1, 0, 0);
-	newGO2->pos = Vector3(m_worldWidth * 0.5 - 25, m_worldHeight * 0.5, 0);
+	newGO2->pos = Vector3(m_worldWidth * 0.5 + 25, 0, 0);
 }
 
 GameObject* SceneCollision::FetchGO()
@@ -115,7 +116,6 @@ bool SceneCollision::CheckCollision(GameObject* go1, GameObject* go2, float dt)
 		Vector3 displacement = go2->pos - go1->pos;
 		if ((displacement.LengthSquared() < combinedRadii * combinedRadii) && (go2->vel - go1->vel).Dot(go2->pos - go1->pos) < 0)
 		{
-			
 			return true;
 		}
 	}
