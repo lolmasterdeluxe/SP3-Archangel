@@ -45,6 +45,8 @@ struct GameObject
 		GO_LASERBEAM,
 		GO_WALL,
 		GO_PILLAR,
+		GO_PORTAL_IN,
+		GO_PORTAL_OUT,
 		GO_TOTAL, //must be last
 	};
 	GAMEOBJECT_TYPE type;
@@ -63,7 +65,7 @@ struct GameObject
 	bool active, turn, shoot, aim, idle, missile, reset, cannon, laser, rifle, bounce, initPos;
 	float mass, pause, shoot_period, prevpos;
 	int hp, shield, movement_phase, bullet_count, fire_style, color;
-	double bullet_delay, movement_delay, fire_rate, shoot_delay, shield_delay, shield_recharge, animation_delay;
+	double bullet_delay, portal_delay, movement_delay, fire_rate, shoot_delay, shield_delay, shield_recharge, animation_delay;
 	float movement_change;
 	std::ostringstream hp_display;
 

@@ -1,4 +1,3 @@
-
 #include "GameObject.h"
 
 GameObject::GameObject(GAMEOBJECT_TYPE typeValue)
@@ -28,6 +27,7 @@ GameObject::GameObject(GAMEOBJECT_TYPE typeValue)
 	torque(0, 0, 0),
 	fire_rate(0),
 	bullet_delay(0),
+	portal_delay(0),
 	movement_delay(0),
 	movement_phase(2),
 	movement_change(1),

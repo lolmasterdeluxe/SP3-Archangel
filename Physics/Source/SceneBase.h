@@ -105,6 +105,8 @@ public:
 		GEO_LOSE2,
 		GEO_HEXBG,
 		GEO_GREYBG,
+		GEO_PORTAL_IN,
+		GEO_PORTAL_OUT,
 		NUM_GEOMETRY,
 	};
 public:

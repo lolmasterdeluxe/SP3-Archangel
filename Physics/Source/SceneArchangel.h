@@ -19,11 +19,12 @@ public:
 	void RenderGO(GameObject *go);
 
 	GameObject* FetchGO();
-	void ReturnGO(GameObject *go);
+	void ReturnGO(GameObject::GAMEOBJECT_TYPE GO);
 	bool CheckCollision(GameObject* go1, GameObject* go2, float dt);
 	void CollisionResponse(GameObject* go1, GameObject* go2);
 	void SpawnBullet(double dt);
 	void playerLogic(double dt);
+	void portalLogic(double dt);
 
 protected:
 	// Game states
@@ -44,7 +45,7 @@ protected:
 	float m_worldHeight;
 	GameObject* m_ghost, * m_player;
 	int m_objectCount;
-	bool initPos, jump;
+	bool initPos, jump, portal_in, move_portal_in, move_portal_out, portal_shot;
 	
 	//Auditing
 	float m1, m2;
