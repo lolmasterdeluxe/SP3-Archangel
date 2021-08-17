@@ -276,6 +276,10 @@ void SceneArchangel::playerLogic(double dt)
 				go->pos += go->vel * dt * m_speed;
 
 				go->vel.y -= dt * 300;
+				if (go->vel.y <= -200)
+				{
+					go->vel.y = -200;
+				}
 
 				// Setting speed limiters
 				if (go->vel.x >= max_vel)
@@ -338,6 +342,7 @@ void SceneArchangel::portalLogic(double dt)
 	static bool bLButtonState = false;
 	if (Application::IsMousePressed(1) && !portal_shot)
 	{
+		portal_shot = true;
 		if (m_player->portal_delay > 1)
 		{
 			if (!portal_in)
@@ -367,7 +372,6 @@ void SceneArchangel::portalLogic(double dt)
 				move_portal_out = false;
 			}
 		}
-		portal_shot = true;
 	}
 	for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
 	{
@@ -460,7 +464,10 @@ void SceneArchangel::enableCollision(double dt, GameObject::GAMEOBJECT_TYPE GO)
 					if (collision.dist > 0)
 					{
 						PhysicsResponse(first, other);
-						CollisionBound(first, collision);
+						if (go2->type != GameObject::GO_PORTAL_IN && go2->type != GameObject::GO_PORTAL_OUT && go == m_player)
+						{
+							CollisionBound(first, collision);
+						}
 						continue;
 					}
 				}
