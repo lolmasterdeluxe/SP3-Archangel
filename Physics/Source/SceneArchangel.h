@@ -5,6 +5,7 @@
 #include <vector>
 #include "SceneBase.h"
 #include "CMapStorage.h"
+#include "Collision.h"
 
 class SceneArchangel : public SceneBase
 {
@@ -21,8 +22,9 @@ public:
 
 	GameObject* FetchGO();
 	void ReturnGO(GameObject::GAMEOBJECT_TYPE GO);
-	bool CheckCollision(GameObject* go1, GameObject* go2, float dt);
-	void CollisionResponse(GameObject* go1, GameObject* go2);
+	Collision CheckCollision(GameObject* go1, GameObject* go2, float dt);
+	void PhysicsResponse(GameObject* go1, GameObject* go2);
+	void CollisionBound(GameObject* go1, Collision collision);
 	void SpawnBullet(double dt);
 	void playerLogic(double dt);
 	void portalLogic(double dt);

@@ -88,7 +88,7 @@ void SceneArchangel::ReturnGO(GameObject::GAMEOBJECT_TYPE GO)
 	}
 }
 
-bool SceneArchangel::CheckCollision(GameObject* go1, GameObject* go2, float dt)
+Collision SceneArchangel::CheckCollision(GameObject* go1, GameObject* go2, float dt)
 {
 	// Handle collision between GO_BALL and GO_BALL using velocity swap
 	if (go2->type == GameObject::GO_BALL)
@@ -97,23 +97,30 @@ bool SceneArchangel::CheckCollision(GameObject* go1, GameObject* go2, float dt)
 		Vector3 displacement = go2->pos - go1->pos;
 		if ((displacement.LengthSquared() < combinedRadii * combinedRadii) && (go2->vel - go1->vel).Dot(go2->pos - go1->pos) < 0)
 		{
-			return true;
+			Collision collision;
+			collision.go = go2;
+			collision.axis = -displacement.Normalize();
+			collision.dist = combinedRadii - displacement.Length();
+			return collision;
 		}
 	}
 	else if (go2->type == GameObject::GO_WALL)
 	{
-		Vector3 N = go2->normal;
-		Vector3 NP(N.y, -N.x, 0);	
-		Vector3 w0_b1 = go2->pos - go1->pos;
-		float r = go1->scale.x;
-		float h_2 = go2->scale.x;
-		float l_2 = go2->scale.y;
-
+		Vector3 N = go2->normal; // go2 normal
+		Vector3 NP(N.y, -N.x, 0); //  go2 right vector
+		Vector3 w0_b1 = go2->pos - go1->pos; // point from go1 to go2
+		float r = go1->scale.x; // go1 radius
+		float h_2 = go2->scale.x; // go2 width
+		float l_2 = go2->scale.y; // go2 height
 		if (w0_b1.Dot(N) < 0)
 			N = -N; //making sure N is outward normal
 		if ((w0_b1).Dot(N) < r + h_2 && abs((w0_b1).Dot(NP)) < l_2 && go1->vel.Dot(N) > 0)
 		{
-			return true;
+			Collision collision;
+			collision.go = go2;
+			collision.axis = -N.Normalize();
+			collision.dist = r + h_2 - (w0_b1).Dot(N);
+			return collision;
 		}
 	}
 	else if (go2->type == GameObject::GO_PILLAR || go2->type == GameObject::GO_CIRCLE || go2->type == GameObject::GO_POWERUP || go2->type == GameObject::GO_PORTAL_IN || go2->type == GameObject::GO_PORTAL_OUT)
@@ -125,13 +132,17 @@ bool SceneArchangel::CheckCollision(GameObject* go1, GameObject* go2, float dt)
 
 		if ((abs(p2_p1.Length()) < r1 + r2) && ((p2_p1.Dot(u)) > 0)) //prevent internal collision
 		{
-			return true;
+			Collision collision;
+			collision.go = go2;
+			collision.axis = -p2_p1.Normalize();
+			collision.dist = r1 + r2 - p2_p1.Length();
+			return collision;
 		}
 	}
-	return false;
+	return Collision();
 }
 
-void SceneArchangel::CollisionResponse(GameObject* go1, GameObject* go2)
+void SceneArchangel::PhysicsResponse(GameObject* go1, GameObject* go2)
 {
 	if (go2->type == GameObject::GO_BALL)
 	{
@@ -207,6 +218,12 @@ void SceneArchangel::CollisionResponse(GameObject* go1, GameObject* go2)
 			}
 		}
 	}
+}
+}
+
+void SceneArchangel::CollisionBound(GameObject* go1, Collision collision)
+{
+	go1->pos += collision.axis * collision.dist;
 }
 
 void SceneArchangel::SpawnBullet(double dt)
@@ -304,6 +321,52 @@ void SceneArchangel::playerLogic(double dt)
 				{
 					go->vel.x *= 0.7;
 				}
+
+				// Out of bounds checking
+				if (go->pos.x + go->scale.x > m_worldWidth && go->vel.x > 0 ||
+					go->pos.x - go->scale.x < 0 && go->vel.x < 0) {
+					go->vel.x = 0;
+				}
+				if (go->pos.y + go->scale.y > m_worldHeight && go->vel.y > 0 ||
+					go->pos.y - go->scale.y < 0 && go->vel.y < 0) {
+					go->vel.y = 0;
+				}
+
+				if ((go->pos.x > m_worldWidth + go->scale.x || go->pos.x < 0 - go->scale.x) ||
+					(go->pos.y > m_worldHeight + go->scale.y || go->pos.y < 0 - go->scale.y))
+				{
+					ReturnGO(GameObject::GO_CUBE);
+					break;
+				}
+
+				
+			}
+			for (std::vector<GameObject*>::iterator it2 = it + 1; it2 != m_goList.end(); ++it2)
+			{
+				GameObject* go2 = (GameObject*)*it2;
+				if (go2->active)
+				{
+					GameObject* cube = go;
+					GameObject* other = go2;
+					if (cube->type != GameObject::GO_CUBE)
+					{
+						if (other->type != GameObject::GO_CUBE)
+							continue;
+						cube = go2;
+						other = go;
+					}
+					Collision collision = CheckCollision(cube, other, dt);
+					if (collision.dist > 0)
+					{
+						PhysicsResponse(cube, other);
+						CollisionBound(cube, collision);
+						continue;
+					}
+				}
+			}
+		}
+	}
+}
 				Boundary(go, 1);
 			}
 		}
@@ -367,9 +430,10 @@ void SceneArchangel::portalLogic(double dt)
 					{
 						if (go2->type == GameObject::GO_WALL)
 						{
-							if (CheckCollision(go, go2, dt))
+							if (CheckCollision(go, go2, dt).dist > 0)
 							{
 								activatePortal(go);
+								PhysicsResponse(go, go2);
 							}
 						}
 					}
@@ -597,6 +661,8 @@ void SceneArchangel::Update(double dt)
 
 					go->pillar4->pos = go->pos + -N * go->scale.x;
 					go->pillar4->pos -= -NP * go->scale.y;
+				}
+
 				}
 			}
 		}
