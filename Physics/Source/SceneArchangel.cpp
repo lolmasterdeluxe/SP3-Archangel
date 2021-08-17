@@ -10,6 +10,7 @@ SceneArchangel::SceneArchangel()
 
 SceneArchangel::~SceneArchangel()
 {
+	// Test
 }
 
 void SceneArchangel::Init()
