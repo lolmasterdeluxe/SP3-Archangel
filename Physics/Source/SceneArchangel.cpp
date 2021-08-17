@@ -34,14 +34,14 @@ void SceneArchangel::Init()
 	// Initialize Game state
 	state = STATE_MENU;
 
-	// Spawn walls
-	GameObject* newGO = FetchGO();
-	newGO->active = true;
-	newGO->type = GameObject::GO_WALL;
-	newGO->scale.Set(2, 100, 1);
-	newGO->normal.Set(0, 1, 0);
-	newGO->hp = 100;
-	newGO->pos = Vector3(m_worldWidth * 0.5, 3, 0);
+	//// Spawn walls
+	//GameObject* newGO = FetchGO();
+	//newGO->active = true;
+	//newGO->type = GameObject::GO_WALL;
+	//newGO->scale.Set(2, 100, 1);
+	//newGO->normal.Set(0, 1, 0);
+	//newGO->hp = 100;
+	//newGO->pos = Vector3(m_worldWidth * 0.5, 3, 0);
 
 	m_player = FetchGO();
 
@@ -298,6 +298,33 @@ void SceneArchangel::playerLogic(double dt)
 	}
 }
 
+void SceneArchangel::InitMap(int lvl)
+{
+	vector<pair<GameObject::GAMEOBJECT_TYPE, Vector3[3]>> mapInfo = CMapStorage::GetInstance()->GetMapInfo(lvl);
+	vector<pair<GameObject::GAMEOBJECT_TYPE, Vector3[3]>> entityInfo = CMapStorage::GetInstance()->GetEntityInfo(lvl);
+	for (int i = 0; i < mapInfo.size(); i++)
+	{
+		cout << "spawned wall, ";
+		GameObject* go = FetchGO();
+		go->active = true;
+		go->type = mapInfo[i].first;
+		go->pos = mapInfo[i].second[0];
+		cout << go->pos << ", ";
+		go->scale = mapInfo[i].second[1];
+		cout << go->scale << ", ";
+		go->normal = mapInfo[i].second[2];
+		cout << go->normal << endl;
+		go->hp = 100;
+	}
+	for (int i = 0; i < entityInfo.size(); i++)
+	{
+		if (entityInfo[i].first == GameObject::GO_CUBE)
+		{
+			m_player->pos = entityInfo[i].second[0];
+			cout << "set player pos" << endl;
+		}
+	}
+}
 
 void SceneArchangel::Update(double dt)
 {
@@ -326,6 +353,8 @@ void SceneArchangel::Update(double dt)
 					}
 				}
 			}
+
+			InitMap(0);
 
 			state = STATE_PLAY;
 		}
