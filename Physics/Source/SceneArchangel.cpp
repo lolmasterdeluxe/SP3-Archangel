@@ -37,31 +37,6 @@ void SceneArchangel::Init()
 	// Initialize Game state
 	state = STATE_MENU;
 
-	//// Spawn walls
-	//GameObject* newGO = FetchGO();
-	//newGO->active = true;
-	//newGO->type = GameObject::GO_WALL;
-	//newGO->scale.Set(2, 100, 1);
-	//newGO->normal.Set(0, 1, 0);
-	//newGO->hp = 100;
-	//newGO->pos = Vector3(m_worldWidth * 0.5, 3, 0);
-
-	GameObject* newGO2 = FetchGO();
-	newGO2->active = true;
-	newGO2->type = GameObject::GO_WALL;
-	newGO2->scale.Set(2, 5, 1);
-	newGO2->normal.Set(1, 0, 0);
-	newGO2->hp = 100;
-	newGO2->pos = Vector3(m_worldWidth * 0.5 + 15, 10, 0);
-
-	GameObject* newGO3 = FetchGO();
-	newGO3->active = true;
-	newGO3->type = GameObject::GO_WALL;
-	newGO3->scale.Set(2, 5, 1);
-	newGO3->normal.Set(1, 0, 0);
-	newGO3->hp = 100;
-	newGO3->pos = Vector3(m_worldWidth * 0.5 - 15, 10, 0);
-
 	m_player = FetchGO();
 
 	// Set m_player stats
@@ -155,7 +130,7 @@ bool SceneArchangel::CheckCollision(GameObject* go1, GameObject* go2, float dt)
 	return false;
 }
 
-void SceneArchangel::CollisionResponse(GameObject* go1, GameObject* go2)
+void SceneArchangel::PhysicsResponse(GameObject* go1, GameObject* go2)
 {
 	if (go2->type == GameObject::GO_BALL)
 	{
@@ -337,7 +312,7 @@ void SceneArchangel::playerLogic(double dt)
 					}
 					if (CheckCollision(cube, other, dt))
 					{
-						CollisionResponse(cube, other);
+						PhysicsResponse(cube, other);
 						continue;
 					}
 				}
@@ -403,7 +378,7 @@ void SceneArchangel::portalLogic(double dt)
 						{
 							if (CheckCollision(go, go2, dt))
 							{
-								CollisionResponse(go, go2);
+								PhysicsResponse(go, go2);
 								portal_shot = false;
 							}
 						}
@@ -592,7 +567,7 @@ void SceneArchangel::Update(double dt)
 						}
 						if (CheckCollision(ball, other, dt))
 						{
-							CollisionResponse(ball, other);
+							PhysicsResponse(ball, other);
 							continue;
 						}
 					}

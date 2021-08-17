@@ -22,7 +22,7 @@ public:
 	GameObject* FetchGO();
 	void ReturnGO(GameObject::GAMEOBJECT_TYPE GO);
 	bool CheckCollision(GameObject* go1, GameObject* go2, float dt);
-	void CollisionResponse(GameObject* go1, GameObject* go2);
+	void PhysicsResponse(GameObject* go1, GameObject* go2);
 	void SpawnBullet(double dt);
 	void playerLogic(double dt);
 	void portalLogic(double dt);
