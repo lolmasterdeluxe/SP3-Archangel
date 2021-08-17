@@ -322,25 +322,21 @@ void SceneArchangel::InitMap(int lvl)
 			go->pillar1->type = GameObject::GO_PILLAR;
 			go->pillar1->active = true;
 			go->pillar1->scale.Set(0.01f, 0.01f, 0.01f);
-			go->pillar1->pos = Vector3(m_worldWidth * 0.5f + 10, m_worldHeight * 0.5f + 10, 1);
 
 			go->pillar2 = FetchGO();
 			go->pillar2->type = GameObject::GO_PILLAR;
 			go->pillar2->active = true;
 			go->pillar2->scale.Set(0.01f, 0.01f, 0.01f);
-			go->pillar2->pos = Vector3(m_worldWidth * 0.5f - 10, m_worldHeight * 0.5f + 10, 1);
 
 			go->pillar3 = FetchGO();
 			go->pillar3->type = GameObject::GO_PILLAR;
 			go->pillar3->active = true;
 			go->pillar3->scale.Set(0.01f, 0.01f, 0.01f);
-			go->pillar3->pos = Vector3(m_worldWidth * 0.5f + 10, m_worldHeight * 0.5f - 10, 1);
 
 			go->pillar4 = FetchGO();
 			go->pillar4->type = GameObject::GO_PILLAR;
 			go->pillar4->active = true;
 			go->pillar4->scale.Set(0.01f, 0.01f, 0.01f);
-			go->pillar4->pos = Vector3(m_worldWidth * 0.5f - 10, m_worldHeight * 0.5f - 5, 1);
 		}
 	}
 	for (int i = 0; i < entityInfo.size(); i++)
