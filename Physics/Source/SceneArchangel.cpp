@@ -51,7 +51,6 @@ void SceneArchangel::Init()
 	m_player->normal.Set(1, 0, 0);
 	m_player->scale = Vector3(2, 2, 2);
 	m_player->bullet_delay = 0;
-
 }
 
 GameObject* SceneArchangel::FetchGO()
@@ -131,7 +130,6 @@ bool SceneArchangel::CheckCollision(GameObject* go1, GameObject* go2, float dt)
 		}
 	}
 	return false;
-
 }
 
 void SceneArchangel::CollisionResponse(GameObject* go1, GameObject* go2)
@@ -215,7 +213,7 @@ void SceneArchangel::playerLogic(double dt)
 			{
 				go->pos += go->vel * dt * m_speed;
 
-				go->vel.y -= dt * 100;
+				go->vel.y -= dt * 300;
 
 				// Setting speed limiters
 				if (go->vel.x >= max_vel)
@@ -230,7 +228,7 @@ void SceneArchangel::playerLogic(double dt)
 				// Jump
 				if (Application::IsKeyPressed(VK_SPACE) && !jump)
 				{
-					go->vel.y += 55;
+					go->vel.y += 100;
 					jump = true;
 				}
 
@@ -249,7 +247,6 @@ void SceneArchangel::playerLogic(double dt)
 						go->vel.x -= 3;
 					else
 						go->vel.x -= 1;
-
 				}
 				else if (Application::IsKeyPressed('D') || Application::IsKeyPressed(VK_RIGHT))
 				{
