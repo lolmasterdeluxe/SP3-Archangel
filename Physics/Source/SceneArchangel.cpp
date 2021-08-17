@@ -315,6 +315,33 @@ void SceneArchangel::InitMap(int lvl)
 		go->normal = mapInfo[i].second[2];
 		cout << go->normal << endl;
 		go->hp = 100;
+		if (go->type == GameObject::GO_WALL)
+		{
+			// Pillar creation
+			go->pillar1 = FetchGO();
+			go->pillar1->type = GameObject::GO_PILLAR;
+			go->pillar1->active = true;
+			go->pillar1->scale.Set(0.01f, 0.01f, 0.01f);
+			go->pillar1->pos = Vector3(m_worldWidth * 0.5f + 10, m_worldHeight * 0.5f + 10, 1);
+
+			go->pillar2 = FetchGO();
+			go->pillar2->type = GameObject::GO_PILLAR;
+			go->pillar2->active = true;
+			go->pillar2->scale.Set(0.01f, 0.01f, 0.01f);
+			go->pillar2->pos = Vector3(m_worldWidth * 0.5f - 10, m_worldHeight * 0.5f + 10, 1);
+
+			go->pillar3 = FetchGO();
+			go->pillar3->type = GameObject::GO_PILLAR;
+			go->pillar3->active = true;
+			go->pillar3->scale.Set(0.01f, 0.01f, 0.01f);
+			go->pillar3->pos = Vector3(m_worldWidth * 0.5f + 10, m_worldHeight * 0.5f - 10, 1);
+
+			go->pillar4 = FetchGO();
+			go->pillar4->type = GameObject::GO_PILLAR;
+			go->pillar4->active = true;
+			go->pillar4->scale.Set(0.01f, 0.01f, 0.01f);
+			go->pillar4->pos = Vector3(m_worldWidth * 0.5f - 10, m_worldHeight * 0.5f - 5, 1);
+		}
 	}
 	for (int i = 0; i < entityInfo.size(); i++)
 	{
@@ -372,7 +399,27 @@ void SceneArchangel::Update(double dt)
 			GameObject* go = (GameObject*)*it;
 			if (go->active)
 			{
+				if (go->type == GameObject::GO_WALL)
+				{
+					// Set pillar positions with cube
 
+					Vector3 N = go->normal;
+					Vector3 NP(N.y, -N.x, 0);
+					Vector3 right = go->normal.Cross(Vector3(0, 0, -1));
+
+					go->pillar1->pos = go->pos + N * go->scale.x;
+					go->pillar1->pos -= NP * go->scale.y;
+
+					go->pillar2->pos = go->pos - N * go->scale.x;
+					go->pillar2->pos -= NP * go->scale.y;
+
+					go->pillar3->pos = go->pos + N * go->scale.x;
+					go->pillar3->pos -= -NP * go->scale.y;
+
+					go->pillar4->pos = go->pos + -N * go->scale.x;
+					go->pillar4->pos -= -NP * go->scale.y;
+
+				}
 				if (go->type == GameObject::GO_BALL)
 				{
 					go->pos += go->vel * dt * m_speed;
