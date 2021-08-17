@@ -219,7 +219,7 @@ void SceneArchangel::PhysicsResponse(GameObject* go1, GameObject* go2)
 		}
 	}
 }
-}
+
 
 void SceneArchangel::CollisionBound(GameObject* go1, Collision collision)
 {
@@ -321,58 +321,11 @@ void SceneArchangel::playerLogic(double dt)
 				{
 					go->vel.x *= 0.7;
 				}
-
-				// Out of bounds checking
-				if (go->pos.x + go->scale.x > m_worldWidth && go->vel.x > 0 ||
-					go->pos.x - go->scale.x < 0 && go->vel.x < 0) {
-					go->vel.x = 0;
-				}
-				if (go->pos.y + go->scale.y > m_worldHeight && go->vel.y > 0 ||
-					go->pos.y - go->scale.y < 0 && go->vel.y < 0) {
-					go->vel.y = 0;
-				}
-
-				if ((go->pos.x > m_worldWidth + go->scale.x || go->pos.x < 0 - go->scale.x) ||
-					(go->pos.y > m_worldHeight + go->scale.y || go->pos.y < 0 - go->scale.y))
-				{
-					ReturnGO(GameObject::GO_CUBE);
-					break;
-				}
-
-				
-			}
-			for (std::vector<GameObject*>::iterator it2 = it + 1; it2 != m_goList.end(); ++it2)
-			{
-				GameObject* go2 = (GameObject*)*it2;
-				if (go2->active)
-				{
-					GameObject* cube = go;
-					GameObject* other = go2;
-					if (cube->type != GameObject::GO_CUBE)
-					{
-						if (other->type != GameObject::GO_CUBE)
-							continue;
-						cube = go2;
-						other = go;
-					}
-					Collision collision = CheckCollision(cube, other, dt);
-					if (collision.dist > 0)
-					{
-						PhysicsResponse(cube, other);
-						CollisionBound(cube, collision);
-						continue;
-					}
-				}
-			}
-		}
-	}
-}
 				Boundary(go, 1);
 			}
 		}
 	}
 	enableCollision(dt, GameObject::GO_CUBE);
-
 }
 
 void SceneArchangel::portalLogic(double dt)
@@ -503,9 +456,11 @@ void SceneArchangel::enableCollision(double dt, GameObject::GAMEOBJECT_TYPE GO)
 						first = go2;
 						other = go;
 					}
-					if (CheckCollision(first, other, dt))
+					Collision collision = CheckCollision(first, other, dt);
+					if (collision.dist > 0)
 					{
-						CollisionResponse(first, other);
+						PhysicsResponse(first, other);
+						CollisionBound(first, collision);
 						continue;
 					}
 				}
@@ -661,8 +616,6 @@ void SceneArchangel::Update(double dt)
 
 					go->pillar4->pos = go->pos + -N * go->scale.x;
 					go->pillar4->pos -= -NP * go->scale.y;
-				}
-
 				}
 			}
 		}
