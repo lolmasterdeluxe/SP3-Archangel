@@ -37,31 +37,6 @@ void SceneArchangel::Init()
 	// Initialize Game state
 	state = STATE_MENU;
 
-	//// Spawn walls
-	//GameObject* newGO = FetchGO();
-	//newGO->active = true;
-	//newGO->type = GameObject::GO_WALL;
-	//newGO->scale.Set(2, 100, 1);
-	//newGO->normal.Set(0, 1, 0);
-	//newGO->hp = 100;
-	//newGO->pos = Vector3(m_worldWidth * 0.5, 3, 0);
-
-	GameObject* newGO2 = FetchGO();
-	newGO2->active = true;
-	newGO2->type = GameObject::GO_WALL;
-	newGO2->scale.Set(2, 5, 1);
-	newGO2->normal.Set(1, 0, 0);
-	newGO2->hp = 100;
-	newGO2->pos = Vector3(m_worldWidth * 0.5 + 15, 10, 0);
-
-	GameObject* newGO3 = FetchGO();
-	newGO3->active = true;
-	newGO3->type = GameObject::GO_WALL;
-	newGO3->scale.Set(2, 5, 1);
-	newGO3->normal.Set(1, 0, 0);
-	newGO3->hp = 100;
-	newGO3->pos = Vector3(m_worldWidth * 0.5 - 15, 10, 0);
-
 	m_player = FetchGO();
 
 	// Set m_player stats
@@ -125,7 +100,7 @@ bool SceneArchangel::CheckCollision(GameObject* go1, GameObject* go2, float dt)
 			return true;
 		}
 	}
-	else if (go2->type == GameObject::GO_WALL || go2->type == GameObject::GO_CUBE)
+	else if (go2->type == GameObject::GO_WALL)
 	{
 		Vector3 N = go2->normal;
 		Vector3 NP(N.y, -N.x, 0);	
@@ -133,6 +108,7 @@ bool SceneArchangel::CheckCollision(GameObject* go1, GameObject* go2, float dt)
 		float r = go1->scale.x;
 		float h_2 = go2->scale.x;
 		float l_2 = go2->scale.y;
+
 		if (w0_b1.Dot(N) < 0)
 			N = -N; //making sure N is outward normal
 		if ((w0_b1).Dot(N) < r + h_2 && abs((w0_b1).Dot(NP)) < l_2 && go1->vel.Dot(N) > 0)
@@ -172,25 +148,13 @@ void SceneArchangel::CollisionResponse(GameObject* go1, GameObject* go2)
 		go2->vel = u2 - (2 * m1 / (m1 + m2)) * (((u2 - u1).Dot(go2->pos - go1->pos)) / (go2->pos - go1->pos).LengthSquared()) * (go2->pos - go1->pos);
 		go1->vel.y *= 0.4;
 	}
-	else if (go2->type == GameObject::GO_WALL || go2->type == GameObject::GO_CUBE)
+	else if (go2->type == GameObject::GO_WALL)
 	{
-		if (go1->type == GameObject::GO_PORTAL_IN)
+		if (go1->type == GameObject::GO_BULLET)
 		{
-			go1->vel = 0;
-			portal_in = true;
-			move_portal_in = true;
-			go1->scale.Set(2, 2.5f, 1);
-			cout << "portal in" << endl;
+			go1->active = false;
 		}
-		else if (go1->type == GameObject::GO_PORTAL_OUT)
-		{
-			go1->vel = 0;
-			portal_in = false;
-			move_portal_out = true;
-			go1->scale.Set(2, 2.5f, 1);
-			cout << "portal out" << endl;
-		}
-		else
+		else if (go1 == m_player)
 		{
 			Vector3 N = go2->normal;
 			Vector3 u = go1->vel;
@@ -205,6 +169,43 @@ void SceneArchangel::CollisionResponse(GameObject* go1, GameObject* go2)
 		Vector3 u = go1->vel;
 		go1->vel = u - (2 * u).Dot(N) * N;
 		go1->vel.y *= 0.4;
+	}
+	if (!portal_shot)
+	{
+		if (go2->type == GameObject::GO_PORTAL_IN)
+		{
+			if (go1 == m_player || go1->type == GameObject::GO_BULLET)
+			{
+				for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
+				{
+					GameObject* go = (GameObject*)*it;
+					if (go->active)
+					{
+						if (go->type == GameObject::GO_PORTAL_OUT)
+						{
+							go1->pos = go->pos;
+						}
+					}
+				}
+			}
+		}
+		else if (go2->type == GameObject::GO_PORTAL_OUT)
+		{
+			if (go1 == m_player || go1->type == GameObject::GO_BULLET)
+			{
+				for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
+				{
+					GameObject* go = (GameObject*)*it;
+					if (go->active)
+					{
+						if (go->type == GameObject::GO_PORTAL_IN)
+						{
+							go1->pos = go->pos;
+						}
+					}
+				}
+			}
+		}
 	}
 }
 
@@ -239,9 +240,11 @@ void SceneArchangel::SpawnBullet(double dt)
 			if (go->type == GameObject::GO_BULLET)
 			{
 				go->pos += go->vel * dt * 100;
+				Boundary(go, 2);
 			}
 		}
 	}
+	enableCollision(dt, GameObject::GO_BULLET);
 }
 
 void SceneArchangel::playerLogic(double dt)
@@ -301,49 +304,12 @@ void SceneArchangel::playerLogic(double dt)
 				{
 					go->vel.x *= 0.7;
 				}
-
-				// Out of bounds checking
-				if (go->pos.x + go->scale.x > m_worldWidth && go->vel.x > 0 ||
-					go->pos.x - go->scale.x < 0 && go->vel.x < 0) {
-					go->vel.x = 0;
-				}
-				if (go->pos.y + go->scale.y > m_worldHeight && go->vel.y > 0 ||
-					go->pos.y - go->scale.y < 0 && go->vel.y < 0) {
-					go->vel.y = 0;
-				}
-
-				if ((go->pos.x > m_worldWidth + go->scale.x || go->pos.x < 0 - go->scale.x) ||
-					(go->pos.y > m_worldHeight + go->scale.y || go->pos.y < 0 - go->scale.y))
-				{
-					ReturnGO(GameObject::GO_CUBE);
-					break;
-				}
-
-				
-			}
-			for (std::vector<GameObject*>::iterator it2 = it + 1; it2 != m_goList.end(); ++it2)
-			{
-				GameObject* go2 = (GameObject*)*it2;
-				if (go2->active)
-				{
-					GameObject* cube = go;
-					GameObject* other = go2;
-					if (cube->type != GameObject::GO_CUBE)
-					{
-						if (other->type != GameObject::GO_CUBE)
-							continue;
-						cube = go2;
-						other = go;
-					}
-					if (CheckCollision(cube, other, dt))
-					{
-						CollisionResponse(cube, other);
-						continue;
-					}
-				}
+				Boundary(go, 1);
 			}
 		}
 	}
+	enableCollision(dt, GameObject::GO_CUBE);
+
 }
 
 void SceneArchangel::portalLogic(double dt)
@@ -403,12 +369,12 @@ void SceneArchangel::portalLogic(double dt)
 						{
 							if (CheckCollision(go, go2, dt))
 							{
-								CollisionResponse(go, go2);
-								portal_shot = false;
+								activatePortal(go);
 							}
 						}
 					}
 				}
+				Boundary(go, 1);
 			}
 		}
 	}
@@ -426,6 +392,89 @@ void SceneArchangel::portalLogic(double dt)
 			{
 				go->pos += go->vel * dt * 50;
 			}
+		}
+	}
+}
+
+void SceneArchangel::activatePortal(GameObject* go)
+{
+	if (go->active)
+	{
+		if (go->type == GameObject::GO_PORTAL_IN)
+		{
+			go->vel = 0;
+			portal_in = true;
+			move_portal_in = true;
+			go->scale.Set(2, 2.5f, 1);
+		}
+		else if (go->type == GameObject::GO_PORTAL_OUT)
+		{
+			go->vel = 0;
+			portal_in = false;
+			move_portal_out = true;
+			go->scale.Set(2, 2.5f, 1);
+		}
+		portal_shot = false;
+	}
+}
+
+void SceneArchangel::enableCollision(double dt, GameObject::GAMEOBJECT_TYPE GO)
+{
+	for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
+	{
+		GameObject* go = (GameObject*)*it;
+		if (go->active)
+		{
+			for (std::vector<GameObject*>::iterator it2 = it + 1; it2 != m_goList.end(); ++it2)
+			{
+				GameObject* go2 = (GameObject*)*it2;
+				if (go2->active)
+				{
+					GameObject* first = go;
+					GameObject* other = go2;
+					if (first->type != GO)
+					{
+						if (other->type != GO)
+							continue;
+						first = go2;
+						other = go;
+					}
+					if (CheckCollision(first, other, dt))
+					{
+						CollisionResponse(first, other);
+						continue;
+					}
+				}
+			}
+		}
+	}
+}
+
+
+void SceneArchangel::Boundary(GameObject* go, int choice)
+{
+	// Wrap around for GO
+	if (choice == 1)
+	{
+		// Out of bounds checking
+		if (go->pos.x + go->scale.x > m_worldWidth && go->vel.x > 0 ||
+			go->pos.x - go->scale.x < 0 && go->vel.x < 0) {
+			go->vel.x = 0;
+			activatePortal(go);
+		}
+		if (go->pos.y + go->scale.y > m_worldHeight && go->vel.y > 0 ||
+			go->pos.y - go->scale.y < 0 && go->vel.y < 0) {
+			go->vel.y = 0;
+			activatePortal(go);
+		}
+					
+	}
+	if (choice == 2)
+	{
+		if ((go->pos.x > m_worldWidth + go->scale.x || go->pos.x < 0 - go->scale.x) ||
+			(go->pos.y > m_worldHeight + go->scale.y || go->pos.y < 0 - go->scale.y))
+		{
+			go->active = false;
 		}
 	}
 }
@@ -454,25 +503,21 @@ void SceneArchangel::InitMap(int lvl)
 			go->pillar1->type = GameObject::GO_PILLAR;
 			go->pillar1->active = true;
 			go->pillar1->scale.Set(0.01f, 0.01f, 0.01f);
-			go->pillar1->pos = Vector3(m_worldWidth * 0.5f + 10, m_worldHeight * 0.5f + 10, 1);
 
 			go->pillar2 = FetchGO();
 			go->pillar2->type = GameObject::GO_PILLAR;
 			go->pillar2->active = true;
 			go->pillar2->scale.Set(0.01f, 0.01f, 0.01f);
-			go->pillar2->pos = Vector3(m_worldWidth * 0.5f - 10, m_worldHeight * 0.5f + 10, 1);
 
 			go->pillar3 = FetchGO();
 			go->pillar3->type = GameObject::GO_PILLAR;
 			go->pillar3->active = true;
 			go->pillar3->scale.Set(0.01f, 0.01f, 0.01f);
-			go->pillar3->pos = Vector3(m_worldWidth * 0.5f + 10, m_worldHeight * 0.5f - 10, 1);
 
 			go->pillar4 = FetchGO();
 			go->pillar4->type = GameObject::GO_PILLAR;
 			go->pillar4->active = true;
 			go->pillar4->scale.Set(0.01f, 0.01f, 0.01f);
-			go->pillar4->pos = Vector3(m_worldWidth * 0.5f - 10, m_worldHeight * 0.5f - 5, 1);
 		}
 	}
 	for (int i = 0; i < entityInfo.size(); i++)
@@ -492,10 +537,7 @@ void SceneArchangel::Update(double dt)
 	m_player->portal_delay += dt;
 
 	SceneBase::Update(dt);
-	SpawnBullet(dt);
 
-	playerLogic(dt);
-	portalLogic(dt);
 
 	// Menu / Lose state
 	if (state == STATE_MENU || state == STATE_LOSE)
@@ -523,6 +565,10 @@ void SceneArchangel::Update(double dt)
 	// Play state
 	else if (state == STATE_PLAY)
 	{
+		SpawnBullet(dt);
+		playerLogic(dt);
+		portalLogic(dt);
+
 		if (Application::IsKeyPressed('9'))
 			m_speed = Math::Max(0.f, m_speed - 0.1f);
 
@@ -536,7 +582,6 @@ void SceneArchangel::Update(double dt)
 				if (go->type == GameObject::GO_WALL)
 				{
 					// Set pillar positions with cube
-
 					Vector3 N = go->normal;
 					Vector3 NP(N.y, -N.x, 0);
 					Vector3 right = go->normal.Cross(Vector3(0, 0, -1));
@@ -552,54 +597,6 @@ void SceneArchangel::Update(double dt)
 
 					go->pillar4->pos = go->pos + -N * go->scale.x;
 					go->pillar4->pos -= -NP * go->scale.y;
-
-				}
-				if (go->type == GameObject::GO_BALL)
-				{
-					go->pos += go->vel * dt * m_speed;
-
-					go->vel.y -= dt * 100;
-
-					// Despawn ball upon leaving boundary
-					if (go->pos.x + go->scale.x > m_worldWidth && go->vel.x > 0 ||
-						go->pos.x - go->scale.x < 0 && go->vel.x < 0) {
-						go->active = false;
-					}
-					if (go->pos.y + go->scale.y > m_worldHeight && go->vel.y > 0 ||
-						go->pos.y - go->scale.y < 0 && go->vel.y < 0) {
-						go->vel.y *= 0.7;
-						go->active = false;
-					}
-
-					if ((go->pos.x > m_worldWidth + go->scale.x || go->pos.x < 0 - go->scale.x) ||
-						(go->pos.y > m_worldHeight + go->scale.y || go->pos.y < 0 - go->scale.y))
-					{
-						ReturnGO(GameObject::GO_BALL);
-						break;
-					}
-				}
-
-				// Handle collision between GO_BALL and GO_BALL using velocity swap
-				for (std::vector<GameObject*>::iterator it2 = it + 1; it2 != m_goList.end(); ++it2)
-				{
-					GameObject* go2 = (GameObject*)*it2;
-					if (go2->active)
-					{
-						GameObject* ball = go;
-						GameObject* other = go2;
-						if (ball->type != GameObject::GO_BALL)
-						{
-							if (other->type != GameObject::GO_BALL)
-								continue;
-							ball = go2;
-							other = go;
-						}
-						if (CheckCollision(ball, other, dt))
-						{
-							CollisionResponse(ball, other);
-							continue;
-						}
-					}
 				}
 			}
 		}

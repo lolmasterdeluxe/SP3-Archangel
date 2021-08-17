@@ -26,6 +26,9 @@ public:
 	void SpawnBullet(double dt);
 	void playerLogic(double dt);
 	void portalLogic(double dt);
+	void activatePortal(GameObject* go);
+	void enableCollision(double dt, GameObject::GAMEOBJECT_TYPE GO);
+	void Boundary(GameObject* go, int choice);
 
 	void InitMap(int lvl);
 protected:
