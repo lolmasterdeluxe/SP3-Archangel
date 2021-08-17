@@ -4,6 +4,7 @@
 #include "GameObject.h"
 #include <vector>
 #include "SceneBase.h"
+#include "CMapStorage.h"
 
 class SceneArchangel : public SceneBase
 {
@@ -26,6 +27,7 @@ public:
 	void playerLogic(double dt);
 	void portalLogic(double dt);
 
+	void InitMap(int lvl);
 protected:
 	// Game states
 	enum GAME_STATE

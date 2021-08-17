@@ -1,0 +1,4 @@
+﻿// type,//x pos,//y pos,//x scale,//y scale,//rot (Deg)
+wall,60,3,2,100,90
+player,50,30,2,2,0
+wall,50,10,2,25,90
