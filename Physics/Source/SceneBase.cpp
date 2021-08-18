@@ -205,6 +205,15 @@ void SceneBase::Init()
 	meshList[GEO_GREYBG]->textureID = LoadTGA("Image//greybg.tga");
 	meshList[GEO_PORTAL_IN] = MeshBuilder::GenerateSphere("Blue portal", Color(0, 0, 1), 10, 10, 1.f);
 	meshList[GEO_PORTAL_OUT] = MeshBuilder::GenerateSphere("Orange portal", Color(1, 0.647f, 0), 10, 10, 1.f);
+	meshList[GEO_FULLHEART] = MeshBuilder::GenerateQuad("Full heart", Color(1, 1, 1), 2.f);
+	meshList[GEO_FULLHEART]->textureID = LoadTGA("Image//fullheart.tga");
+	meshList[GEO_80HEART] = MeshBuilder::GenerateQuad("Full heart", Color(1, 1, 1), 2.f);
+	meshList[GEO_80HEART]->textureID = LoadTGA("Image//80heart.tga");
+	meshList[GEO_20HEART] = MeshBuilder::GenerateQuad("Full heart", Color(1, 1, 1), 2.f);
+	meshList[GEO_20HEART]->textureID = LoadTGA("Image//20heart.tga");
+	meshList[GEO_EMPTYHEART] = MeshBuilder::GenerateQuad("Full heart", Color(1, 1, 1), 2.f);
+	meshList[GEO_EMPTYHEART]->textureID = LoadTGA("Image//emptyheart.tga");
+
 
 	bLightEnabled = false;
 	DisableMonospace("Image//Arial_N.csv");
