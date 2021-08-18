@@ -130,7 +130,6 @@ Collision SceneArchangel::CheckCollision(GameObject* go1, GameObject* go2, float
 			collision.axis = -N.Normalize();
 			collision.dist = r + h_2 - (w0_b1).Dot(N);
 			collision.normal = N;
-			cout << "scenario: 1\n";
 			return collision;
 		}
 		// Scenario 2: object is in the width side of the Box
@@ -141,7 +140,6 @@ Collision SceneArchangel::CheckCollision(GameObject* go1, GameObject* go2, float
 			collision.axis = -NP.Normalize();
 			collision.dist = r + l_2 - (w0_b1).Dot(NP);
 			collision.normal = NP;
-			cout << "scenario: 2\n";
 			return collision;
 		}
 		// Scenario 3: object is in the corner of the box
@@ -153,7 +151,6 @@ Collision SceneArchangel::CheckCollision(GameObject* go1, GameObject* go2, float
 			collision.axis = go1->pos - (go2->pos - N * h_2 - NP * l_2);
 			collision.dist = r - collision.axis.Length();
 			collision.normal = collision.axis.Normalize();
-			cout << r << ", " << collision.dist << "scenario: 3\n";
 			return collision;
 		}
 	}
@@ -557,29 +554,6 @@ void SceneArchangel::InitMap(int lvl)
 		go->normal = mapInfo[i].second[2];
 		cout << go->normal << endl;
 		go->hp = 100;
-		//if (go->type == GameObject::GO_WALL)
-		//{
-		//	// Pillar creation
-		//	go->pillar1 = FetchGO();
-		//	go->pillar1->type = GameObject::GO_PILLAR;
-		//	go->pillar1->active = true;
-		//	go->pillar1->scale.Set(0.01f, 0.01f, 0.01f);
-
-		//	go->pillar2 = FetchGO();
-		//	go->pillar2->type = GameObject::GO_PILLAR;
-		//	go->pillar2->active = true;
-		//	go->pillar2->scale.Set(0.01f, 0.01f, 0.01f);
-
-		//	go->pillar3 = FetchGO();
-		//	go->pillar3->type = GameObject::GO_PILLAR;
-		//	go->pillar3->active = true;
-		//	go->pillar3->scale.Set(0.01f, 0.01f, 0.01f);
-
-		//	go->pillar4 = FetchGO();
-		//	go->pillar4->type = GameObject::GO_PILLAR;
-		//	go->pillar4->active = true;
-		//	go->pillar4->scale.Set(0.01f, 0.01f, 0.01f);
-		//}
 	}
 	for (int i = 0; i < entityInfo.size(); i++)
 	{
@@ -632,35 +606,6 @@ void SceneArchangel::Update(double dt)
 
 		if (Application::IsKeyPressed('9'))
 			m_speed = Math::Max(0.f, m_speed - 0.1f);
-
-		//Physics Simulation Section
-
-		//for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
-		//{
-		//	GameObject* go = (GameObject*)*it;
-		//	if (go->active)
-		//	{
-		//		if (go->type == GameObject::GO_WALL)
-		//		{
-		//			// Set pillar positions with cube
-		//			Vector3 N = go->normal;
-		//			Vector3 NP(N.y, -N.x, 0);
-		//			Vector3 right = go->normal.Cross(Vector3(0, 0, -1));
-
-		//			go->pillar1->pos = go->pos + N * go->scale.x;
-		//			go->pillar1->pos -= NP * go->scale.y;
-
-		//			go->pillar2->pos = go->pos - N * go->scale.x;
-		//			go->pillar2->pos -= NP * go->scale.y;
-
-		//			go->pillar3->pos = go->pos + N * go->scale.x;
-		//			go->pillar3->pos -= -NP * go->scale.y;
-
-		//			go->pillar4->pos = go->pos + -N * go->scale.x;
-		//			go->pillar4->pos -= -NP * go->scale.y;
-		//		}
-		//	}
-		//}
 	}
 }
 
@@ -762,7 +707,7 @@ void SceneArchangel::RenderGO(GameObject *go)
 		angle = atan2f(go->normal.y, go->normal.x);
 		modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
 		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
-		RenderMesh(meshList[GEO_BALL], false);
+		RenderMesh(meshList[GEO_CUBE], false);
 		modelStack.PopMatrix();
 		break;
 
