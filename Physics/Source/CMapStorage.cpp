@@ -36,11 +36,11 @@ CMapStorage::CMapStorage()
 				info.second[1] = Vector3(values[i].second[2], values[i].second[3], 1);
 				info.second[2] = Vector3((float)cos(deg), (float)sin(deg));
 				MapInfo.push_back(info);
-				info.first = GameObject::GO_WALL;
+				/*info.first = GameObject::GO_WALL;
 				info.second[0] = Vector3(values[i].second[0], values[i].second[1]);
 				info.second[1] = Vector3(values[i].second[3], values[i].second[2], 1);
 				info.second[2] = Vector3((float)cos(right), (float)sin(right));
-				MapInfo.push_back(info);
+				MapInfo.push_back(info);*/
 			}
 			else if (values[i].first == "player")
 			{
