@@ -28,7 +28,10 @@ void SceneArchangel::Init()
 	move_portal_in = false;
 	move_portal_out = false;
 	portal_shot = false;
+	shotgun = false;
+	weapon_dmg = 0;
 	max_vel = 50;
+	fire_rate = 0.2f;
 
 	//Calculating aspect ratio
 	m_worldHeight = 100.f;
@@ -267,16 +270,53 @@ void SceneArchangel::SpawnBullet(double dt)
 	static bool bLButtonState = false;
 	if (Application::IsMousePressed(0))
 	{
-		if (m_player->bullet_delay > 0.2f)
+		if (m_player->bullet_delay > fire_rate)
 		{
-			cout << "shooting" << endl;
-			GameObject* newGO = FetchGO();
-			newGO->active = true;
-			newGO->type = GameObject::GO_BULLET;
-			newGO->scale.Set(1, 1, 0);
-			newGO->pos = m_player->pos;
-			newGO->vel = Vector3((x / w * m_worldWidth) - newGO->pos.x, ((h - y) / h * m_worldHeight) - newGO->pos.y, 0).Normalize() * 100;
-			newGO->vel.Normalize()* 100;
+			if (!shotgun)
+			{
+				GameObject* newGO = FetchGO();
+				newGO->active = true;
+				newGO->type = GameObject::GO_BULLET;
+				newGO->scale.Set(1, 0.5f, 0);
+				newGO->pos = m_player->pos;
+				newGO->vel = Vector3((x / w * m_worldWidth) - newGO->pos.x, ((h - y) / h * m_worldHeight) - newGO->pos.y, 0);
+				cout << "x: " << newGO->vel.x << " y: " << newGO->vel.y << endl;
+				newGO->vel.Normalize() * 100;
+			}
+			else
+			{
+				GameObject* newGO = FetchGO();
+				newGO->active = true;
+				newGO->type = GameObject::GO_BULLET;
+				newGO->scale.Set(1, 0.5f, 0);
+				newGO->pos = m_player->pos;
+				newGO->vel = Vector3((x / w * m_worldWidth) - newGO->pos.x, ((h - y) / h * m_worldHeight) - newGO->pos.y + 1.f, 0);
+				newGO->vel.Normalize() * 100;
+
+				GameObject* newGO2 = FetchGO();
+				newGO2->active = true;
+				newGO2->type = GameObject::GO_BULLET;
+				newGO2->scale.Set(1, 0.5f, 0);
+				newGO2->pos = m_player->pos;
+				newGO2->vel = Vector3((x / w * m_worldWidth) - newGO2->pos.x, ((h - y) / h * m_worldHeight) - newGO2->pos.y - 1.f, 0);
+				newGO2->vel.Normalize() * 100;
+
+				GameObject* newGO3 = FetchGO();
+				newGO3->active = true;
+				newGO3->type = GameObject::GO_BULLET;
+				newGO3->scale.Set(1, 0.5f, 0);
+				newGO3->pos = m_player->pos;
+				newGO3->vel = Vector3((x / w * m_worldWidth) - newGO3->pos.x, ((h - y) / h * m_worldHeight) - newGO3->pos.y + 3.f, 0).Normalize() * 100;
+				newGO3->vel.Normalize() * 100;
+
+				GameObject* newGO4 = FetchGO();
+				newGO4->active = true;
+				newGO4->type = GameObject::GO_BULLET;
+				newGO4->scale.Set(1, 0.5f, 0);
+				newGO4->pos = m_player->pos;
+				newGO4->vel = Vector3((x / w * m_worldWidth) - newGO4->pos.x, ((h - y) / h * m_worldHeight) - newGO4->pos.y - 3.f, 0).Normalize() * 100;
+				newGO4->vel.Normalize() * 100;
+			}
 			m_player->bullet_delay = 0;
 		}
 	}
@@ -537,6 +577,42 @@ void SceneArchangel::Boundary(GameObject* go, int choice)
 	}
 }
 
+void SceneArchangel::setGun(float fire, int dmg)
+{
+	fire_rate = fire;
+	weapon_dmg = dmg;
+}
+
+void SceneArchangel::pickWeapon(double dt)
+{
+	if (Application::IsKeyPressed('1'))
+	{
+		setGun(0.2f, 6);
+		shotgun = false;
+	}
+	else if (Application::IsKeyPressed('2'))
+	{
+		setGun(0.1f, 5);
+		shotgun = false;
+	}
+	else if (Application::IsKeyPressed('3'))
+	{
+		setGun(0.3f, 7);
+		shotgun = false;
+	}
+	else if (Application::IsKeyPressed('4'))
+	{
+		setGun(0.6f, 5);
+		shotgun = true;
+	}
+	else if (Application::IsKeyPressed('5'))
+	{
+		setGun(0.4f, 8);
+		shotgun = false;
+	}
+
+}
+
 void SceneArchangel::InitMap(int lvl)
 {
 	vector<pair<GameObject::GAMEOBJECT_TYPE, Vector3[3]>> mapInfo = CMapStorage::GetInstance()->GetMapInfo(lvl);
@@ -603,6 +679,7 @@ void SceneArchangel::Update(double dt)
 		SpawnBullet(dt);
 		playerLogic(dt);
 		portalLogic(dt);
+		pickWeapon(dt);
 
 		if (Application::IsKeyPressed('9'))
 			m_speed = Math::Max(0.f, m_speed - 0.1f);

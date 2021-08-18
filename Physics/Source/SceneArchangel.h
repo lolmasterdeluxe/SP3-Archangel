@@ -31,7 +31,8 @@ public:
 	void activatePortal(GameObject* go);
 	void enableCollision(double dt, GameObject::GAMEOBJECT_TYPE GO);
 	void Boundary(GameObject* go, int choice);
-
+	void setGun(float fire_rate, int dmg);
+	void pickWeapon(double dt);
 	void InitMap(int lvl);
 protected:
 	// Game states
@@ -47,12 +48,12 @@ protected:
 
 	// Gameplay variables
 	std::vector<GameObject *> m_goList;
-	float m_speed, max_vel;
+	float m_speed, max_vel, fire_rate;
 	float m_worldWidth;
 	float m_worldHeight;
 	GameObject* m_ghost, * m_player;
-	int m_objectCount;
-	bool initPos, jump, portal_in, move_portal_in, move_portal_out, portal_shot;
+	int m_objectCount, weapon_dmg;
+	bool initPos, jump, portal_in, move_portal_in, move_portal_out, portal_shot, shotgun;
 	
 	//Auditing
 	float m1, m2;
