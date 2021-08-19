@@ -16,6 +16,7 @@ struct GameObject
 		GO_ASTEROID, //asteroid
 		GO_SHIP, //player ship
 		GO_BULLET, //player bullet
+		GO_GRENADE, //grenade
 		GO_ALLY_BULLET,
 		GO_ENEMY_SHIP, //enemy ship
 		GO_YWING,
