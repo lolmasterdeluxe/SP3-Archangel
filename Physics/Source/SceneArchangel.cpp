@@ -470,6 +470,7 @@ void SceneArchangel::portalLogic(double dt)
 							Collision collision = CheckCollision(go, go2, dt);
 							if (collision.dist > 0)
 							{
+								CollisionBound(go, collision);
 								activatePortal(go);
 							}
 						}
