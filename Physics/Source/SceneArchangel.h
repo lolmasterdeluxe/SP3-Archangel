@@ -28,13 +28,14 @@ public:
 	void SpawnBullet(double dt);
 	void playerLogic(double dt);
 	void portalLogic(double dt);
+	void itemLogic(double dt);
 	void activatePortal(GameObject* go);
 	void enableCollision(double dt, GameObject::GAMEOBJECT_TYPE GO);
 	void Boundary(GameObject* go, int choice);
 	void setGun(float fire_rate, int dmg);
 	void pickWeapon(double dt);
 	void takeDMG();
-	void heal();
+	void heal(bool max_potion);
 	void InitMap(int lvl);
 protected:
 	// Game states
@@ -53,7 +54,7 @@ protected:
 	float m_speed, max_vel, fire_rate;
 	float m_worldWidth;
 	float m_worldHeight;
-	GameObject* m_ghost, * m_player;
+	GameObject * m_ghost, * m_player;
 	int m_objectCount, weapon_dmg, hitpoints[5], heart_count, empty_heart;
 	bool initPos, jump, portal_in, move_portal_in, move_portal_out, portal_shot, shotgun;
 	double dmg_delay;
