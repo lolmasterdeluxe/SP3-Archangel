@@ -151,7 +151,6 @@ Collision SceneArchangel::CheckCollision(GameObject* go1, GameObject* go2, float
 			collision.axis = -N.Normalize();
 			collision.dist = r + h_2 - (w0_b1).Dot(N);
 			collision.normal = N;
-			//cout << "scenario: 1\n";
 			return collision;
 		}
 		// Scenario 2: object is in the width side of the Box
@@ -162,7 +161,6 @@ Collision SceneArchangel::CheckCollision(GameObject* go1, GameObject* go2, float
 			collision.axis = -NP.Normalize();
 			collision.dist = r + l_2 - (w0_b1).Dot(NP);
 			collision.normal = NP;
-			//cout << "scenario: 2\n";
 			return collision;
 		}
 		// Scenario 3: object is in the corner of the box
@@ -174,7 +172,6 @@ Collision SceneArchangel::CheckCollision(GameObject* go1, GameObject* go2, float
 			collision.axis = go1->pos - (go2->pos - N * h_2 - NP * l_2);
 			collision.dist = r - collision.axis.Length();
 			collision.normal = collision.axis.Normalize();
-			//cout << r << ", " << collision.dist << "scenario: 3\n";
 			return collision;
 		}
 	}
@@ -509,6 +506,7 @@ void SceneArchangel::portalLogic(double dt)
 							Collision collision = CheckCollision(go, go2, dt);
 							if (collision.dist > 0)
 							{
+								CollisionBound(go, collision);
 								activatePortal(go);
 							}
 						}
