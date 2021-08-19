@@ -33,6 +33,8 @@ public:
 	void Boundary(GameObject* go, int choice);
 	void setGun(float fire_rate, int dmg);
 	void pickWeapon(double dt);
+	void takeDMG();
+	void heal();
 	void InitMap(int lvl);
 protected:
 	// Game states
@@ -52,8 +54,9 @@ protected:
 	float m_worldWidth;
 	float m_worldHeight;
 	GameObject* m_ghost, * m_player;
-	int m_objectCount, weapon_dmg;
+	int m_objectCount, weapon_dmg, hitpoints[5], heart_count, empty_heart;
 	bool initPos, jump, portal_in, move_portal_in, move_portal_out, portal_shot, shotgun;
+	double dmg_delay;
 	
 	//Auditing
 	float m1, m2;

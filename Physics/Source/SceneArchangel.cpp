@@ -32,6 +32,13 @@ void SceneArchangel::Init()
 	weapon_dmg = 0;
 	max_vel = 50;
 	fire_rate = 0.2f;
+	for (int i = 0; i < 5; ++i)
+	{
+		hitpoints[i] = 4;
+	}
+	heart_count = 2;
+	empty_heart = 0;
+	dmg_delay = 0;
 
 	//Calculating aspect ratio
 	m_worldHeight = 100.f;
@@ -45,6 +52,7 @@ void SceneArchangel::Init()
 	// Set m_player stats
 	m_player->active = true;
 	m_player->type = GameObject::GO_CUBE;
+	m_player->hp = 12;
 	m_player->pos = Vector3(m_worldWidth * 0.5, 30, 0);
 	m_player->normal.Set(1, 0, 0);
 	m_player->scale = Vector3(2, 2, 2);
@@ -199,13 +207,14 @@ void SceneArchangel::PhysicsResponse(GameObject* go1, Collision collision)
 		{
 			go1->active = false;
 		}
-		else if (go1 == m_player)
+		if (go1 == m_player)
 		{
 			Vector3 N = collision.normal;
 			Vector3 u = go1->vel;
 			go1->vel = u - (2 * u.Dot(N)) * N;
 			go1->vel.y *= 0;
-			jump = false;
+			if (go1->vel.y == 0)
+				jump = false;
 		}
 	}
 	else if (collision.go->type == GameObject::GO_PILLAR || collision.go->type == GameObject::GO_CIRCLE)
@@ -280,7 +289,6 @@ void SceneArchangel::SpawnBullet(double dt)
 				newGO->scale.Set(1, 0.5f, 0);
 				newGO->pos = m_player->pos;
 				newGO->vel = Vector3((x / w * m_worldWidth) - newGO->pos.x, ((h - y) / h * m_worldHeight) - newGO->pos.y, 0);
-				cout << "x: " << newGO->vel.x << " y: " << newGO->vel.y << endl;
 				newGO->vel.Normalize() * 100;
 			}
 			else
@@ -444,6 +452,7 @@ void SceneArchangel::portalLogic(double dt)
 			}
 		}
 	}
+
 	for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
 	{
 		GameObject* go = (GameObject*)*it;
@@ -462,7 +471,6 @@ void SceneArchangel::portalLogic(double dt)
 							if (collision.dist > 0)
 							{
 								activatePortal(go);
-								PhysicsResponse(go, collision);
 							}
 						}
 					}
@@ -613,6 +621,35 @@ void SceneArchangel::pickWeapon(double dt)
 
 }
 
+void SceneArchangel::takeDMG()
+{
+	if (dmg_delay > 3)
+	{
+		m_player->hp--;
+		hitpoints[heart_count - empty_heart]--;
+		if (hitpoints[heart_count - empty_heart] <= 1)
+		{
+			empty_heart++;
+		}
+		dmg_delay = 0;
+	}
+}
+
+void SceneArchangel::heal()
+{
+	m_player->hp++;
+	if (hitpoints[heart_count - empty_heart] == 4)
+	{
+		empty_heart--;
+	}
+	hitpoints[heart_count - empty_heart]++;
+	if (empty_heart < 0)
+	{
+		heart_count++;
+		empty_heart = 0;
+	}
+}
+
 void SceneArchangel::InitMap(int lvl)
 {
 	vector<pair<GameObject::GAMEOBJECT_TYPE, Vector3[3]>> mapInfo = CMapStorage::GetInstance()->GetMapInfo(lvl);
@@ -646,6 +683,7 @@ void SceneArchangel::Update(double dt)
 	// Update timers
 	m_player->bullet_delay += dt;
 	m_player->portal_delay += dt;
+	dmg_delay += dt;
 
 	SceneBase::Update(dt);
 
@@ -680,6 +718,17 @@ void SceneArchangel::Update(double dt)
 		playerLogic(dt);
 		portalLogic(dt);
 		pickWeapon(dt);
+		takeDMG();
+		static bool bLButtonState = false;
+		if (Application::IsKeyPressed('F') && !bLButtonState)
+		{
+			bLButtonState = true;
+			heal();
+		}
+		else if (!Application::IsKeyPressed('F'))
+		{
+			bLButtonState = false;
+		}
 
 		if (Application::IsKeyPressed('9'))
 			m_speed = Math::Max(0.f, m_speed - 0.1f);
@@ -885,6 +934,42 @@ void SceneArchangel::Render()
 
 		ss << m_player->pos;
 		RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(0, 1, 0), 3, 0, 0);
+
+		for (int i = 0; i <= heart_count; ++i)
+		{
+			if (i >= (heart_count - empty_heart))
+			{
+				modelStack.PushMatrix();
+				modelStack.Translate(5 + i * 8, 95, 1);
+				modelStack.Scale(3, 3, 1);
+				if (hitpoints[i] == 4)
+				{
+					RenderMesh(meshList[GEO_FULLHEART], false);
+				}
+				else if (hitpoints[i] == 3)
+				{
+					RenderMesh(meshList[GEO_80HEART], false);
+				}
+				else if (hitpoints[i] == 2)
+				{
+					RenderMesh(meshList[GEO_20HEART], false);
+				}
+				else if (hitpoints[i] <= 1)
+				{
+					RenderMesh(meshList[GEO_EMPTYHEART], false);
+				}
+				modelStack.PopMatrix();
+			}
+			else
+			{
+				modelStack.PushMatrix();
+				modelStack.Translate(5 + i * 8, 95, 1);
+				modelStack.Scale(3, 3, 1);
+				RenderMesh(meshList[GEO_FULLHEART], false);
+				modelStack.PopMatrix();
+			}
+		}
+
 	}
 	// Lose state bg
 	else if (state == STATE_LOSE)
