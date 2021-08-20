@@ -27,6 +27,7 @@ public:
 	void CollisionBound(GameObject* go1, Collision collision);
 	void Gravity(GameObject::GAMEOBJECT_TYPE GO, float elasticity, double dt);
 	void SpawnBullet(double dt);
+	void throwGrenade(double dt);
 	void playerLogic(double dt);
 	void portalLogic(double dt);
 	void itemLogic(double dt);
@@ -37,6 +38,7 @@ public:
 	void pickWeapon(double dt);
 	void takeDMG();
 	void heal(bool max_potion);
+	void mana(float interval, int amount, bool restore);
 	void InitMap(int lvl);
 protected:
 	// Game states
@@ -53,12 +55,11 @@ protected:
 	// Gameplay variables
 	std::vector<GameObject *> m_goList;
 	float m_speed, max_vel, fire_rate;
-	float m_worldWidth;
-	float m_worldHeight;
+	float m_worldWidth, m_worldHeight, m_screenWidth, m_screenHeight;
 	GameObject * m_ghost, * m_player;
-	int m_objectCount, weapon_dmg, hitpoints[5], heart_count, empty_heart;
+	int m_objectCount, weapon_dmg, hitpoints[5], heart_count, empty_heart, weapon_choice;
 	bool initPos, jump, portal_in, move_portal_in, move_portal_out, portal_shot, shotgun, left, right;
-	double dmg_delay;
+	double dmg_delay, mana_delay;
 	
 	//Auditing
 	float m1, m2;

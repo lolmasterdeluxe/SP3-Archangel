@@ -40,9 +40,13 @@ void SceneArchangel::Init()
 	}
 	heart_count = 2;
 	empty_heart = 0;
+	weapon_choice = 1;
 	dmg_delay = 0;
+	mana_delay = 0;
 
 	//Calculating aspect ratio
+	m_screenHeight = 60.f;
+	m_screenWidth = m_screenHeight * (float)Application::GetWindowWidth() / Application::GetWindowHeight();
 	m_worldHeight = 100.f;
 	m_worldWidth = m_worldHeight * (float)Application::GetWindowWidth() / Application::GetWindowHeight();
 
@@ -55,6 +59,9 @@ void SceneArchangel::Init()
 	m_player->active = true;
 	m_player->type = GameObject::GO_CUBE;
 	m_player->hp = 12;
+	m_player->mana = 50;
+	m_player->gold_count = 50;
+	m_player->grenade_count = 3;
 	m_player->max_hp = 12;
 	m_player->pos = Vector3(m_worldWidth * 0.5, 30, 0);
 	m_player->normal.Set(1, 0, 0);
@@ -81,6 +88,12 @@ void SceneArchangel::Init()
 	newGO2->type = GameObject::GO_MAXPOTION;
 	newGO2->scale.Set(1, 1, 0);
 	newGO2->pos = Vector3(m_worldWidth * 0.5 + 40, 10, 0);
+
+	GameObject* newGO3 = FetchGO();
+	newGO3->active = true;
+	newGO3->type = GameObject::GO_MANAPOTION;
+	newGO3->scale.Set(1, 1, 0);
+	newGO3->pos = Vector3(m_worldWidth * 0.5 + 60, 10, 0);
 }
 
 GameObject* SceneArchangel::FetchGO()
@@ -266,9 +279,9 @@ void SceneArchangel::PhysicsResponse(GameObject* go1, Collision collision)
 			heal(true);
 			collision.go->active = false;
 		}
-		if (collision.go->type == GameObject::GO_MANAPOTION)
+		if (collision.go->type == GameObject::GO_MANAPOTION && go1->mana > 1 && go1->mana < 50)
 		{
-			heal(true);
+			mana(0, 10, true);
 			collision.go->active = false;
 		}
 	}
@@ -356,7 +369,7 @@ void SceneArchangel::SpawnBullet(double dt)
 				newGO->type = GameObject::GO_BULLET;
 				newGO->scale.Set(1, 0.5f, 0);
 				newGO->pos = m_player->pos;
-				newGO->vel = Vector3((x / w * m_worldWidth) - newGO->pos.x, ((h - y) / h * m_worldHeight) - newGO->pos.y, 0);
+				newGO->vel = Vector3((x / w * m_screenWidth) - newGO->pos.x, ((h - y) / h * m_screenHeight) - newGO->pos.y, 0);
 				newGO->vel.Normalize() * 100;
 			}
 			else
@@ -366,7 +379,7 @@ void SceneArchangel::SpawnBullet(double dt)
 				newGO->type = GameObject::GO_BULLET;
 				newGO->scale.Set(1, 0.5f, 0);
 				newGO->pos = m_player->pos;
-				newGO->vel = Vector3((x / w * m_worldWidth) - newGO->pos.x, ((h - y) / h * m_worldHeight) - newGO->pos.y, 0);
+				newGO->vel = Vector3((x / w * m_screenWidth) - newGO->pos.x, ((h - y) / h * m_screenHeight) - newGO->pos.y, 0);
 				angle = atan2f(newGO->vel.y, newGO->vel.x) + Math::DegreeToRadian(1);
 				newGO->vel = Vector3(cosf(angle), sin(angle), 0);
 				newGO->vel.Normalize() * 100;
@@ -376,7 +389,7 @@ void SceneArchangel::SpawnBullet(double dt)
 				newGO2->type = GameObject::GO_BULLET;
 				newGO2->scale.Set(1, 0.5f, 0);
 				newGO2->pos = m_player->pos;
-				newGO2->vel = Vector3((x / w * m_worldWidth) - newGO2->pos.x, ((h - y) / h * m_worldHeight) - newGO2->pos.y, 0);
+				newGO2->vel = Vector3((x / w * m_screenWidth) - newGO2->pos.x, ((h - y) / h * m_screenHeight) - newGO2->pos.y, 0);
 				angle = atan2f(newGO2->vel.y, newGO2->vel.x) - Math::DegreeToRadian(1);
 				newGO2->vel = Vector3(cosf(angle), sin(angle), 0);
 				newGO2->vel.Normalize() * 100;
@@ -386,7 +399,7 @@ void SceneArchangel::SpawnBullet(double dt)
 				newGO3->type = GameObject::GO_BULLET;
 				newGO3->scale.Set(1, 0.5f, 0);
 				newGO3->pos = m_player->pos;
-				newGO3->vel = Vector3((x / w * m_worldWidth) - newGO3->pos.x, ((h - y) / h * m_worldHeight) - newGO3->pos.y, 0);
+				newGO3->vel = Vector3((x / w * m_screenWidth) - newGO3->pos.x, ((h - y) / h * m_screenHeight) - newGO3->pos.y, 0);
 				angle = atan2f(newGO3->vel.y, newGO3->vel.x) + Math::DegreeToRadian(3);
 				newGO3->vel = Vector3(cosf(angle), sin(angle), 0);
 				newGO3->vel.Normalize() * 100;
@@ -396,7 +409,7 @@ void SceneArchangel::SpawnBullet(double dt)
 				newGO4->type = GameObject::GO_BULLET;
 				newGO4->scale.Set(1, 0.5f, 0);
 				newGO4->pos = m_player->pos;
-				newGO4->vel = Vector3((x / w * m_worldWidth) - newGO4->pos.x, ((h - y) / h * m_worldHeight) - newGO4->pos.y, 0);
+				newGO4->vel = Vector3((x / w * m_screenWidth) - newGO4->pos.x, ((h - y) / h * m_screenHeight) - newGO4->pos.y, 0);
 				angle = atan2f(newGO4->vel.y, newGO4->vel.x) - Math::DegreeToRadian(3);
 				newGO4->vel = Vector3(cosf(angle), sin(angle), 0);
 				newGO4->vel.Normalize() * 100;
@@ -404,7 +417,26 @@ void SceneArchangel::SpawnBullet(double dt)
 			m_player->bullet_delay = 0;
 		}
 	}
-	if (Application::IsKeyPressed('L') && !bLButtonState)
+	for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
+	{
+		GameObject* go = (GameObject*)*it;
+		if (go->active)
+		{
+			if (go->type == GameObject::GO_BULLET)
+			{
+				go->pos += go->vel * dt * 100;
+				Boundary(go, 2);
+			}
+		}
+	}
+
+	enableCollision(dt, GameObject::GO_BULLET);
+}
+
+void SceneArchangel::throwGrenade(double dt)
+{
+	static bool bLButtonState = false;
+	if (Application::IsKeyPressed('L') && !bLButtonState && m_player->grenade_count > 0)
 	{
 		bLButtonState = true;
 		GameObject* newGO = FetchGO();
@@ -422,6 +454,8 @@ void SceneArchangel::SpawnBullet(double dt)
 			newGO->vel = Vector3(-40, 60, 0);
 			cout << "left true" << endl;
 		}
+		m_player->grenade_delay = 0;
+		m_player->grenade_count--;
 	}
 	else if (!Application::IsKeyPressed('L'))
 	{
@@ -432,20 +466,16 @@ void SceneArchangel::SpawnBullet(double dt)
 		GameObject* go = (GameObject*)*it;
 		if (go->active)
 		{
-			if (go->type == GameObject::GO_BULLET)
-			{
-				go->pos += go->vel * dt * 100;
-				Boundary(go, 2);
-			}
 			if (go->type == GameObject::GO_GRENADE)
 			{
 				Boundary(go, 2);
+				if (m_player->grenade_delay > 2)
+				{
+					go->active = false;
+				}
 			}
 		}
 	}
-	Gravity(GameObject::GO_GRENADE, 200, dt);
-	enableCollision(dt, GameObject::GO_GRENADE);
-	enableCollision(dt, GameObject::GO_BULLET);
 }
 
 void SceneArchangel::playerLogic(double dt)
@@ -614,9 +644,11 @@ void SceneArchangel::itemLogic(double dt)
 	Gravity(GameObject::GO_POTION, 300, dt);
 	Gravity(GameObject::GO_MAXPOTION, 300, dt);
 	Gravity(GameObject::GO_MANAPOTION, 300, dt);
+	Gravity(GameObject::GO_GRENADE, 200, dt);
 	enableCollision(dt, GameObject::GO_POTION);
 	enableCollision(dt, GameObject::GO_MAXPOTION);
 	enableCollision(dt, GameObject::GO_MANAPOTION);
+	enableCollision(dt, GameObject::GO_GRENADE);
 }
 
 void SceneArchangel::activatePortal(GameObject* go)
@@ -715,30 +747,40 @@ void SceneArchangel::setGun(float fire, int dmg)
 
 void SceneArchangel::pickWeapon(double dt)
 {
+	// AK47
 	if (Application::IsKeyPressed('1'))
 	{
 		setGun(0.2f, 6);
 		shotgun = false;
+		weapon_choice = 1;
 	}
+	// SMG
 	else if (Application::IsKeyPressed('2'))
 	{
 		setGun(0.1f, 5);
 		shotgun = false;
+		weapon_choice = 2;
 	}
+	// LMG
 	else if (Application::IsKeyPressed('3'))
 	{
 		setGun(0.3f, 7);
 		shotgun = false;
+		weapon_choice = 3;
 	}
+	// SHOTGUN
 	else if (Application::IsKeyPressed('4'))
 	{
 		setGun(0.6f, 5);
 		shotgun = true;
+		weapon_choice = 4;
 	}
+	// REVOLVER
 	else if (Application::IsKeyPressed('5'))
 	{
 		setGun(0.4f, 8);
 		shotgun = false;
+		weapon_choice = 5;
 	}
 
 }
@@ -811,6 +853,19 @@ void SceneArchangel::heal(bool max_potion)
 	cout << "m_player->hp: " << m_player->hp << endl;*/
 }
 
+void SceneArchangel::mana(float interval, int amount,  bool restore)
+{
+	if (mana_delay > interval && m_player->mana > 0 && m_player->mana < 50)
+	{
+		if (restore)
+			m_player->mana += amount;
+		else
+			m_player->mana -= amount;
+
+		mana_delay = 0;
+	}
+}
+
 void SceneArchangel::InitMap(int lvl)
 {
 	vector<pair<GameObject::GAMEOBJECT_TYPE, Vector3[3]>> mapInfo = CMapStorage::GetInstance()->GetMapInfo(lvl);
@@ -842,10 +897,14 @@ void SceneArchangel::InitMap(int lvl)
 void SceneArchangel::Update(double dt)
 {
 	// Update timers
+	m_screenHeight = 60.f;
+	m_screenWidth = m_screenHeight * (float)Application::GetWindowWidth() / Application::GetWindowHeight();
 	m_player->bullet_delay += dt;
 	m_player->portal_delay += dt;
+	m_player->grenade_delay += dt;
 	dmg_delay += dt;
-
+	mana_delay += dt;
+	
 	SceneBase::Update(dt);
 
 
@@ -880,6 +939,8 @@ void SceneArchangel::Update(double dt)
 		portalLogic(dt);
 		pickWeapon(dt);
 		itemLogic(dt);
+		throwGrenade(dt);
+
 		static bool bLButtonState = false;
 		static bool bLButtonState2 = false;
 		if (Application::IsKeyPressed('F') && !bLButtonState)
@@ -1094,7 +1155,17 @@ void SceneArchangel::Render()
 
 	// Projection matrix : Orthographic Projection
 	Mtx44 projection;
-	projection.SetToOrtho(0, m_worldWidth, 0, m_worldHeight, -10, 10);
+	if (state == STATE_PLAY)
+	{
+		// Clamp screen space if reached end of world space
+		float clamp_screen_x = Math::Clamp((m_player->pos.x - (m_screenWidth * .5f)), .0f, m_worldWidth - m_screenWidth);
+		float clamp_screen_y = Math::Clamp((m_player->pos.y - (m_screenHeight * .5f)), .0f, m_worldHeight - m_screenHeight);
+		projection.SetToOrtho(clamp_screen_x, clamp_screen_x + m_screenWidth, clamp_screen_y, clamp_screen_y + m_screenHeight, -10, 10);
+	}
+	else
+	{
+		projection.SetToOrtho(0, m_worldWidth, 0, m_worldHeight, -10, 10);
+	}
 	projectionStack.LoadMatrix(projection);
 	
 	// Camera matrix
@@ -1133,44 +1204,68 @@ void SceneArchangel::Render()
 
 		// Display FPS
 		std::ostringstream ss;
-		ss << "FPS: " << fps;
+		std::ostringstream ss2;
+		std::ostringstream ss3;
+		//ss << "FPS: " << fps;
 		//RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(0, 1, 0), 3, 0, 0);
 
-		ss << m_player->pos;
-		RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(0, 1, 0), 3, 0, 0);
+		/*ss << m_player->pos;
+		RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(0, 1, 0), 3, 0, 0);*/
 
+		RenderMeshOnScreen(meshList[GEO_CHARGE], -6.f + (m_player->mana) * 0.24f, 53, 12, 2.5f);
+
+		RenderMeshOnScreen(meshList[GEO_GREENBALL], 9, 2.5f, 1, 1.2f);
+		ss2 << "x" << m_player->grenade_count;
+		RenderTextOnScreen(meshList[GEO_TEXT], ss2.str(), Color(1, 1, 1), 2.5f, 10.5f, 1);
+
+		RenderMeshOnScreen(meshList[GEO_YELLOWBALL], 15, 2.5f, 1, 1.2f);
+		ss3 << "x" << m_player->gold_count;
+		RenderTextOnScreen(meshList[GEO_TEXT], ss3.str(), Color(1, 1, 1), 2.5f, 16.5f, 1);
+
+		if (weapon_choice == 1)
+		{
+			RenderMeshOnScreen(meshList[GEO_ORANGEBALL], 4, 5, 2.5f, 3);
+		}
+		else if (weapon_choice == 2)
+		{
+			RenderMeshOnScreen(meshList[GEO_YELLOWBALL], 4, 5, 2.5f, 3);
+		}
+		else if (weapon_choice == 3)
+		{
+			RenderMeshOnScreen(meshList[GEO_REDBALL], 4, 5, 2.5f, 3);
+		}
+		else if (weapon_choice == 4)
+		{
+			RenderMeshOnScreen(meshList[GEO_BLUEBALL], 4, 5, 2.5f, 3);
+		}
+		else if (weapon_choice == 5)
+		{
+			RenderMeshOnScreen(meshList[GEO_PURPLEBALL], 4, 5, 2.5f, 3);
+		}
 		for (int i = 0; i <= heart_count; ++i)
 		{
 			if (i >= (heart_count - empty_heart))
 			{
-				modelStack.PushMatrix();
-				modelStack.Translate(5 + i * 8, 95, 1);
-				modelStack.Scale(3, 3, 1);
 				if (hitpoints[i] == 4)
 				{
-					RenderMesh(meshList[GEO_FULLHEART], false);
+					RenderMeshOnScreen(meshList[GEO_FULLHEART], 2 + i * 4, 57, 1.7f, 1.7f);
 				}
 				else if (hitpoints[i] == 3)
 				{
-					RenderMesh(meshList[GEO_80HEART], false);
+					RenderMeshOnScreen(meshList[GEO_80HEART], 2 + i * 4, 57, 1.7f, 1.7f);
 				}
 				else if (hitpoints[i] == 2)
 				{
-					RenderMesh(meshList[GEO_20HEART], false);
+					RenderMeshOnScreen(meshList[GEO_20HEART], 2 + i * 4, 57, 1.7f, 1.7f);
 				}
 				else if (hitpoints[i] <= 1)
 				{
-					RenderMesh(meshList[GEO_EMPTYHEART], false);
+					RenderMeshOnScreen(meshList[GEO_EMPTYHEART], 2 + i * 4, 57, 1.7f, 1.7f);
 				}
-				modelStack.PopMatrix();
 			}
 			else
 			{
-				modelStack.PushMatrix();
-				modelStack.Translate(5 + i * 8, 95, 1);
-				modelStack.Scale(3, 3, 1);
-				RenderMesh(meshList[GEO_FULLHEART], false);
-				modelStack.PopMatrix();
+				RenderMeshOnScreen(meshList[GEO_FULLHEART], 2 + i * 4, 57, 1.7f, 1.7f);
 			}
 		}
 	}
