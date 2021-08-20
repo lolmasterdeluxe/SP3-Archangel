@@ -40,6 +40,7 @@ public:
 	void heal(bool max_potion);
 	void mana(float interval, int amount, bool restore);
 	void InitMap(int lvl);
+
 protected:
 	// Game states
 	enum GAME_STATE
@@ -51,6 +52,9 @@ protected:
 	};
 
 	GAME_STATE state;
+
+	// Camera
+	Vector3 cameraPos;
 
 	// Gameplay variables
 	std::vector<GameObject *> m_goList;

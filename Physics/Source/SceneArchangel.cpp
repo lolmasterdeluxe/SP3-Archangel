@@ -48,7 +48,7 @@ void SceneArchangel::Init()
 	m_screenHeight = 60.f;
 	m_screenWidth = m_screenHeight * (float)Application::GetWindowWidth() / Application::GetWindowHeight();
 	m_worldHeight = 100.f;
-	m_worldWidth = m_worldHeight * (float)Application::GetWindowWidth() / Application::GetWindowHeight();
+	m_worldWidth = 130;
 
 	// Initialize Game state
 	state = STATE_MENU;
@@ -369,7 +369,7 @@ void SceneArchangel::SpawnBullet(double dt)
 				newGO->type = GameObject::GO_BULLET;
 				newGO->scale.Set(1, 0.5f, 0);
 				newGO->pos = m_player->pos;
-				newGO->vel = Vector3((x / w * m_screenWidth) - newGO->pos.x, ((h - y) / h * m_screenHeight) - newGO->pos.y, 0);
+				newGO->vel = Vector3((x / w * m_screenWidth) + (cameraPos.x - m_screenWidth * .5f) - newGO->pos.x, ((h - y) / h * m_screenHeight) + (cameraPos.y - m_screenHeight * .5f) - newGO->pos.y, 0);
 				newGO->vel.Normalize() * 100;
 			}
 			else
@@ -379,7 +379,7 @@ void SceneArchangel::SpawnBullet(double dt)
 				newGO->type = GameObject::GO_BULLET;
 				newGO->scale.Set(1, 0.5f, 0);
 				newGO->pos = m_player->pos;
-				newGO->vel = Vector3((x / w * m_screenWidth) - newGO->pos.x, ((h - y) / h * m_screenHeight) - newGO->pos.y, 0);
+				newGO->vel = Vector3((x / w * m_screenWidth) + (cameraPos.x - m_screenWidth * .5f) - newGO->pos.x, ((h - y) / h * m_screenHeight) + (cameraPos.y - m_screenHeight * .5f) - newGO->pos.y, 0);
 				angle = atan2f(newGO->vel.y, newGO->vel.x) + Math::DegreeToRadian(1);
 				newGO->vel = Vector3(cosf(angle), sin(angle), 0);
 				newGO->vel.Normalize() * 100;
@@ -389,7 +389,7 @@ void SceneArchangel::SpawnBullet(double dt)
 				newGO2->type = GameObject::GO_BULLET;
 				newGO2->scale.Set(1, 0.5f, 0);
 				newGO2->pos = m_player->pos;
-				newGO2->vel = Vector3((x / w * m_screenWidth) - newGO2->pos.x, ((h - y) / h * m_screenHeight) - newGO2->pos.y, 0);
+				newGO2->vel = Vector3((x / w * m_screenWidth) + (cameraPos.x - m_screenWidth * .5f) - newGO2->pos.x, ((h - y) / h * m_screenHeight) + (cameraPos.y - m_screenHeight * .5f) - newGO2->pos.y, 0);
 				angle = atan2f(newGO2->vel.y, newGO2->vel.x) - Math::DegreeToRadian(1);
 				newGO2->vel = Vector3(cosf(angle), sin(angle), 0);
 				newGO2->vel.Normalize() * 100;
@@ -399,7 +399,7 @@ void SceneArchangel::SpawnBullet(double dt)
 				newGO3->type = GameObject::GO_BULLET;
 				newGO3->scale.Set(1, 0.5f, 0);
 				newGO3->pos = m_player->pos;
-				newGO3->vel = Vector3((x / w * m_screenWidth) - newGO3->pos.x, ((h - y) / h * m_screenHeight) - newGO3->pos.y, 0);
+				newGO3->vel = Vector3((x / w * m_screenWidth) + (cameraPos.x - m_screenWidth * .5f) - newGO3->pos.x, ((h - y) / h * m_screenHeight) + (cameraPos.y - m_screenHeight * .5f) - newGO3->pos.y, 0);
 				angle = atan2f(newGO3->vel.y, newGO3->vel.x) + Math::DegreeToRadian(3);
 				newGO3->vel = Vector3(cosf(angle), sin(angle), 0);
 				newGO3->vel.Normalize() * 100;
@@ -409,7 +409,7 @@ void SceneArchangel::SpawnBullet(double dt)
 				newGO4->type = GameObject::GO_BULLET;
 				newGO4->scale.Set(1, 0.5f, 0);
 				newGO4->pos = m_player->pos;
-				newGO4->vel = Vector3((x / w * m_screenWidth) - newGO4->pos.x, ((h - y) / h * m_screenHeight) - newGO4->pos.y, 0);
+				newGO4->vel = Vector3((x / w * m_screenWidth) + (cameraPos.x - m_screenWidth * .5f) - newGO4->pos.x, ((h - y) / h * m_screenHeight) + (cameraPos.y - m_screenHeight * .5f) - newGO4->pos.y, 0);
 				angle = atan2f(newGO4->vel.y, newGO4->vel.x) - Math::DegreeToRadian(3);
 				newGO4->vel = Vector3(cosf(angle), sin(angle), 0);
 				newGO4->vel.Normalize() * 100;
@@ -907,6 +907,7 @@ void SceneArchangel::Update(double dt)
 	
 	SceneBase::Update(dt);
 
+	cameraPos.Set(m_screenWidth * .5f, m_screenHeight * .5f);
 
 	// Menu / Lose state
 	if (state == STATE_MENU || state == STATE_LOSE)
@@ -934,6 +935,12 @@ void SceneArchangel::Update(double dt)
 	// Play state
 	else if (state == STATE_PLAY)
 	{
+		//Camera Position Setting
+		// Clamp screen space if reached end of world space
+		float clamp_pos_x = Math::Clamp((m_player->pos.x), m_screenWidth * .5f, m_worldWidth - m_screenWidth * .5f);
+		float clamp_pos_y = Math::Clamp((m_player->pos.y), m_screenHeight * .5f, m_worldHeight - m_screenHeight * .5f);
+		cameraPos.Set(clamp_pos_x, clamp_pos_y);
+
 		SpawnBullet(dt);
 		playerLogic(dt);
 		portalLogic(dt);
@@ -1157,10 +1164,7 @@ void SceneArchangel::Render()
 	Mtx44 projection;
 	if (state == STATE_PLAY)
 	{
-		// Clamp screen space if reached end of world space
-		float clamp_screen_x = Math::Clamp((m_player->pos.x - (m_screenWidth * .5f)), .0f, m_worldWidth - m_screenWidth);
-		float clamp_screen_y = Math::Clamp((m_player->pos.y - (m_screenHeight * .5f)), .0f, m_worldHeight - m_screenHeight);
-		projection.SetToOrtho(clamp_screen_x, clamp_screen_x + m_screenWidth, clamp_screen_y, clamp_screen_y + m_screenHeight, -10, 10);
+		projection.SetToOrtho(cameraPos.x - m_screenWidth * .5f, cameraPos.x + m_screenWidth * .5f, cameraPos.y - m_screenHeight * .5f, cameraPos.y + m_screenHeight * .5f, -10, 10);
 	}
 	else
 	{
