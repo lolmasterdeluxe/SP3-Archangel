@@ -158,6 +158,7 @@
     <ClCompile Include="Source\CMapNode.cpp" />
     <ClCompile Include="Source\CMapStorage.cpp" />
     <ClCompile Include="Source\CSVReader.cpp" />
+    <ClCompile Include="Source\CSVWriter.cpp" />
     <ClCompile Include="Source\GameObject.cpp" />
     <ClCompile Include="Source\LoadOBJ.cpp" />
     <ClCompile Include="Source\LoadTGA.cpp" />
@@ -179,6 +180,7 @@
     <ClInclude Include="Source\CMapNode.h" />
     <ClInclude Include="Source\CMapStorage.h" />
     <ClInclude Include="Source\CSVReader.h" />
+    <ClInclude Include="Source\CSVWriter.h" />
     <ClInclude Include="Source\GameObject.h" />
     <ClInclude Include="Source\Light.h" />
     <ClInclude Include="Source\LoadOBJ.h" />

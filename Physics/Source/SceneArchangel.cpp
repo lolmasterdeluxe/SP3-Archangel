@@ -85,35 +85,35 @@ void SceneArchangel::Init()
 	m_ghost->normal.Set(1, 0, 0);
 	m_ghost->scale = Vector3(2, 2, 2);
 
-	GameObject* newGO = FetchGO();
-	newGO->active = true;
-	newGO->type = GameObject::GO_POTION;
-	newGO->scale.Set(1, 1, 0);
-	newGO->pos = Vector3(m_worldWidth * 0.5 + 20, 10, 0);
+	//GameObject* newGO = FetchGO();
+	//newGO->active = true;
+	//newGO->type = GameObject::GO_POTION;
+	//newGO->scale.Set(1, 1, 0);
+	//newGO->pos = Vector3(m_worldWidth * 0.5 + 20, 10, 0);
 
-	GameObject* newGO2 = FetchGO();
-	newGO2->active = true;
-	newGO2->type = GameObject::GO_MAXPOTION;
-	newGO2->scale.Set(1, 1, 0);
-	newGO2->pos = Vector3(m_worldWidth * 0.5 + 40, 10, 0);
+	//GameObject* newGO2 = FetchGO();
+	//newGO2->active = true;
+	//newGO2->type = GameObject::GO_MAXPOTION;
+	//newGO2->scale.Set(1, 1, 0);
+	//newGO2->pos = Vector3(m_worldWidth * 0.5 + 40, 10, 0);
 
-	GameObject* newGO3 = FetchGO();
-	newGO3->active = true;
-	newGO3->type = GameObject::GO_MANAPOTION;
-	newGO3->scale.Set(1, 1, 0);
-	newGO3->pos = Vector3(m_worldWidth * 0.5 + 60, 10, 0);
+	//GameObject* newGO3 = FetchGO();
+	//newGO3->active = true;
+	//newGO3->type = GameObject::GO_MANAPOTION;
+	//newGO3->scale.Set(1, 1, 0);
+	//newGO3->pos = Vector3(m_worldWidth * 0.5 + 60, 10, 0);
 
-	GameObject* newGO4 = FetchGO();
-	newGO4->active = true;
-	newGO4->type = GameObject::GO_GOLD;
-	newGO4->scale.Set(1, 1, 0);
-	newGO4->pos = Vector3(m_worldWidth * 0.5 - 10, 10, 0);
+	//GameObject* newGO4 = FetchGO();
+	//newGO4->active = true;
+	//newGO4->type = GameObject::GO_GOLD;
+	//newGO4->scale.Set(1, 1, 0);
+	//newGO4->pos = Vector3(m_worldWidth * 0.5 - 10, 10, 0);
 
-	GameObject* newGO5 = FetchGO();
-	newGO5->active = true;
-	newGO5->type = GameObject::GO_CHEST;
-	newGO5->scale.Set(1.5f, 1.5f, 0);
-	newGO5->pos = Vector3(m_worldWidth * 0.5 - 20, 10, 0);
+	//GameObject* newGO5 = FetchGO();
+	//newGO5->active = true;
+	//newGO5->type = GameObject::GO_CHEST;
+	//newGO5->scale.Set(1.5f, 1.5f, 0);
+	//newGO5->pos = Vector3(m_worldWidth * 0.5 - 20, 10, 0);
 }
 
 GameObject* SceneArchangel::FetchGO()
@@ -985,10 +985,10 @@ void SceneArchangel::openChest(GameObject* go)
 
 void SceneArchangel::InitMap()
 {
-	MapData* mapInfo = mapMaker.GetMapData();
+	const MapData* mapInfo = mapMaker.GetMapData();
 	
 	for (int i = 0; i < mapInfo->wallDataList.size(); i++)
-	{
+	{ // spawn walls
 		cout << "spawned wall, ";
 		GameObject* go = FetchGO();
 		go->active = true;
@@ -1004,19 +1004,36 @@ void SceneArchangel::InitMap()
 	for (int i = 0; i < mapInfo->entityDataList.size(); i++)
 	{
 		if (mapInfo->entityDataList[i]->type == GameObject::GO_CUBE)
-		{
+		{ // set player position
 			m_player->pos = mapInfo->entityDataList[i]->pos;
 			cout << "set player pos" << endl;
+		}
+		else if (!mapMaker.IsVisited())
+		{ // Spawn loot and enemies
+			cout << "spawned entity, ";
+			GameObject* go = FetchGO();
+			go->active = true;
+			go->type = mapInfo->entityDataList[i]->type;
+			go->pos = mapInfo->entityDataList[i]->pos;
+			cout << go->pos << ", ";
+			go->scale = mapInfo->entityDataList[i]->scale;
+			cout << go->scale << ", ";
+			go->normal = mapInfo->entityDataList[i]->rot;
+			cout << go->normal << endl;
 		}
 	}
 }
 
-void SceneArchangel::SaveMap()
-{
-}
-
 void SceneArchangel::ClearMap()
 {
+	for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
+	{
+		GameObject* go = (GameObject*)*it;
+		if (go->active && (go != m_player || go != m_ghost))
+		{
+			ReturnGO(go);
+		}
+	}
 }
 
 void SceneArchangel::Update(double dt)
@@ -1094,17 +1111,17 @@ void SceneArchangel::Update(double dt)
 			bLButtonState2 = false;
 		}
 
-		/*if (Application::IsKeyPressed(VK_F1))
+		if (Application::IsKeyPressed(VK_F1))
 		{
-			if (mapMaker.GoLeft())
+			for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
 			{
-				InitMap();
+				GameObject* go = (GameObject*)*it;
+				if (go->active)
+				{
+					cout << go->type << endl;
+				}
 			}
-			else if (mapMaker.GoRight())
-			{
-				InitMap();
-			}
-		}*/
+		}
 		static bool f3ButtonState = false;
 		if (Application::IsKeyPressed(VK_F3) && !f3ButtonState)
 		{
@@ -1380,15 +1397,9 @@ void SceneArchangel::Render()
 		}
 		//On screen in - game text
 
-		// Display FPS
 		std::ostringstream ss;
 		std::ostringstream ss2;
 		std::ostringstream ss3;
-		//ss << "FPS: " << fps;
-		//RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(0, 1, 0), 3, 0, 0);
-
-		/*ss << m_player->pos;
-		RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(0, 1, 0), 3, 0, 0);*/
 
 		RenderMeshOnScreen(meshList[GEO_CHARGE], -6.f + (m_player->mana) * 0.24f, 53, 12, 2.5f);
 
@@ -1453,7 +1464,10 @@ void SceneArchangel::Render()
 			std::ostringstream ss;
 			ss << "FPS: " << fps;
 			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 0, 58); // fps
-			RenderTextOnScreen(meshList[GEO_TEXT], std::to_string(m_objectCount), Color(1, 1, 1), 2, 0, 56); // object Count
+			RenderTextOnScreen(meshList[GEO_TEXT], "Object Count: " + std::to_string(m_objectCount), Color(1, 1, 1), 2, 0, 56); // object Count
+			ss.str("");
+			ss << "player position: " << m_player->pos;
+			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 0, 54); // player pos
 
 		}
 	}

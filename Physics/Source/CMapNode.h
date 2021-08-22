@@ -15,16 +15,20 @@ using namespace std;
 
 class CMapNode
 {
+	MapData* mapData;
+	bool visited;
 	CMapNode* left, * right;
 public:
-	MapData* mapData;
-
 	CMapNode();
 	~CMapNode();
 	CMapNode* GetLeft();
 	CMapNode* GetRight();
 	void SetLeft(CMapNode* map);
 	void SetRight(CMapNode* map);
+	const MapData* GetMapData();
+	void SetMapData(MapData* mapData);
+	bool IsVisited();
+	void SetVisitStatus(bool visited);
 };
 
 #endif

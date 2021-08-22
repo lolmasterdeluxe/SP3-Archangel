@@ -44,7 +44,6 @@ public:
 
 	// Map Stuff
 	void InitMap();
-	void SaveMap();
 	void ClearMap();
 
 protected:

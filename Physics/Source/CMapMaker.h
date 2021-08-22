@@ -9,6 +9,7 @@
 #include "CMapStorage.h"
 #include "CMapNode.h"
 
+// this class actually acts more like a manager than just a class that create map layouts
 class CMapMaker
 {
 	CMapNode* current, * start, * newNode;
@@ -17,11 +18,13 @@ public:
 	~CMapMaker();
 
 	void GenerateMap();
+	void SaveMap();
 
 	bool GoLeft();
 	bool GoRight();
 
-	MapData* GetMapData();
+	const MapData* GetMapData();
+	bool IsVisited();
 };
 
 #endif

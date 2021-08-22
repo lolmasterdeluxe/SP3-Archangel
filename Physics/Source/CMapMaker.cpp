@@ -24,9 +24,9 @@ CMapMaker::~CMapMaker()
 void CMapMaker::GenerateMap()
 {
 	start = new CMapNode();
-	start->mapData = CMapStorage::GetInstance()->GetMapInfo(CMapStorage::CAT_SPAWN, 0);
+	start->SetMapData(CMapStorage::GetInstance()->GetMapInfo(CMapStorage::CAT_SPAWN, 0));
 	newNode = new CMapNode();
-	newNode->mapData = CMapStorage::GetInstance()->GetMapInfo(CMapStorage::CAT_TEST, 0);
+	newNode->SetMapData(CMapStorage::GetInstance()->GetMapInfo(CMapStorage::CAT_TEST, 0));
 	start->SetLeft(newNode);
 	newNode->SetRight(start);
 
@@ -37,6 +37,7 @@ bool CMapMaker::GoLeft()
 {
 	if (current->GetLeft() != nullptr)
 	{
+		current->SetVisitStatus(true);
 		current = current->GetLeft();
 		return true;
 	}
@@ -47,15 +48,19 @@ bool CMapMaker::GoRight()
 {
 	if (current->GetRight() != nullptr)
 	{
+		current->SetVisitStatus(true);
 		current = current->GetRight();
 		return true;
 	}
 	return false;
 }
 
-MapData* CMapMaker::GetMapData()
+const MapData* CMapMaker::GetMapData()
 {
-	if (current == start) cout << "Map = spawn\n";
-	else cout << "Map = test\n";
-	return current->mapData;
+	return current->GetMapData();
+}
+
+bool CMapMaker::IsVisited()
+{
+	return current->IsVisited();
 }

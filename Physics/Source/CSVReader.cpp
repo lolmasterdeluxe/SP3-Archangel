@@ -54,7 +54,7 @@ vector<pair<string, float[5]>> CCSVReader::read_csv_map(string filename)
 
 	// Helper vars
 	string line;
-	int val;
+	float val;
 
 	// Read data, line by line
 	while (getline(myFile, line))

@@ -29,23 +29,47 @@ CMapStorage::CMapStorage()
 			for (int i = 0; i < values.size(); i++)
 			{
 				GOData* info = new GOData();
+
+				// Set Pos, Rot, Scale
+				float deg = Math::DegreeToRadian(values[i].second[4]);
+				info->pos = Vector3(values[i].second[0], values[i].second[1]);
+				info->scale = Vector3(values[i].second[2], values[i].second[3], 1);
+				info->rot = Vector3((float)cos(deg), (float)sin(deg));
+
+				// Set type and store in appropriate list
 				if (values[i].first == "wall")
 				{
-					float deg = Math::DegreeToRadian(values[i].second[4]);
-					float right = Math::DegreeToRadian(values[i].second[4] + 90);
 					info->type = GameObject::GO_WALL;
-					info->pos = Vector3(values[i].second[0], values[i].second[1]);
-					info->scale = Vector3(values[i].second[2], values[i].second[3], 1);
-					info->rot = Vector3((float)cos(deg), (float)sin(deg));
 					wallInfo.push_back(info);
 				}
 				else if (values[i].first == "player")
 				{
-					float deg = Math::DegreeToRadian(values[i].second[4]);
 					info->type = GameObject::GO_CUBE;
-					info->pos = Vector3(values[i].second[0], values[i].second[1]);
-					info->scale = Vector3(values[i].second[2], values[i].second[3], 1);
-					info->rot = Vector3((float)cos(deg), (float)sin(deg));
+					entityInfo.push_back(info);
+				}
+				else if (values[i].first == "potion")
+				{
+					info->type = GameObject::GO_POTION;
+					entityInfo.push_back(info);
+				}
+				else if (values[i].first == "maxPotion")
+				{
+					info->type = GameObject::GO_MAXPOTION;
+					entityInfo.push_back(info);
+				}
+				else if (values[i].first == "manaPotion")
+				{
+					info->type = GameObject::GO_MANAPOTION;
+					entityInfo.push_back(info);
+				}
+				else if (values[i].first == "gold")
+				{
+					info->type = GameObject::GO_GOLD;
+					entityInfo.push_back(info);
+				}
+				else if (values[i].first == "chest")
+				{
+					info->type = GameObject::GO_CHEST;
 					entityInfo.push_back(info);
 				}
 			}
