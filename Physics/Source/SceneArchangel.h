@@ -58,7 +58,11 @@ protected:
 
 	GAME_STATE state;
 
+	// maps and levels
 	CMapMaker mapMaker;
+
+	// When player walk into the boundary, attempt to switch level
+	bool m_AttemptLeft, m_AttemptRight;
 
 	// Camera
 	Vector3 cameraPos;

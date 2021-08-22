@@ -50,6 +50,8 @@ void SceneArchangel::Init()
 	dmg_delay = 0;
 	mana_delay = 0;
 
+	m_AttemptLeft = m_AttemptRight = false;
+
 	m_toggleDebugScreen = false;
 
 	//Calculating aspect ratio
@@ -777,7 +779,14 @@ void SceneArchangel::Boundary(GameObject* go, int choice)
 	{
 		// Out of bounds checking
 		if (go->pos.x + go->scale.x > m_worldWidth && go->vel.x > 0 ||
-			go->pos.x - go->scale.x < 0 && go->vel.x < 0) {
+			go->pos.x - go->scale.x < 0 && go->vel.x < 0) 
+		{
+			if (go == m_player)
+			{
+				if (go->pos.x + go->scale.x > m_worldWidth) // if player outside on the right side
+					m_AttemptRight = true;
+				else m_AttemptLeft = true;
+			}
 			go->vel.x = 0;
 			activatePortal(go);
 		}
@@ -985,6 +994,7 @@ void SceneArchangel::openChest(GameObject* go)
 
 void SceneArchangel::InitMap()
 {
+	ClearMap();
 	const MapData* mapInfo = mapMaker.GetMapData();
 	
 	for (int i = 0; i < mapInfo->wallDataList.size(); i++)
@@ -1006,7 +1016,7 @@ void SceneArchangel::InitMap()
 		if (mapInfo->entityDataList[i]->type == GameObject::GO_CUBE)
 		{ // set player position
 			m_player->pos = mapInfo->entityDataList[i]->pos;
-			cout << "set player pos" << endl;
+			cout << "set player pos" << m_player->pos << endl;
 		}
 		else if (!mapMaker.IsVisited())
 		{ // Spawn loot and enemies
@@ -1029,11 +1039,12 @@ void SceneArchangel::ClearMap()
 	for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
 	{
 		GameObject* go = (GameObject*)*it;
-		if (go->active && (go != m_player || go != m_ghost))
+		if (go->active && go != m_player && go != m_ghost)
 		{
 			ReturnGO(go);
 		}
 	}
+	cout << "clearmap\n";
 }
 
 void SceneArchangel::Update(double dt)
@@ -1089,6 +1100,18 @@ void SceneArchangel::Update(double dt)
 		pickWeapon(dt);
 		itemLogic(dt);
 		throwGrenade(dt);
+
+		// Change Level
+		if (m_AttemptLeft)
+		{
+			m_AttemptLeft = false;
+			if (mapMaker.GoLeft()) InitMap();
+		}
+		if (m_AttemptRight)
+		{
+			m_AttemptRight = false;
+			if (mapMaker.GoRight()) InitMap();
+		}
 
 		static bool bLButtonState = false;
 		static bool bLButtonState2 = false;
