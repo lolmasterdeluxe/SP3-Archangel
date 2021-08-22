@@ -969,32 +969,40 @@ void SceneArchangel::openChest(GameObject* go)
 	}
 }
 
-void SceneArchangel::InitMap(int lvl)
+void SceneArchangel::InitMap()
 {
-	vector<pair<GameObject::GAMEOBJECT_TYPE, Vector3[3]>> mapInfo = CMapStorage::GetInstance()->GetMapInfo(lvl);
-	vector<pair<GameObject::GAMEOBJECT_TYPE, Vector3[3]>> entityInfo = CMapStorage::GetInstance()->GetEntityInfo(lvl);
-	for (int i = 0; i < mapInfo.size(); i++)
+	MapData* mapInfo = mapMaker.GetMapData();
+	
+	for (int i = 0; i < mapInfo->wallDataList.size(); i++)
 	{
 		cout << "spawned wall, ";
 		GameObject* go = FetchGO();
 		go->active = true;
-		go->type = mapInfo[i].first;
-		go->pos = mapInfo[i].second[0];
+		go->type = mapInfo->wallDataList[i]->type;
+		go->pos = mapInfo->wallDataList[i]->pos;
 		cout << go->pos << ", ";
-		go->scale = mapInfo[i].second[1];
+		go->scale = mapInfo->wallDataList[i]->scale;
 		cout << go->scale << ", ";
-		go->normal = mapInfo[i].second[2];
+		go->normal = mapInfo->wallDataList[i]->rot;
 		cout << go->normal << endl;
 		go->hp = 100;
 	}
-	for (int i = 0; i < entityInfo.size(); i++)
+	for (int i = 0; i < mapInfo->entityDataList.size(); i++)
 	{
-		if (entityInfo[i].first == GameObject::GO_CUBE)
+		if (mapInfo->entityDataList[i]->type == GameObject::GO_CUBE)
 		{
-			m_player->pos = entityInfo[i].second[0];
+			m_player->pos = mapInfo->entityDataList[i]->pos;
 			cout << "set player pos" << endl;
 		}
 	}
+}
+
+void SceneArchangel::SaveMap()
+{
+}
+
+void SceneArchangel::ClearMap()
+{
 }
 
 void SceneArchangel::Update(double dt)
@@ -1029,7 +1037,8 @@ void SceneArchangel::Update(double dt)
 				}
 			}
 
-			InitMap(0);
+			mapMaker.GenerateMap();
+			InitMap();
 
 			state = STATE_PLAY;
 		}
@@ -1069,6 +1078,18 @@ void SceneArchangel::Update(double dt)
 		else if (!Application::IsKeyPressed('G'))
 		{
 			bLButtonState2 = false;
+		}
+
+		if (Application::IsKeyPressed(VK_F1))
+		{
+			if (mapMaker.GoLeft())
+			{
+				InitMap();
+			}
+			else if (mapMaker.GoRight())
+			{
+				InitMap();
+			}
 		}
 	}
 }
@@ -1425,7 +1446,7 @@ void SceneArchangel::Exit()
 	}
 	if(m_ghost)
 	{
-		delete m_ghost;
+		//delete m_ghost;
 		m_ghost = NULL;
 	}
 }

@@ -4,7 +4,7 @@
 #include "GameObject.h"
 #include <vector>
 #include "SceneBase.h"
-#include "CMapStorage.h"
+#include "CMapMaker.h"
 #include "Collision.h"
 
 class SceneArchangel : public SceneBase
@@ -40,7 +40,11 @@ public:
 	void heal(bool max_potion);
 	void mana(float interval, int amount, bool restore);
 	void openChest(GameObject* go);
-	void InitMap(int lvl);
+
+	// Map Stuff
+	void InitMap();
+	void SaveMap();
+	void ClearMap();
 
 protected:
 	// Game states
@@ -53,6 +57,8 @@ protected:
 	};
 
 	GAME_STATE state;
+
+	CMapMaker mapMaker;
 
 	// Camera
 	Vector3 cameraPos;

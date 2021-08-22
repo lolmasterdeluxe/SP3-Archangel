@@ -1,65 +1,68 @@
 /**
- CCSVReader
+ Map Storage
  By: Ho Junliang
  Date: Aug 2021
  */
 #include "CMapStorage.h"
 
-vector<vector<pair<GameObject::GAMEOBJECT_TYPE, Vector3[3]>>> CMapStorage::MapStorage;
-vector<vector<pair<GameObject::GAMEOBJECT_TYPE, Vector3[3]>>> CMapStorage::EntityStorage;
-
 CMapStorage::CMapStorage()
 {
 	CCSVReader reader;
-	string filename[1] = {
-		"Maps/Map_Level_Test.csv"
+	string filename[TOTAL_CATEGORY][MAPS_PER_CATEGORY] = {
+		{"Maps/Test/Map_Level_Test.csv"},
+		{"Maps/Spawn/Map_Level_Spawn_1.csv"}
 	};
-	MapStorage.clear();
-	EntityStorage.clear();
 
-	for (int lvl = 0; lvl < 1; lvl++)
+
+	for (int category = 0; category < TOTAL_CATEGORY; category++)
 	{
-		vector<pair<string, float[5]>> values = reader.read_csv_map(filename[lvl]);
-
-		vector<pair<GameObject::GAMEOBJECT_TYPE, Vector3[3]>> MapInfo;
-		vector<pair<GameObject::GAMEOBJECT_TYPE, Vector3[3]>> EntityInfo;
-
-		for (int i = 0; i < values.size(); i++)
+		MapList* mapList = new MapList();
+		mapStorage[category] = mapList;
+		for (int lvl = 0; lvl < MAPS_PER_CATEGORY; lvl++)
 		{
-			pair<GameObject::GAMEOBJECT_TYPE, Vector3[3]> info;
-			if (values[i].first == "wall")
-			{
-				float deg = Math::DegreeToRadian(values[i].second[4]);
-				float right = Math::DegreeToRadian(values[i].second[4] + 90);
-				info.first = GameObject::GO_WALL;
-				info.second[0] = Vector3(values[i].second[0], values[i].second[1]);
-				info.second[1] = Vector3(values[i].second[2], values[i].second[3], 1);
-				info.second[2] = Vector3((float)cos(deg), (float)sin(deg));
-				MapInfo.push_back(info);
-				/*info.first = GameObject::GO_WALL;
-				info.second[0] = Vector3(values[i].second[0], values[i].second[1]);
-				info.second[1] = Vector3(values[i].second[3], values[i].second[2], 1);
-				info.second[2] = Vector3((float)cos(right), (float)sin(right));
-				MapInfo.push_back(info);*/
-			}
-			else if (values[i].first == "player")
-			{
-				info.first = GameObject::GO_CUBE;
+			vector<pair<string, float[5]>> values = reader.read_csv_map(filename[category][lvl]);
 
-				info.second[0] = Vector3(values[i].second[0], values[i].second[1]);
-				info.second[1] = Vector3(values[i].second[2], values[i].second[3], 1);
-				float deg = Math::DegreeToRadian(values[i].second[4]);
-				info.second[2] = Vector3((float)cos(deg), (float)sin(deg));
-				EntityInfo.push_back(info);
+			MapData* mapInfo = new MapData();
+			vector<GOData*> wallInfo;
+			vector<GOData*> entityInfo;
+
+			for (int i = 0; i < values.size(); i++)
+			{
+				GOData* info = new GOData();
+				if (values[i].first == "wall")
+				{
+					float deg = Math::DegreeToRadian(values[i].second[4]);
+					float right = Math::DegreeToRadian(values[i].second[4] + 90);
+					info->type = GameObject::GO_WALL;
+					info->pos = Vector3(values[i].second[0], values[i].second[1]);
+					info->scale = Vector3(values[i].second[2], values[i].second[3], 1);
+					info->rot = Vector3((float)cos(deg), (float)sin(deg));
+					wallInfo.push_back(info);
+				}
+				else if (values[i].first == "player")
+				{
+					float deg = Math::DegreeToRadian(values[i].second[4]);
+					info->type = GameObject::GO_CUBE;
+					info->pos = Vector3(values[i].second[0], values[i].second[1]);
+					info->scale = Vector3(values[i].second[2], values[i].second[3], 1);
+					info->rot = Vector3((float)cos(deg), (float)sin(deg));
+					entityInfo.push_back(info);
+				}
 			}
+
+			mapInfo->wallDataList = wallInfo;
+			mapInfo->entityDataList = entityInfo;
+			mapList->mapDataList.push_back(mapInfo);
 		}
-		MapStorage.push_back(MapInfo);
-		EntityStorage.push_back(EntityInfo);
 	}
 }
 
 CMapStorage::~CMapStorage()
 {
+	for (int i = 0; i < TOTAL_CATEGORY; i++)
+	{
+		delete mapStorage[i];
+	}
 }
 
 
@@ -89,11 +92,8 @@ void CMapStorage::Destroy()
 	}
 }
 
-vector<pair<GameObject::GAMEOBJECT_TYPE, Vector3[3]>> CMapStorage::GetMapInfo(int lvl)
+MapData* CMapStorage::GetMapInfo(CMapStorage::MAP_CATEGORY category, int number)
 {
-	return MapStorage[lvl];
-}
-vector<pair<GameObject::GAMEOBJECT_TYPE, Vector3[3]>> CMapStorage::GetEntityInfo(int lvl)
-{
-	return EntityStorage[lvl];
+	if (number >= MAPS_PER_CATEGORY) number %= MAPS_PER_CATEGORY;
+	return mapStorage[category]->mapDataList[number];
 }
