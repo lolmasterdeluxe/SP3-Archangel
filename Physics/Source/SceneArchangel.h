@@ -21,6 +21,7 @@ public:
 	void RenderGO(GameObject *go);
 
 	GameObject* FetchGO();
+	void ReturnGO(GameObject* go);
 	void ReturnGO(GameObject::GAMEOBJECT_TYPE GO);
 	Collision CheckCollision(GameObject* go1, GameObject* go2, float dt);
 	void PhysicsResponse(GameObject* go1, Collision collision);
@@ -71,6 +72,9 @@ protected:
 	int m_objectCount, weapon_dmg, hitpoints[5], heart_count, empty_heart, weapon_choice;
 	bool initPos, jump, portal_in, move_portal_in, move_portal_out, portal_shot, shotgun, left, right;
 	double dmg_delay, mana_delay;
+
+	//Debuging
+	bool m_toggleDebugScreen;
 	
 	//Auditing
 	float m1, m2;

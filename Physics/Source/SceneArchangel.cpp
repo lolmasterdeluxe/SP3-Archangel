@@ -50,6 +50,8 @@ void SceneArchangel::Init()
 	dmg_delay = 0;
 	mana_delay = 0;
 
+	m_toggleDebugScreen = false;
+
 	//Calculating aspect ratio
 	m_screenHeight = 60.f;
 	m_screenWidth = m_screenHeight * (float)Application::GetWindowWidth() / Application::GetWindowHeight();
@@ -137,6 +139,19 @@ GameObject* SceneArchangel::FetchGO()
 
 }
 
+void SceneArchangel::ReturnGO(GameObject* go)
+{
+	if (go->active)
+	{
+		m_objectCount--;
+		go->active = false;
+		go->pos.SetZero();
+		go->vel.SetZero();
+		go->scale.Set(1, 1, 1);
+		go->normal.Set(1, 0);
+	}
+}
+
 void SceneArchangel::ReturnGO(GameObject::GAMEOBJECT_TYPE GO)
 {
 	for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
@@ -146,8 +161,7 @@ void SceneArchangel::ReturnGO(GameObject::GAMEOBJECT_TYPE GO)
 		{
 			if (go->type == GO)
 			{
-				go->active = false;
-				m_objectCount--;
+				ReturnGO(go);
 			}
 		}
 	}
@@ -259,7 +273,7 @@ void SceneArchangel::PhysicsResponse(GameObject* go1, Collision collision)
 	{
 		if (go1->type == GameObject::GO_BULLET)
 		{
-			go1->active = false;
+			ReturnGO(go1);
 		}
 		else if (go1 == m_player)
 		{
@@ -289,24 +303,24 @@ void SceneArchangel::PhysicsResponse(GameObject* go1, Collision collision)
 		if (collision.go->type == GameObject::GO_POTION && m_player->hp < m_player->max_hp)
 		{
 			heal(false);
-			collision.go->active = false;
+			ReturnGO(collision.go);
 		}
 		if (collision.go->type == GameObject::GO_MAXPOTION)
 		{
 			heal(true);
-			collision.go->active = false;
+			ReturnGO(collision.go);
 		}
 		if (collision.go->type == GameObject::GO_MANAPOTION && go1->mana > 1 && go1->mana < 50)
 		{
 			mana(0, 10, true);
-			collision.go->active = false;
+			ReturnGO(collision.go);
 		}
 		if (collision.go->type == GameObject::GO_GOLD)
 		{
 			if (collision.go->vel.x >= -0.1f && collision.go->vel.x <= 0.1f)
 			{
 				m_player->gold_count++;
-				collision.go->active = false;
+				ReturnGO(collision.go);
 			}
 		}
 		if (collision.go->type == GameObject::GO_CHEST)
@@ -510,7 +524,7 @@ void SceneArchangel::throwGrenade(double dt)
 				go->grenade_delay += dt;
 				if (go->grenade_delay > 2)
 				{
-					go->active = false;
+					ReturnGO(go);
 				}
 			}
 		}
@@ -779,7 +793,7 @@ void SceneArchangel::Boundary(GameObject* go, int choice)
 		if ((go->pos.x > m_worldWidth + go->scale.x || go->pos.x < 0 - go->scale.x) ||
 			(go->pos.y > m_worldHeight + go->scale.y || go->pos.y < 0 - go->scale.y))
 		{
-			go->active = false;
+			ReturnGO(go);
 		}
 	}
 }
@@ -1032,7 +1046,7 @@ void SceneArchangel::Update(double dt)
 				{
 					if (go->type == GameObject::GO_CIRCLE)
 					{
-						go->active = false;
+						ReturnGO(go);
 					}
 				}
 			}
@@ -1080,7 +1094,7 @@ void SceneArchangel::Update(double dt)
 			bLButtonState2 = false;
 		}
 
-		if (Application::IsKeyPressed(VK_F1))
+		/*if (Application::IsKeyPressed(VK_F1))
 		{
 			if (mapMaker.GoLeft())
 			{
@@ -1090,6 +1104,16 @@ void SceneArchangel::Update(double dt)
 			{
 				InitMap();
 			}
+		}*/
+		static bool f3ButtonState = false;
+		if (Application::IsKeyPressed(VK_F3) && !f3ButtonState)
+		{
+			f3ButtonState = true;
+			m_toggleDebugScreen = !m_toggleDebugScreen;
+		}
+		else if (!Application::IsKeyPressed(VK_F3))
+		{
+			f3ButtonState = false;
 		}
 	}
 }
@@ -1421,6 +1445,16 @@ void SceneArchangel::Render()
 			{
 				RenderMeshOnScreen(meshList[GEO_FULLHEART], 2 + i * 4, 57, 1.7f, 1.7f);
 			}
+		}
+
+		if (m_toggleDebugScreen)
+		{
+			// Display FPS
+			std::ostringstream ss;
+			ss << "FPS: " << fps;
+			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 0, 58); // fps
+			RenderTextOnScreen(meshList[GEO_TEXT], std::to_string(m_objectCount), Color(1, 1, 1), 2, 0, 56); // object Count
+
 		}
 	}
 	// Lose state bg
