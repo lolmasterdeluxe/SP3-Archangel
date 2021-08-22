@@ -39,6 +39,7 @@ public:
 	void takeDMG();
 	void heal(bool max_potion);
 	void mana(float interval, int amount, bool restore);
+	void openChest(GameObject* go);
 	void InitMap(int lvl);
 
 protected:

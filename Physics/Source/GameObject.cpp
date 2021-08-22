@@ -16,6 +16,7 @@ GameObject::GameObject(GAMEOBJECT_TYPE typeValue)
 	prevpos(0),
 	grenade_count(0),
 	gold_count(0),
+	item_count(0),
 	mass(1.f),
 	dir(1, 0, 0),
 	normal(1, 0, 0),

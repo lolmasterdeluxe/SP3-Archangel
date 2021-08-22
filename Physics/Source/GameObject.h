@@ -52,6 +52,8 @@ struct GameObject
 		GO_MAXPOTION,
 		GO_MANAPOTION,
 		GO_GOLD,
+		GO_CHEST,
+		GO_BARREL,
 		GO_TOTAL, //must be last
 	};
 	GAMEOBJECT_TYPE type;
@@ -69,7 +71,7 @@ struct GameObject
 	// Conditions and variables for GO
 	bool active, turn, shoot, aim, idle, missile, reset, cannon, laser, rifle, bounce, initPos;
 	float mass, pause, shoot_period, prevpos, mana;
-	int hp, max_hp, shield, movement_phase, bullet_count, fire_style, color, grenade_count, gold_count;
+	int hp, max_hp, shield, movement_phase, bullet_count, fire_style, color, grenade_count, gold_count, item_count;
 	double bullet_delay, grenade_delay, portal_delay, movement_delay, fire_rate, shoot_delay, shield_delay, shield_recharge, animation_delay;
 	float movement_change;
 	std::ostringstream hp_display;

@@ -21,6 +21,12 @@ void SceneArchangel::Init()
 	
 	Math::InitRNG();
 
+	for (int i = 0; i < 100; i++)
+	{
+		GameObject* ball = new GameObject(GameObject::GO_BALL);
+		m_goList.push_back(ball);
+	}
+
 	// Initialize variables
 	m_objectCount = 0;
 	jump = false;
@@ -94,6 +100,18 @@ void SceneArchangel::Init()
 	newGO3->type = GameObject::GO_MANAPOTION;
 	newGO3->scale.Set(1, 1, 0);
 	newGO3->pos = Vector3(m_worldWidth * 0.5 + 60, 10, 0);
+
+	GameObject* newGO4 = FetchGO();
+	newGO4->active = true;
+	newGO4->type = GameObject::GO_GOLD;
+	newGO4->scale.Set(1, 1, 0);
+	newGO4->pos = Vector3(m_worldWidth * 0.5 - 10, 10, 0);
+
+	GameObject* newGO5 = FetchGO();
+	newGO5->active = true;
+	newGO5->type = GameObject::GO_CHEST;
+	newGO5->scale.Set(1.5f, 1.5f, 0);
+	newGO5->pos = Vector3(m_worldWidth * 0.5 - 20, 10, 0);
 }
 
 GameObject* SceneArchangel::FetchGO()
@@ -117,7 +135,6 @@ GameObject* SceneArchangel::FetchGO()
 
 	return FetchGO();
 
-	return NULL;
 }
 
 void SceneArchangel::ReturnGO(GameObject::GAMEOBJECT_TYPE GO)
@@ -202,7 +219,7 @@ Collision SceneArchangel::CheckCollision(GameObject* go1, GameObject* go2, float
 			return collision;
 		}
 	}
-	else if (go2->type == GameObject::GO_PILLAR || go2->type == GameObject::GO_CIRCLE || go2->type == GameObject::GO_POWERUP || go2->type == GameObject::GO_PORTAL_IN || go2->type == GameObject::GO_PORTAL_OUT || go2->type == GameObject::GO_POTION || go2->type == GameObject::GO_MAXPOTION || go2->type == GameObject::GO_MANAPOTION || go2->type == GameObject::GO_GRENADE)
+	else if (go2->type == GameObject::GO_PILLAR || go2->type == GameObject::GO_CIRCLE || go2->type == GameObject::GO_POWERUP || go2->type == GameObject::GO_PORTAL_IN || go2->type == GameObject::GO_PORTAL_OUT || go2->type == GameObject::GO_POTION || go2->type == GameObject::GO_MAXPOTION || go2->type == GameObject::GO_MANAPOTION || go2->type == GameObject::GO_GOLD || go2->type == GameObject::GO_GRENADE || go2->type == GameObject::GO_CHEST || go2->type == GameObject::GO_BARREL)
 	{
 		Vector3 u = go1->vel;
 		Vector3 p2_p1 = go2->pos - go1->pos;
@@ -244,14 +261,14 @@ void SceneArchangel::PhysicsResponse(GameObject* go1, Collision collision)
 		{
 			go1->active = false;
 		}
-		if (go1 == m_player)
+		else if (go1 == m_player)
 		{
 			Vector3 N = collision.normal;
 			Vector3 u = go1->vel;
 			go1->vel = u - (2 * u.Dot(N)) * N;
 			go1->vel.y *= 0;
 		}
-		if (go1->type == GameObject::GO_POTION || go1->type == GameObject::GO_MAXPOTION || go1->type == GameObject::GO_MANAPOTION || go1->type == GameObject::GO_GRENADE)
+		else
 		{
 			Vector3 N = collision.normal;
 			Vector3 u = go1->vel;
@@ -284,6 +301,26 @@ void SceneArchangel::PhysicsResponse(GameObject* go1, Collision collision)
 			mana(0, 10, true);
 			collision.go->active = false;
 		}
+		if (collision.go->type == GameObject::GO_GOLD)
+		{
+			if (collision.go->vel.x >= -0.1f && collision.go->vel.x <= 0.1f)
+			{
+				m_player->gold_count++;
+				collision.go->active = false;
+			}
+		}
+		if (collision.go->type == GameObject::GO_CHEST)
+		{
+			openChest(collision.go);
+		}
+	}
+	if (go1->type == GameObject::GO_BULLET)
+	{
+		if (collision.go->type == GameObject::GO_BARREL)
+		{
+
+		}
+
 	}
 	if (!portal_shot)
 	{
@@ -340,6 +377,7 @@ void SceneArchangel::Gravity(GameObject::GAMEOBJECT_TYPE GO, float elasticity, d
 				go->pos += go->vel * dt * m_speed;
 				go->vel.y -= dt * elasticity;
 			}
+			// terminal velocity
 			if (go->vel.y <= -200)
 			{
 				go->vel.y = -200;
@@ -454,7 +492,7 @@ void SceneArchangel::throwGrenade(double dt)
 			newGO->vel = Vector3(-40, 60, 0);
 			cout << "left true" << endl;
 		}
-		m_player->grenade_delay = 0;
+		newGO->grenade_delay = 0;
 		m_player->grenade_count--;
 	}
 	else if (!Application::IsKeyPressed('L'))
@@ -469,7 +507,8 @@ void SceneArchangel::throwGrenade(double dt)
 			if (go->type == GameObject::GO_GRENADE)
 			{
 				Boundary(go, 2);
-				if (m_player->grenade_delay > 2)
+				go->grenade_delay += dt;
+				if (go->grenade_delay > 2)
 				{
 					go->active = false;
 				}
@@ -645,10 +684,16 @@ void SceneArchangel::itemLogic(double dt)
 	Gravity(GameObject::GO_MAXPOTION, 300, dt);
 	Gravity(GameObject::GO_MANAPOTION, 300, dt);
 	Gravity(GameObject::GO_GRENADE, 200, dt);
+	Gravity(GameObject::GO_GOLD, 300, dt);
+	Gravity(GameObject::GO_CHEST, 300, dt);
+	Gravity(GameObject::GO_BARREL, 300, dt);
 	enableCollision(dt, GameObject::GO_POTION);
 	enableCollision(dt, GameObject::GO_MAXPOTION);
 	enableCollision(dt, GameObject::GO_MANAPOTION);
 	enableCollision(dt, GameObject::GO_GRENADE);
+	enableCollision(dt, GameObject::GO_GOLD);
+	enableCollision(dt, GameObject::GO_CHEST);
+	enableCollision(dt, GameObject::GO_BARREL);
 }
 
 void SceneArchangel::activatePortal(GameObject* go)
@@ -697,7 +742,7 @@ void SceneArchangel::enableCollision(double dt, GameObject::GAMEOBJECT_TYPE GO)
 					Collision collision = CheckCollision(first, other, dt);
 					if (collision.dist > 0)
 					{
-						if (go2->type != GameObject::GO_PORTAL_IN && go2->type != GameObject::GO_PORTAL_OUT && go2->type != GameObject::GO_POTION && go2->type != GameObject::GO_MAXPOTION && go2->type != GameObject::GO_MANAPOTION && go2->type != GameObject::GO_GRENADE && go != m_ghost && go == m_player)
+						if (go == m_player && go2->type == GameObject::GO_WALL)
 						{
 							CollisionBound(first, collision);
 						}
@@ -866,6 +911,64 @@ void SceneArchangel::mana(float interval, int amount,  bool restore)
 	}
 }
 
+void SceneArchangel::openChest(GameObject* go)
+{
+	if (go->item_count < 3)
+	{
+		GameObject* newGO = FetchGO();
+		int item_type = Math::RandIntMinMax(1, 3);
+		int dir = Math::RandIntMinMax(1, 2);
+		int positive_vel = Math::RandIntMinMax(10, 40);
+		int negative_vel = Math::RandIntMinMax(-40, -10);
+		if (item_type == 1)
+		{
+			newGO->active = true;
+			newGO->type = GameObject::GO_POTION;
+			newGO->scale.Set(1, 1, 1);
+			if (dir == 1)
+			{
+				newGO->vel = Vector3(positive_vel, positive_vel + 20, 0);
+			}
+			else if (dir == 2)
+			{
+				newGO->vel = Vector3(negative_vel, positive_vel + 20, 0);
+			}
+			newGO->pos = go->pos;
+		}
+		else if (item_type == 2)
+		{
+			newGO->active = true;
+			newGO->type = GameObject::GO_MANAPOTION;
+			newGO->scale.Set(1, 1, 1);
+			if (dir == 1)
+			{
+				newGO->vel = Vector3(positive_vel, positive_vel + 20, 0);
+			}
+			else if (dir == 2)
+			{
+				newGO->vel = Vector3(negative_vel, positive_vel + 20, 0);
+			}
+			newGO->pos = go->pos;
+		}
+		else if (item_type == 3)
+		{
+			newGO->active = true;
+			newGO->type = GameObject::GO_GOLD;
+			newGO->scale.Set(1, 1, 1);
+			if (dir == 1)
+			{
+				newGO->vel = Vector3(positive_vel, positive_vel + 20, 0);
+			}
+			else if (dir == 2)
+			{
+				newGO->vel = Vector3(negative_vel, positive_vel + 20, 0);
+			}
+			newGO->pos = go->pos;
+		}
+		go->item_count++;
+	}
+}
+
 void SceneArchangel::InitMap(int lvl)
 {
 	vector<pair<GameObject::GAMEOBJECT_TYPE, Vector3[3]>> mapInfo = CMapStorage::GetInstance()->GetMapInfo(lvl);
@@ -901,7 +1004,6 @@ void SceneArchangel::Update(double dt)
 	m_screenWidth = m_screenHeight * (float)Application::GetWindowWidth() / Application::GetWindowHeight();
 	m_player->bullet_delay += dt;
 	m_player->portal_delay += dt;
-	m_player->grenade_delay += dt;
 	dmg_delay += dt;
 	mana_delay += dt;
 	
@@ -1146,6 +1248,33 @@ void SceneArchangel::RenderGO(GameObject *go)
 		modelStack.Rotate(Math::RadianToDegree(atan2(go->dir.y, go->dir.x)), 0, 0, 1);
 		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
 		RenderMesh(meshList[GEO_GREENBALL], false);
+		modelStack.PopMatrix();
+		break;
+
+	case GameObject::GO_GOLD:
+		modelStack.PushMatrix();
+		modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
+		modelStack.Rotate(Math::RadianToDegree(atan2(go->dir.y, go->dir.x)), 0, 0, 1);
+		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
+		RenderMesh(meshList[GEO_YELLOWBALL], false);
+		modelStack.PopMatrix();
+		break;
+
+	case GameObject::GO_CHEST:
+		modelStack.PushMatrix();
+		modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
+		modelStack.Rotate(Math::RadianToDegree(atan2(go->dir.y, go->dir.x)), 0, 0, 1);
+		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
+		RenderMesh(meshList[GEO_YELLOWCUBE], false);
+		modelStack.PopMatrix();
+		break;
+
+	case GameObject::GO_BARREL:
+		modelStack.PushMatrix();
+		modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
+		modelStack.Rotate(Math::RadianToDegree(atan2(go->dir.y, go->dir.x)), 0, 0, 1);
+		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
+		RenderMesh(meshList[GEO_ORANGECUBE], false);
 		modelStack.PopMatrix();
 		break;
 	}
