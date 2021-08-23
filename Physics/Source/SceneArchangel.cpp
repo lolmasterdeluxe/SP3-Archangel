@@ -414,8 +414,6 @@ void SceneArchangel::Gravity(GameObject::GAMEOBJECT_TYPE GO, float elasticity, d
 
 void SceneArchangel::SpawnBullet(double dt)
 {
-	int w = Application::GetWindowWidth();
-	int h = Application::GetWindowHeight();
 	double x, y;
 	Application::GetCursorPos(&x, &y);
 	screenSpaceToWorldSpace(x, y);
@@ -1559,7 +1557,15 @@ void SceneArchangel::Render()
 			ss.str("");
 			ss << "player position: " << m_player->pos;
 			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 0, 54); // player pos
-
+			double x, y;
+			Application::GetCursorPos(&x, &y);
+			ss.str("");
+			ss << "Mouse position (screen space): " << x << ", " << y;
+			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 0, 52); // cursor pos in screen space
+			screenSpaceToWorldSpace(x, y);
+			ss.str("");
+			ss << "Mouse position (world space): " << x << ", " << y;
+			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 0, 50); // cursor pos in screen space
 		}
 	}
 	// Lose state bg
