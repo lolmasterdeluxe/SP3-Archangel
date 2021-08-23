@@ -44,6 +44,7 @@ struct GameObject
 		GO_LASERGUN,
 		GO_BLUELASER,
 		GO_LASERBEAM,
+		GO_DEMON,
 		GO_WALL,
 		GO_PILLAR,
 		GO_PORTAL_IN,
@@ -54,9 +55,18 @@ struct GameObject
 		GO_GOLD,
 		GO_CHEST,
 		GO_BARREL,
+		GO_FIREBALL,
 		GO_TOTAL, //must be last
 	};
+	enum STATE
+	{
+		STATE_IDLE = 0,
+		STATE_PATROL,
+		STATE_CLOSE_ATTACK,
+		STATE_FAR_ATTACK,
+	};
 	GAMEOBJECT_TYPE type;
+	STATE state;
 	Vector3 pos;
 	Vector3 vel;
 	Vector3 scale;
@@ -67,12 +77,15 @@ struct GameObject
 	GameObject* pillar2;
 	GameObject* pillar3;
 	GameObject* pillar4;
+	GameObject* under_box;
+	GameObject* left_box;
+	GameObject* right_box;
 
 	// Conditions and variables for GO
-	bool active, turn, shoot, aim, idle, missile, reset, cannon, laser, rifle, bounce, initPos;
+	bool active, turn, shoot, aim, idle, missile, reset, cannon, laser, rifle, bounce, initPos, left, right;
 	float mass, pause, shoot_period, prevpos, mana;
 	int hp, max_hp, shield, movement_phase, bullet_count, fire_style, color, grenade_count, gold_count, item_count;
-	double bullet_delay, grenade_delay, portal_delay, movement_delay, fire_rate, shoot_delay, shield_delay, shield_recharge, animation_delay;
+	double bullet_delay, grenade_delay, portal_delay, movement_delay, fire_rate, shoot_delay, shield_delay, shield_recharge, animation_delay, FSMCounter, MaxFSMCounter;
 	float movement_change;
 	std::ostringstream hp_display;
 

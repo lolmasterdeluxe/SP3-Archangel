@@ -41,11 +41,13 @@ public:
 	void heal(bool max_potion);
 	void mana(float interval, int amount, bool restore);
 	void openChest(GameObject* go);
+	void manipTime(double dt);
+	void demonAI(double dt);
 
 	// Map Stuff
 	void InitMap();
 	void ClearMap();
-	void manipTime(double dt);
+
 
 protected:
 	// Game states

@@ -21,11 +21,6 @@ void SceneArchangel::Init()
 	
 	Math::InitRNG();
 
-	for (int i = 0; i < 100; i++)
-	{
-		GameObject* ball = new GameObject(GameObject::GO_BALL);
-		m_goList.push_back(ball);
-	}
 
 	// Initialize variables
 	m_objectCount = 0;
@@ -40,7 +35,6 @@ void SceneArchangel::Init()
 	time_change = false;
 	weapon_dmg = 0;
 	max_vel = 50;
-	fire_rate = 0.2f;
 	for (int i = 0; i < 5; ++i)
 	{
 		hitpoints[i] = 4;
@@ -79,15 +73,14 @@ void SceneArchangel::Init()
 	m_player->normal.Set(1, 0, 0);
 	m_player->scale = Vector3(2, 2, 2);
 	m_player->bullet_delay = 0;
+	m_player->fire_rate = 0.2f;
 
-	m_ghost = FetchGO();
-
-	// Set m_ghost stats
-	m_ghost->active = true;
-	m_ghost->type = GameObject::GO_GHOSTBALL;
-	m_ghost->pos = m_player->pos;
-	m_ghost->normal.Set(1, 0, 0);
-	m_ghost->scale = Vector3(2, 2, 2);
+	m_player->under_box = FetchGO();
+	m_player->under_box->active = true;
+	m_player->under_box->type = GameObject::GO_GHOSTBALL;
+	m_player->under_box->pos = m_player->pos;
+	m_player->under_box->normal.Set(1, 0, 0);
+	m_player->under_box->scale = Vector3(2, 2, 2);
 
 	//GameObject* newGO = FetchGO();
 	//newGO->active = true;
@@ -237,7 +230,7 @@ Collision SceneArchangel::CheckCollision(GameObject* go1, GameObject* go2, float
 			return collision;
 		}
 	}
-	else if (go2->type == GameObject::GO_PILLAR || go2->type == GameObject::GO_CIRCLE || go2->type == GameObject::GO_POWERUP || go2->type == GameObject::GO_PORTAL_IN || go2->type == GameObject::GO_PORTAL_OUT || go2->type == GameObject::GO_POTION || go2->type == GameObject::GO_MAXPOTION || go2->type == GameObject::GO_MANAPOTION || go2->type == GameObject::GO_GOLD || go2->type == GameObject::GO_GRENADE || go2->type == GameObject::GO_CHEST || go2->type == GameObject::GO_BARREL)
+	else
 	{
 		Vector3 u = go1->vel;
 		Vector3 p2_p1 = go2->pos - go1->pos;
@@ -275,18 +268,14 @@ void SceneArchangel::PhysicsResponse(GameObject* go1, Collision collision)
 	}
 	else if (collision.go->type == GameObject::GO_WALL)
 	{
-		if (go1->type == GameObject::GO_BULLET)
-		{
-			ReturnGO(go1);
-		}
-		else if (go1 == m_player)
+		if (go1 == m_player)
 		{
 			Vector3 N = collision.normal;
 			Vector3 u = go1->vel;
 			go1->vel = u - (2 * u.Dot(N)) * N;
 			go1->vel.y *= 0;
 		}
-		else
+		else if (go1->type != GameObject::GO_BULLET && go1->type != GameObject::GO_FIREBALL)
 		{
 			Vector3 N = collision.normal;
 			Vector3 u = go1->vel;
@@ -331,16 +320,26 @@ void SceneArchangel::PhysicsResponse(GameObject* go1, Collision collision)
 		{
 			openChest(collision.go);
 		}
+		if (collision.go->type == GameObject::GO_DEMON)
+		{
+			takeDMG();
+		}
+		if (collision.go->type == GameObject::GO_FIREBALL)
+		{
+			takeDMG();
+			collision.go->active = false;
+		}
 	}
 	if (go1->type == GameObject::GO_BULLET)
 	{
-		if (collision.go->type == GameObject::GO_BARREL)
+		if (collision.go->type == GameObject::GO_BARREL || collision.go->type == GameObject::GO_DEMON)
 		{
-			collision.go->bullet_count++;
+			collision.go->hp--;
 			go1->active = false;
-			if (collision.go->bullet_count >= 3)
+			if (collision.go->hp == 0)
 			{
-				openChest(collision.go);
+				if (collision.go->type == GameObject::GO_BARREL)
+					openChest(collision.go);
 				if (collision.go->item_count >= 3)
 					collision.go->active = false;
 			}
@@ -349,7 +348,7 @@ void SceneArchangel::PhysicsResponse(GameObject* go1, Collision collision)
 	}
 	if (!portal_shot)
 	{
-		if (go1 == m_player || go1->type == GameObject::GO_BULLET || go1->type == GameObject::GO_GRENADE)
+		if (go1->type != GameObject::GO_WALL)
 		{
 			if (collision.go->type == GameObject::GO_PORTAL_IN)
 			{
@@ -423,7 +422,7 @@ void SceneArchangel::SpawnBullet(double dt)
 	float angle;
 	if (Application::IsMousePressed(0))
 	{
-		if (m_player->bullet_delay > fire_rate / time_manip)
+		if (m_player->bullet_delay > m_player->fire_rate / time_manip)
 		{
 			if (!shotgun)
 			{
@@ -492,8 +491,6 @@ void SceneArchangel::SpawnBullet(double dt)
 			}
 		}
 	}
-
-	enableCollision(dt, GameObject::GO_BULLET);
 }
 
 void SceneArchangel::throwGrenade(double dt)
@@ -507,7 +504,7 @@ void SceneArchangel::throwGrenade(double dt)
 		newGO->type = GameObject::GO_GRENADE;
 		newGO->scale.Set(1.f, 1.f, 0);
 		newGO->pos = m_player->pos;
-		if (right)
+		if (!m_player->left)
 		{
 			if (!time_change)
 				newGO->vel = Vector3(40, 60, 0);
@@ -515,7 +512,7 @@ void SceneArchangel::throwGrenade(double dt)
 				newGO->vel = Vector3(60, 80, 0);
 			cout << "right true" << endl;
 		}
-		else if (left)
+		else
 		{
 			if (!time_change)
 				newGO->vel = Vector3(-40, 60, 0);
@@ -585,8 +582,8 @@ void SceneArchangel::playerLogic(double dt)
 			m_player->vel.x -= 3;
 		else
 			m_player->vel.x -= 1;
-		left = true;
-		right = false;
+
+		m_player->left = true;
 	}
 	else if (Application::IsKeyPressed('D') || Application::IsKeyPressed(VK_RIGHT))
 	{
@@ -594,17 +591,18 @@ void SceneArchangel::playerLogic(double dt)
 			m_player->vel.x += 3;
 		else
 			m_player->vel.x += 1;
-		right = true;
-		left = false;
+
+		m_player->left = false;
 	}
 	else
 	{
 		m_player->vel.x *= 0.7;
 	}
 	Boundary(m_player, 1);
-		
-	m_ghost->pos.x = m_player->pos.x;
-	m_ghost->pos.y = (m_player->pos.y - 2);
+	
+	
+	m_player->under_box->pos.x = m_player->pos.x;
+	m_player->under_box->pos.y = (m_player->pos.y - 2);
 	for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
 	{
 		GameObject* go = (GameObject*)*it;
@@ -612,10 +610,11 @@ void SceneArchangel::playerLogic(double dt)
 		{
 			if (go->type == GameObject::GO_WALL)
 			{
-				Collision collision = CheckCollision(m_ghost, go, dt);
+				Collision collision = CheckCollision(m_player->under_box, go, dt);
 				if (collision.dist > 0)
 				{
 					jump = false;
+				
 				}
 			}
 		}
@@ -719,6 +718,8 @@ void SceneArchangel::itemLogic(double dt)
 	Gravity(GameObject::GO_GOLD, 300, dt);
 	Gravity(GameObject::GO_CHEST, 300, dt);
 	Gravity(GameObject::GO_BARREL, 300, dt);
+	Gravity(GameObject::GO_DEMON, 300, dt);
+	enableCollision(dt, GameObject::GO_BULLET);
 	enableCollision(dt, GameObject::GO_POTION);
 	enableCollision(dt, GameObject::GO_MAXPOTION);
 	enableCollision(dt, GameObject::GO_MANAPOTION);
@@ -726,6 +727,8 @@ void SceneArchangel::itemLogic(double dt)
 	enableCollision(dt, GameObject::GO_GOLD);
 	enableCollision(dt, GameObject::GO_CHEST);
 	enableCollision(dt, GameObject::GO_BARREL);
+	enableCollision(dt, GameObject::GO_DEMON);
+	enableCollision(dt, GameObject::GO_FIREBALL);
 }
 
 void SceneArchangel::activatePortal(GameObject* go)
@@ -825,7 +828,7 @@ void SceneArchangel::Boundary(GameObject* go, int choice)
 
 void SceneArchangel::setGun(float fire, int dmg)
 {
-	fire_rate = fire;
+	m_player->fire_rate = fire;
 	weapon_dmg = dmg;
 }
 
@@ -871,7 +874,7 @@ void SceneArchangel::pickWeapon(double dt)
 
 void SceneArchangel::takeDMG()
 {
-	if (dmg_delay > 3)
+	if (dmg_delay > 1)
 	{
 		m_player->hp--;
 		if (hitpoints[heart_count - empty_heart] > 1)
@@ -1014,6 +1017,148 @@ void SceneArchangel::openChest(GameObject* go)
 	}
 }
 
+void SceneArchangel::demonAI(double dt)
+{
+	for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
+	{
+		GameObject* go = (GameObject*)*it;
+		if (go->active)
+		{
+			if (go->type == GameObject::GO_FIREBALL)
+			{
+				go->pos += go->vel * dt * 100 * time_manip;
+				Boundary(go, 2);
+			}
+			
+			if (go->type == GameObject::GO_DEMON)
+			{
+				go->FSMCounter += dt;
+				go->bullet_delay += dt;
+
+				go->left_box->pos.x = go->pos.x - 4.f;
+				go->left_box->pos.y = go->pos.y - 1.5f;
+				go->right_box->pos.x = go->pos.x + 4.f;
+				go->right_box->pos.y = go->pos.y - 1.5f;
+
+				if (go->hp <= 0)
+				{
+					go->active = false;
+					go->left_box->active = false;
+					go->right_box->active = false;
+				}
+
+
+				// Setting speed limiters
+				if (go->vel.x >= 100)
+				{
+					go->vel.x = 100;
+				}
+				if (go->vel.x <= -100)
+				{
+					go->vel.x = -100;
+				}
+
+				switch (go->state)
+				{
+				case go->STATE_IDLE:
+					if (go->FSMCounter > go->MaxFSMCounter)
+					{
+						go->state = go->STATE_PATROL;
+						go->FSMCounter = 0;
+					}
+					break;
+
+				case go->STATE_PATROL:
+					if (go->left)
+						go->vel.x -= 3;
+					else if (!go->left)
+						go->vel.x += 3;
+
+					for (std::vector<GameObject*>::iterator it2 = m_goList.begin(); it2 != m_goList.end(); ++it2)
+					{
+						GameObject* go2 = (GameObject*)*it2;
+						if (go2->active)
+						{
+							if (go2->type == GameObject::GO_WALL)
+							{
+								Collision collision = CheckCollision(go->left_box, go2, dt);
+								Collision collision2 = CheckCollision(go->right_box, go2, dt);
+								if (collision.dist > 0 && collision2.dist <= 0)
+									go->left = true;
+								else if(collision2.dist > 0 && collision.dist <= 0)
+									go->left = false;
+							}
+						}
+					}
+
+					// To the right / left of demon
+					if (go->pos.x + 10 > m_player->pos.x || go->pos.x - 10 < m_player->pos.x)
+					{
+						if (go->pos.y + 5 > m_player->pos.y && go->pos.y - 5 < m_player->pos.y)
+							go->state = go->STATE_CLOSE_ATTACK;
+						else 
+							go->state = go->STATE_FAR_ATTACK;
+					}
+					
+					
+					if (go->FSMCounter > go->MaxFSMCounter * 3)
+					{
+						go->state = go->STATE_IDLE;
+						go->FSMCounter = 0;
+					}
+
+					break;
+
+				case go->STATE_CLOSE_ATTACK:
+					// To the right / left of demon
+					if (go->pos.x > m_player->pos.x)
+						go->vel.x -= 6;
+					else if (go->pos.x < m_player->pos.x)
+						go->vel.x += 6 ;
+				
+					if (go->FSMCounter > go->MaxFSMCounter * 5)
+					{
+						go->state = go->STATE_IDLE;
+						go->FSMCounter = 0;
+					}
+					break;
+
+				case go->STATE_FAR_ATTACK:
+					go->fire_rate = 1;
+					if (go->FSMCounter > go->MaxFSMCounter * 10)
+					{
+						go->state = go->STATE_IDLE;
+						go->FSMCounter = 0;
+					}
+
+					if (go->pos.y + 5 > m_player->pos.y && go->pos.y - 5 < m_player->pos.y)
+						go->state = go->STATE_CLOSE_ATTACK;
+
+					if (go->bullet_delay > go->fire_rate / time_manip)
+					{
+						GameObject* newGO = FetchGO();
+						newGO->active = true;
+						newGO->type = GameObject::GO_FIREBALL;
+						newGO->scale.Set(2.f, 1.f, 0);
+						newGO->pos = go->pos;
+						float dot = (m_player->pos.y - go->pos.y);
+						float det = (m_player->pos.x - go->pos.x);
+						float angle = atan2f(dot, det);
+						newGO->vel = Vector3(cosf(angle), sin(angle), 0);
+						newGO->vel.Normalize() * 100;
+						go->bullet_delay = 0;
+					}
+					break;
+
+				default:
+					break;
+
+				}
+			}
+		}
+	}
+}
+
 void SceneArchangel::manipTime(double dt)
 {
 	static bool bLButtonState3 = false;
@@ -1075,6 +1220,25 @@ void SceneArchangel::InitMap()
 			cout << go->scale << ", ";
 			go->normal = mapInfo->entityDataList[i]->rot;
 			cout << go->normal << endl;
+			if (mapInfo->entityDataList[i]->type == GameObject::GO_BARREL)
+				go->hp = 3;
+			if (mapInfo->entityDataList[i]->type == GameObject::GO_DEMON)
+			{
+				go->hp = 5;
+				go->left_box = FetchGO();
+				go->left_box->active = true;
+				go->left_box->type = GameObject::GO_GHOSTBALL;
+				go->left_box->pos = go->pos;
+				go->left_box->scale = go->scale;
+				go->left_box->normal = go->normal;
+
+				go->right_box = FetchGO();
+				go->right_box->active = true;
+				go->right_box->type = GameObject::GO_GHOSTBALL;
+				go->right_box->pos = go->pos;
+				go->right_box->scale = go->scale;
+				go->right_box->normal = go->normal;
+			}
 		}
 	}
 }
@@ -1084,7 +1248,7 @@ void SceneArchangel::ClearMap()
 	for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
 	{
 		GameObject* go = (GameObject*)*it;
-		if (go->active && go != m_player && go != m_ghost)
+		if (go->active && go != m_player && go != m_player->under_box)
 		{
 			ReturnGO(go);
 		}
@@ -1146,6 +1310,7 @@ void SceneArchangel::Update(double dt)
 		itemLogic(dt);
 		throwGrenade(dt);
 		manipTime(dt);
+		demonAI(dt);
 
 		// Change Level
 		if (m_AttemptLeft)
@@ -1408,6 +1573,24 @@ void SceneArchangel::RenderGO(GameObject *go)
 		RenderMesh(meshList[GEO_ORANGECUBE], false);
 		modelStack.PopMatrix();
 		break;
+
+	case GameObject::GO_DEMON:
+		modelStack.PushMatrix();
+		modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
+		modelStack.Rotate(Math::RadianToDegree(atan2(go->dir.y, go->dir.x)), 0, 0, 1);
+		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
+		RenderMesh(meshList[GEO_REDCUBE], false);
+		modelStack.PopMatrix();
+		break;
+
+	case GameObject::GO_FIREBALL :
+		modelStack.PushMatrix();
+		modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
+		modelStack.Rotate(Math::RadianToDegree(atan2(go->vel.y, go->vel.x)), 0, 0, 1);
+		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
+		RenderMesh(meshList[GEO_FIREBALL], false);
+		modelStack.PopMatrix();
+		break;
 	}
 	glEnable(GL_DEPTH_TEST);
 }
@@ -1567,3 +1750,4 @@ void SceneArchangel::Exit()
 		m_ghost = NULL;
 	}
 }
+
