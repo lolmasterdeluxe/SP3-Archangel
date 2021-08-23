@@ -45,6 +45,7 @@ public:
 	// Map Stuff
 	void InitMap();
 	void ClearMap();
+	void manipTime(double dt);
 
 protected:
 	// Game states
@@ -69,11 +70,11 @@ protected:
 
 	// Gameplay variables
 	std::vector<GameObject *> m_goList;
-	float m_speed, max_vel, fire_rate;
+	float m_speed, max_vel, fire_rate, time_manip;
 	float m_worldWidth, m_worldHeight, m_screenWidth, m_screenHeight;
 	GameObject * m_ghost, * m_player;
 	int m_objectCount, weapon_dmg, hitpoints[5], heart_count, empty_heart, weapon_choice;
-	bool initPos, jump, portal_in, move_portal_in, move_portal_out, portal_shot, shotgun, left, right;
+	bool initPos, jump, portal_in, move_portal_in, move_portal_out, portal_shot, shotgun, left, right, time_change;
 	double dmg_delay, mana_delay;
 
 	//Debuging

@@ -37,6 +37,7 @@ void SceneArchangel::Init()
 	shotgun = false;
 	left = false;
 	right = true;
+	time_change = false;
 	weapon_dmg = 0;
 	max_vel = 50;
 	fire_rate = 0.2f;
@@ -49,6 +50,7 @@ void SceneArchangel::Init()
 	weapon_choice = 1;
 	dmg_delay = 0;
 	mana_delay = 0;
+	time_manip = 1;
 
 	m_AttemptLeft = m_AttemptRight = false;
 
@@ -71,7 +73,7 @@ void SceneArchangel::Init()
 	m_player->hp = 12;
 	m_player->mana = 50;
 	m_player->gold_count = 50;
-	m_player->grenade_count = 3;
+	m_player->grenade_count = 50;
 	m_player->max_hp = 12;
 	m_player->pos = Vector3(m_worldWidth * 0.5, 30, 0);
 	m_player->normal.Set(1, 0, 0);
@@ -334,7 +336,14 @@ void SceneArchangel::PhysicsResponse(GameObject* go1, Collision collision)
 	{
 		if (collision.go->type == GameObject::GO_BARREL)
 		{
-
+			collision.go->bullet_count++;
+			go1->active = false;
+			if (collision.go->bullet_count >= 3)
+			{
+				openChest(collision.go);
+				if (collision.go->item_count >= 3)
+					collision.go->active = false;
+			}
 		}
 
 	}
@@ -390,7 +399,7 @@ void SceneArchangel::Gravity(GameObject::GAMEOBJECT_TYPE GO, float elasticity, d
 		{
 			if (go->type == GO)
 			{
-				go->pos += go->vel * dt * m_speed;
+				go->pos += go->vel * dt * m_speed * time_manip;
 				go->vel.y -= dt * elasticity;
 			}
 			// terminal velocity
@@ -414,7 +423,7 @@ void SceneArchangel::SpawnBullet(double dt)
 	float angle;
 	if (Application::IsMousePressed(0))
 	{
-		if (m_player->bullet_delay > fire_rate)
+		if (m_player->bullet_delay > fire_rate / time_manip)
 		{
 			if (!shotgun)
 			{
@@ -478,7 +487,7 @@ void SceneArchangel::SpawnBullet(double dt)
 		{
 			if (go->type == GameObject::GO_BULLET)
 			{
-				go->pos += go->vel * dt * 100;
+				go->pos += go->vel * dt * 100 * time_manip;
 				Boundary(go, 2);
 			}
 		}
@@ -500,14 +509,21 @@ void SceneArchangel::throwGrenade(double dt)
 		newGO->pos = m_player->pos;
 		if (right)
 		{
-			newGO->vel = Vector3(40, 60, 0);
+			if (!time_change)
+				newGO->vel = Vector3(40, 60, 0);
+			else
+				newGO->vel = Vector3(60, 80, 0);
 			cout << "right true" << endl;
 		}
 		else if (left)
 		{
-			newGO->vel = Vector3(-40, 60, 0);
+			if (!time_change)
+				newGO->vel = Vector3(-40, 60, 0);
+			else
+				newGO->vel = Vector3(-60, 80, 0);
 			cout << "left true" << endl;
 		}
+		cout << newGO->vel.x << endl;
 		newGO->grenade_delay = 0;
 		m_player->grenade_count--;
 	}
@@ -629,7 +645,7 @@ void SceneArchangel::portalLogic(double dt)
 				newGO->scale.Set(2.5f, 2, 1);
 				newGO->normal.Set(1, 0, 0);
 				newGO->pos = m_player->pos;
-				newGO->vel = Vector3((x / w * m_worldWidth) - newGO->pos.x, ((h - y) / h * m_worldHeight) - newGO->pos.y, 0).Normalize() * 50;
+				newGO->vel = Vector3((x / w * m_screenWidth) + (cameraPos.x - m_screenWidth * .5f) - newGO->pos.x, ((h - y) / h * m_screenHeight) + (cameraPos.y - m_screenHeight * .5f) - newGO->pos.y, 0);
 				newGO->vel.Normalize() * 50;
 				move_portal_in = false;
 			}
@@ -642,7 +658,7 @@ void SceneArchangel::portalLogic(double dt)
 				newGO->scale.Set(2.5f, 2, 1);
 				newGO->normal.Set(1, 0, 0);	
 				newGO->pos = m_player->pos;
-				newGO->vel = Vector3((x / w * m_worldWidth) - newGO->pos.x, ((h - y) / h * m_worldHeight) - newGO->pos.y, 0).Normalize() * 50;
+				newGO->vel = Vector3((x / w * m_screenWidth) + (cameraPos.x - m_screenWidth * .5f) - newGO->pos.x, ((h - y) / h * m_screenHeight) + (cameraPos.y - m_screenHeight * .5f) - newGO->pos.y, 0);
 				newGO->vel.Normalize() * 50;
 				move_portal_out = false;
 			}
@@ -684,11 +700,11 @@ void SceneArchangel::portalLogic(double dt)
 		{
 			if (go->type == GameObject::GO_PORTAL_IN && !move_portal_in)
 			{
-				go->pos += go->vel * dt * 50;
+				go->pos += go->vel * dt * 50 * time_manip;
 			}
 			else if (go->type == GameObject::GO_PORTAL_OUT && !move_portal_out)
 			{
-				go->pos += go->vel * dt * 50;
+				go->pos += go->vel * dt * 50 * time_manip;
 			}
 		}
 	}
@@ -758,7 +774,7 @@ void SceneArchangel::enableCollision(double dt, GameObject::GAMEOBJECT_TYPE GO)
 					Collision collision = CheckCollision(first, other, dt);
 					if (collision.dist > 0)
 					{
-						if (go == m_player && go2->type == GameObject::GO_WALL)
+						if (go == m_player && go2->type == GameObject::GO_WALL || go != m_player && go2->type == GameObject::GO_WALL)
 						{
 							CollisionBound(first, collision);
 						}
@@ -936,59 +952,88 @@ void SceneArchangel::mana(float interval, int amount,  bool restore)
 
 void SceneArchangel::openChest(GameObject* go)
 {
-	if (go->item_count < 3)
+	for (int i = 0; i < 3; ++i)
 	{
-		GameObject* newGO = FetchGO();
-		int item_type = Math::RandIntMinMax(1, 3);
-		int dir = Math::RandIntMinMax(1, 2);
-		int positive_vel = Math::RandIntMinMax(10, 40);
-		int negative_vel = Math::RandIntMinMax(-40, -10);
-		if (item_type == 1)
+		if (go->item_count < 3)
 		{
-			newGO->active = true;
-			newGO->type = GameObject::GO_POTION;
-			newGO->scale.Set(1, 1, 1);
-			if (dir == 1)
+			GameObject* newGO = FetchGO();
+			int item_type = Math::RandIntMinMax(1, 3);
+			int dir = Math::RandIntMinMax(1, 2);
+			int positive_vel = Math::RandIntMinMax(10, 40);
+			int negative_vel = Math::RandIntMinMax(-40, -10);
+			if (item_type == 1)
 			{
-				newGO->vel = Vector3(positive_vel, positive_vel + 20, 0);
+				newGO->active = true;
+				newGO->type = GameObject::GO_POTION;
+				newGO->scale.Set(1, 1, 1);
+				if (dir == 1)
+				{
+					newGO->vel = Vector3(positive_vel, positive_vel + 20, 0);
+				}
+				else if (dir == 2)
+				{
+					newGO->vel = Vector3(negative_vel, positive_vel + 20, 0);
+				}
+				newGO->pos = go->pos;
 			}
-			else if (dir == 2)
+			else if (item_type == 2)
 			{
-				newGO->vel = Vector3(negative_vel, positive_vel + 20, 0);
+				newGO->active = true;
+				newGO->type = GameObject::GO_MANAPOTION;
+				newGO->scale.Set(1, 1, 1);
+				if (dir == 1)
+				{
+					newGO->vel = Vector3(positive_vel, positive_vel + 20, 0);
+				}
+				else if (dir == 2)
+				{
+					newGO->vel = Vector3(negative_vel, positive_vel + 20, 0);
+				}
+				newGO->pos = go->pos;
 			}
-			newGO->pos = go->pos;
+			else if (item_type == 3)
+			{
+				newGO->active = true;
+				newGO->type = GameObject::GO_GOLD;
+				newGO->scale.Set(1, 1, 1);
+				if (dir == 1)
+				{
+					newGO->vel = Vector3(positive_vel, positive_vel + 20, 0);
+				}
+				else if (dir == 2)
+				{
+					newGO->vel = Vector3(negative_vel, positive_vel + 20, 0);
+				}
+				newGO->pos = go->pos;
+			}
+			go->item_count++;
+			cout << "count: " << go->item_count << endl;
+			cout << "type: " << item_type << endl;
+			cout << "dir: " << dir << endl;
 		}
-		else if (item_type == 2)
+	}
+}
+
+void SceneArchangel::manipTime(double dt)
+{
+	static bool bLButtonState3 = false;
+	if (Application::IsKeyPressed('P') && !bLButtonState3)
+	{
+		bLButtonState3 = true;
+		if (!time_change)
 		{
-			newGO->active = true;
-			newGO->type = GameObject::GO_MANAPOTION;
-			newGO->scale.Set(1, 1, 1);
-			if (dir == 1)
-			{
-				newGO->vel = Vector3(positive_vel, positive_vel + 20, 0);
-			}
-			else if (dir == 2)
-			{
-				newGO->vel = Vector3(negative_vel, positive_vel + 20, 0);
-			}
-			newGO->pos = go->pos;
+			time_change = true;
+			time_manip = 0.5f;
 		}
-		else if (item_type == 3)
+		else
 		{
-			newGO->active = true;
-			newGO->type = GameObject::GO_GOLD;
-			newGO->scale.Set(1, 1, 1);
-			if (dir == 1)
-			{
-				newGO->vel = Vector3(positive_vel, positive_vel + 20, 0);
-			}
-			else if (dir == 2)
-			{
-				newGO->vel = Vector3(negative_vel, positive_vel + 20, 0);
-			}
-			newGO->pos = go->pos;
+			time_change = false;
+			time_manip = 1.f;
 		}
-		go->item_count++;
+	}
+	else if (!Application::IsKeyPressed('P'))
+	{
+		bLButtonState3 = false;
 	}
 }
 
@@ -1111,6 +1156,7 @@ void SceneArchangel::Update(double dt)
 		pickWeapon(dt);
 		itemLogic(dt);
 		throwGrenade(dt);
+		manipTime(dt);
 
 		// Change Level
 		if (m_AttemptLeft)
