@@ -44,6 +44,8 @@ public:
 	void manipTime(double dt);
 	void demonAI(double dt);
 
+	void screenSpaceToWorldSpace(double& x, double& y);
+
 	// Map Stuff
 	void InitMap();
 	void ClearMap();

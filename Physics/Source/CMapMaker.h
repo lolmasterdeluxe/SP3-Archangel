@@ -13,18 +13,26 @@
 class CMapMaker
 {
 	CMapNode* current, * start, * newNode;
+	bool checkIfEnteringLeft();
+	bool checkIfEnteringRight();
 public:
 	CMapMaker();
 	~CMapMaker();
-
+	
+	// generate a map layout
 	void GenerateMap();
-	void SaveMap();
 
+	// try to go to the next room on the left
 	bool GoLeft();
+	// try to go to the next room on the right
 	bool GoRight();
 
+	// get struct that stores list of wall and entity data
 	const MapData* GetMapData();
+	// get if the room was visited before
 	bool IsVisited();
+	// get if the room is entered from the front(true) or the back(false)
+	bool IsFromFront();
 };
 
 #endif

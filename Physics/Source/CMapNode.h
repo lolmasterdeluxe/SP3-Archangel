@@ -16,7 +16,7 @@ using namespace std;
 class CMapNode
 {
 	MapData* mapData;
-	bool visited;
+	bool visited, entering;
 	CMapNode* left, * right;
 public:
 	CMapNode();
@@ -29,6 +29,8 @@ public:
 	void SetMapData(MapData* mapData);
 	bool IsVisited();
 	void SetVisitStatus(bool visited);
+	bool Entering(); // check if it is going in from front or back
+	void SetEnterLocation(bool entering); // true if it is going from front, false if it is going from back
 };
 
 #endif

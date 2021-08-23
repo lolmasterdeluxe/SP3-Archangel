@@ -9,7 +9,8 @@ CMapNode::CMapNode() :
 	left(nullptr),
 	right(nullptr),
 	mapData(nullptr),
-	visited(false)
+	visited(false),
+	entering(true)
 {
 }
 
@@ -55,4 +56,14 @@ bool CMapNode::IsVisited()
 void CMapNode::SetVisitStatus(bool visited)
 {
 	this->visited = visited;
+}
+
+bool CMapNode::Entering()
+{
+	return entering;
+}
+
+void CMapNode::SetEnterLocation(bool entering)
+{
+	this->entering = entering;
 }
