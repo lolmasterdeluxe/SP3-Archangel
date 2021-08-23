@@ -1,65 +1,101 @@
 /**
- CCSVReader
+ Map Storage
  By: Ho Junliang
  Date: Aug 2021
  */
 #include "CMapStorage.h"
 
-vector<vector<pair<GameObject::GAMEOBJECT_TYPE, Vector3[3]>>> CMapStorage::MapStorage;
-vector<vector<pair<GameObject::GAMEOBJECT_TYPE, Vector3[3]>>> CMapStorage::EntityStorage;
-
 CMapStorage::CMapStorage()
 {
 	CCSVReader reader;
-	string filename[1] = {
-		"Maps/Map_Level_Test.csv"
+	string filename[TOTAL_CATEGORY][MAPS_PER_CATEGORY] = {
+		{"Maps/Test/Map_Level_Test.csv"},
+		{"Maps/Spawn/Map_Level_Spawn_1.csv"}
+		/*,
+		{"Maps/LeftDungeon/Map_Level_Left_Dungeon.csv"},
+		{"Maps/LeftRest/Map_Level_Left_Rest.csv"},
+		{"Maps/LeftTreasure/Map_Level_Left_Treasure.csv"},
+		{"Maps/LeftBoss/Map_Level_Left_Boss.csv"},
+		{"Maps/RightDungeon/Map_Level_Right_Dungeon.csv"},
+		{"Maps/RightRest/Map_Level_Right_Rest.csv"},
+		{"Maps/RightTreasure/Map_Level_Right_Treasure.csv"},
+		{"Maps/RightBoss/Map_Level_Right_Boss.csv"}*/
 	};
-	MapStorage.clear();
-	EntityStorage.clear();
 
-	for (int lvl = 0; lvl < 1; lvl++)
+
+	for (int category = 0; category < TOTAL_CATEGORY; category++)
 	{
-		vector<pair<string, float[5]>> values = reader.read_csv_map(filename[lvl]);
-
-		vector<pair<GameObject::GAMEOBJECT_TYPE, Vector3[3]>> MapInfo;
-		vector<pair<GameObject::GAMEOBJECT_TYPE, Vector3[3]>> EntityInfo;
-
-		for (int i = 0; i < values.size(); i++)
+		MapList* mapList = new MapList();
+		mapStorage[category] = mapList;
+		for (int lvl = 0; lvl < MAPS_PER_CATEGORY; lvl++)
 		{
-			pair<GameObject::GAMEOBJECT_TYPE, Vector3[3]> info;
-			if (values[i].first == "wall")
-			{
-				float deg = Math::DegreeToRadian(values[i].second[4]);
-				float right = Math::DegreeToRadian(values[i].second[4] + 90);
-				info.first = GameObject::GO_WALL;
-				info.second[0] = Vector3(values[i].second[0], values[i].second[1]);
-				info.second[1] = Vector3(values[i].second[2], values[i].second[3], 1);
-				info.second[2] = Vector3((float)cos(deg), (float)sin(deg));
-				MapInfo.push_back(info);
-				/*info.first = GameObject::GO_WALL;
-				info.second[0] = Vector3(values[i].second[0], values[i].second[1]);
-				info.second[1] = Vector3(values[i].second[3], values[i].second[2], 1);
-				info.second[2] = Vector3((float)cos(right), (float)sin(right));
-				MapInfo.push_back(info);*/
-			}
-			else if (values[i].first == "player")
-			{
-				info.first = GameObject::GO_CUBE;
+			vector<pair<string, float[5]>> values = reader.read_csv_map(filename[category][lvl]);
 
-				info.second[0] = Vector3(values[i].second[0], values[i].second[1]);
-				info.second[1] = Vector3(values[i].second[2], values[i].second[3], 1);
+			MapData* mapInfo = new MapData();
+			vector<GOData*> wallInfo;
+			vector<GOData*> entityInfo;
+
+			for (int i = 0; i < values.size(); i++)
+			{
+				GOData* info = new GOData();
+
+				// Set Pos, Rot, Scale
 				float deg = Math::DegreeToRadian(values[i].second[4]);
-				info.second[2] = Vector3((float)cos(deg), (float)sin(deg));
-				EntityInfo.push_back(info);
+				info->pos = Vector3(values[i].second[0], values[i].second[1]);
+				info->scale = Vector3(values[i].second[2], values[i].second[3], 1);
+				info->rot = Vector3((float)cos(deg), (float)sin(deg));
+
+				// Set type and store in appropriate list
+				if (values[i].first == "wall")
+				{
+					info->type = GameObject::GO_WALL;
+					wallInfo.push_back(info);
+				}
+				else if (values[i].first == "player")
+				{
+					info->type = GameObject::GO_CUBE;
+					entityInfo.push_back(info);
+				}
+				else if (values[i].first == "potion")
+				{
+					info->type = GameObject::GO_POTION;
+					entityInfo.push_back(info);
+				}
+				else if (values[i].first == "maxPotion")
+				{
+					info->type = GameObject::GO_MAXPOTION;
+					entityInfo.push_back(info);
+				}
+				else if (values[i].first == "manaPotion")
+				{
+					info->type = GameObject::GO_MANAPOTION;
+					entityInfo.push_back(info);
+				}
+				else if (values[i].first == "gold")
+				{
+					info->type = GameObject::GO_GOLD;
+					entityInfo.push_back(info);
+				}
+				else if (values[i].first == "chest")
+				{
+					info->type = GameObject::GO_CHEST;
+					entityInfo.push_back(info);
+				}
 			}
+
+			mapInfo->wallDataList = wallInfo;
+			mapInfo->entityDataList = entityInfo;
+			mapList->mapDataList.push_back(mapInfo);
 		}
-		MapStorage.push_back(MapInfo);
-		EntityStorage.push_back(EntityInfo);
 	}
 }
 
 CMapStorage::~CMapStorage()
 {
+	for (int i = 0; i < TOTAL_CATEGORY; i++)
+	{
+		delete mapStorage[i];
+	}
 }
 
 
@@ -89,11 +125,8 @@ void CMapStorage::Destroy()
 	}
 }
 
-vector<pair<GameObject::GAMEOBJECT_TYPE, Vector3[3]>> CMapStorage::GetMapInfo(int lvl)
+MapData* CMapStorage::GetMapInfo(CMapStorage::MAP_CATEGORY category, int number)
 {
-	return MapStorage[lvl];
-}
-vector<pair<GameObject::GAMEOBJECT_TYPE, Vector3[3]>> CMapStorage::GetEntityInfo(int lvl)
-{
-	return EntityStorage[lvl];
+	if (number >= MAPS_PER_CATEGORY) number %= MAPS_PER_CATEGORY;
+	return mapStorage[category]->mapDataList[number];
 }

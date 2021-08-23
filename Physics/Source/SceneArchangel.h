@@ -4,7 +4,7 @@
 #include "GameObject.h"
 #include <vector>
 #include "SceneBase.h"
-#include "CMapStorage.h"
+#include "CMapMaker.h"
 #include "Collision.h"
 
 class SceneArchangel : public SceneBase
@@ -21,6 +21,7 @@ public:
 	void RenderGO(GameObject *go);
 
 	GameObject* FetchGO();
+	void ReturnGO(GameObject* go);
 	void ReturnGO(GameObject::GAMEOBJECT_TYPE GO);
 	Collision CheckCollision(GameObject* go1, GameObject* go2, float dt);
 	void PhysicsResponse(GameObject* go1, Collision collision);
@@ -40,8 +41,11 @@ public:
 	void heal(bool max_potion);
 	void mana(float interval, int amount, bool restore);
 	void openChest(GameObject* go);
+
+	// Map Stuff
+	void InitMap();
+	void ClearMap();
 	void manipTime(double dt);
-	void InitMap(int lvl);
 
 protected:
 	// Game states
@@ -55,6 +59,12 @@ protected:
 
 	GAME_STATE state;
 
+	// maps and levels
+	CMapMaker mapMaker;
+
+	// When player walk into the boundary, attempt to switch level
+	bool m_AttemptLeft, m_AttemptRight;
+
 	// Camera
 	Vector3 cameraPos;
 
@@ -66,6 +76,9 @@ protected:
 	int m_objectCount, weapon_dmg, hitpoints[5], heart_count, empty_heart, weapon_choice;
 	bool initPos, jump, portal_in, move_portal_in, move_portal_out, portal_shot, shotgun, left, right, time_change;
 	double dmg_delay, mana_delay;
+
+	//Debuging
+	bool m_toggleDebugScreen;
 	
 	//Auditing
 	float m1, m2;

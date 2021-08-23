@@ -154,8 +154,11 @@
   <ItemGroup>
     <ClCompile Include="Source\Application.cpp" />
     <ClCompile Include="Source\Camera.cpp" />
+    <ClCompile Include="Source\CMapMaker.cpp" />
+    <ClCompile Include="Source\CMapNode.cpp" />
     <ClCompile Include="Source\CMapStorage.cpp" />
     <ClCompile Include="Source\CSVReader.cpp" />
+    <ClCompile Include="Source\CSVWriter.cpp" />
     <ClCompile Include="Source\GameObject.cpp" />
     <ClCompile Include="Source\LoadOBJ.cpp" />
     <ClCompile Include="Source\LoadTGA.cpp" />
@@ -173,12 +176,16 @@
   <ItemGroup>
     <ClInclude Include="Source\Application.h" />
     <ClInclude Include="Source\Camera.h" />
+    <ClInclude Include="Source\CMapMaker.h" />
+    <ClInclude Include="Source\CMapNode.h" />
     <ClInclude Include="Source\CMapStorage.h" />
     <ClInclude Include="Source\CSVReader.h" />
+    <ClInclude Include="Source\CSVWriter.h" />
     <ClInclude Include="Source\GameObject.h" />
     <ClInclude Include="Source\Light.h" />
     <ClInclude Include="Source\LoadOBJ.h" />
     <ClInclude Include="Source\LoadTGA.h" />
+    <ClInclude Include="Source\MapDataStruct.h" />
     <ClInclude Include="Source\Material.h" />
     <ClInclude Include="Source\Mesh.h" />
     <ClInclude Include="Source\MeshBuilder.h" />
