@@ -60,7 +60,7 @@ void SceneArchangel::Init()
 	m_screenHeight = 60;
 	m_screenWidth = m_screenHeight * (float)Application::GetWindowWidth() / Application::GetWindowHeight();
 	m_worldHeight = 100.f;
-	m_worldWidth = 120;
+	m_worldWidth = 180;
 
 	// Initialize Game state
 	state = STATE_MENU;
@@ -418,6 +418,7 @@ void SceneArchangel::SpawnBullet(double dt)
 	int h = Application::GetWindowHeight();
 	double x, y;
 	Application::GetCursorPos(&x, &y);
+	screenSpaceToWorldSpace(x, y);
 	//Mouse Section
 	static bool bLButtonState = false;
 	float angle;
@@ -432,7 +433,7 @@ void SceneArchangel::SpawnBullet(double dt)
 				newGO->type = GameObject::GO_BULLET;
 				newGO->scale.Set(1, 0.5f, 0);
 				newGO->pos = m_player->pos;
-				newGO->vel = Vector3((x / w * m_screenWidth) + (cameraPos.x - m_screenWidth * .5f) - newGO->pos.x, ((h - y) / h * m_screenHeight) + (cameraPos.y - m_screenHeight * .5f) - newGO->pos.y, 0);
+				newGO->vel = Vector3(x - newGO->pos.x, y - newGO->pos.y, 0);
 				newGO->vel.Normalize() * 100;
 			}
 			else
@@ -442,7 +443,7 @@ void SceneArchangel::SpawnBullet(double dt)
 				newGO->type = GameObject::GO_BULLET;
 				newGO->scale.Set(1, 0.5f, 0);
 				newGO->pos = m_player->pos;
-				newGO->vel = Vector3((x / w * m_screenWidth) + (cameraPos.x - m_screenWidth * .5f) - newGO->pos.x, ((h - y) / h * m_screenHeight) + (cameraPos.y - m_screenHeight * .5f) - newGO->pos.y, 0);
+				newGO->vel = Vector3(x - newGO->pos.x, y - newGO->pos.y, 0);
 				angle = atan2f(newGO->vel.y, newGO->vel.x) + Math::DegreeToRadian(1);
 				newGO->vel = Vector3(cosf(angle), sin(angle), 0);
 				newGO->vel.Normalize() * 100;
@@ -452,7 +453,7 @@ void SceneArchangel::SpawnBullet(double dt)
 				newGO2->type = GameObject::GO_BULLET;
 				newGO2->scale.Set(1, 0.5f, 0);
 				newGO2->pos = m_player->pos;
-				newGO2->vel = Vector3((x / w * m_screenWidth) + (cameraPos.x - m_screenWidth * .5f) - newGO2->pos.x, ((h - y) / h * m_screenHeight) + (cameraPos.y - m_screenHeight * .5f) - newGO2->pos.y, 0);
+				newGO2->vel = Vector3(x - newGO->pos.x, y - newGO->pos.y, 0);
 				angle = atan2f(newGO2->vel.y, newGO2->vel.x) - Math::DegreeToRadian(1);
 				newGO2->vel = Vector3(cosf(angle), sin(angle), 0);
 				newGO2->vel.Normalize() * 100;
@@ -462,7 +463,7 @@ void SceneArchangel::SpawnBullet(double dt)
 				newGO3->type = GameObject::GO_BULLET;
 				newGO3->scale.Set(1, 0.5f, 0);
 				newGO3->pos = m_player->pos;
-				newGO3->vel = Vector3((x / w * m_screenWidth) + (cameraPos.x - m_screenWidth * .5f) - newGO3->pos.x, ((h - y) / h * m_screenHeight) + (cameraPos.y - m_screenHeight * .5f) - newGO3->pos.y, 0);
+				newGO3->vel = Vector3(x - newGO->pos.x, y - newGO->pos.y, 0);
 				angle = atan2f(newGO3->vel.y, newGO3->vel.x) + Math::DegreeToRadian(3);
 				newGO3->vel = Vector3(cosf(angle), sin(angle), 0);
 				newGO3->vel.Normalize() * 100;
@@ -472,7 +473,7 @@ void SceneArchangel::SpawnBullet(double dt)
 				newGO4->type = GameObject::GO_BULLET;
 				newGO4->scale.Set(1, 0.5f, 0);
 				newGO4->pos = m_player->pos;
-				newGO4->vel = Vector3((x / w * m_screenWidth) + (cameraPos.x - m_screenWidth * .5f) - newGO4->pos.x, ((h - y) / h * m_screenHeight) + (cameraPos.y - m_screenHeight * .5f) - newGO4->pos.y, 0);
+				newGO4->vel = Vector3(x - newGO->pos.x, y - newGO->pos.y, 0);
 				angle = atan2f(newGO4->vel.y, newGO4->vel.x) - Math::DegreeToRadian(3);
 				newGO4->vel = Vector3(cosf(angle), sin(angle), 0);
 				newGO4->vel.Normalize() * 100;
@@ -1012,6 +1013,16 @@ void SceneArchangel::openChest(GameObject* go)
 			cout << "dir: " << dir << endl;
 		}
 	}
+}
+
+void SceneArchangel::screenSpaceToWorldSpace(double& x, double& y)
+{
+	int w = Application::GetWindowWidth();
+	int h = Application::GetWindowHeight();
+	double sX = x;
+	double sY = y;
+	x = (sX / w * m_screenWidth) + (cameraPos.x - m_screenWidth * .5f);
+	y = ((h - sY) / h * m_screenHeight) + (cameraPos.y - m_screenHeight * .5f);
 }
 
 void SceneArchangel::manipTime(double dt)

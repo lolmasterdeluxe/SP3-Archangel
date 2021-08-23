@@ -42,6 +42,8 @@ public:
 	void mana(float interval, int amount, bool restore);
 	void openChest(GameObject* go);
 
+	void screenSpaceToWorldSpace(double& x, double& y);
+
 	// Map Stuff
 	void InitMap();
 	void ClearMap();
