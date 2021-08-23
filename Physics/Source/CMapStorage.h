@@ -22,6 +22,16 @@ public:
 	{
 		CAT_TEST = 0,
 		CAT_SPAWN,
+		// rooms to the left
+		CAT_LEFT_DUNGEON,
+		CAT_LEFT_REST,
+		CAT_LEFT_TREASURE,
+		CAT_LEFT_BOSS,
+		// rooms to the right
+		CAT_RIGHT_DUNGEON,
+		CAT_RIGHT_REST,
+		CAT_RIGHT_TREASURE,
+		CAT_RIGHT_BOSS,
 
 		TOTAL_CATEGORY // must be last
 	};

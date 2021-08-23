@@ -11,6 +11,15 @@ CMapStorage::CMapStorage()
 	string filename[TOTAL_CATEGORY][MAPS_PER_CATEGORY] = {
 		{"Maps/Test/Map_Level_Test.csv"},
 		{"Maps/Spawn/Map_Level_Spawn_1.csv"}
+		/*,
+		{"Maps/LeftDungeon/Map_Level_Left_Dungeon.csv"},
+		{"Maps/LeftRest/Map_Level_Left_Rest.csv"},
+		{"Maps/LeftTreasure/Map_Level_Left_Treasure.csv"},
+		{"Maps/LeftBoss/Map_Level_Left_Boss.csv"},
+		{"Maps/RightDungeon/Map_Level_Right_Dungeon.csv"},
+		{"Maps/RightRest/Map_Level_Right_Rest.csv"},
+		{"Maps/RightTreasure/Map_Level_Right_Treasure.csv"},
+		{"Maps/RightBoss/Map_Level_Right_Boss.csv"}*/
 	};
 
 

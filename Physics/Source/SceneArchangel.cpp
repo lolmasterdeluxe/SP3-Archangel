@@ -55,10 +55,10 @@ void SceneArchangel::Init()
 	m_toggleDebugScreen = false;
 
 	//Calculating aspect ratio
-	m_screenHeight = 60.f;
+	m_screenHeight = 60;
 	m_screenWidth = m_screenHeight * (float)Application::GetWindowWidth() / Application::GetWindowHeight();
 	m_worldHeight = 100.f;
-	m_worldWidth = 130;
+	m_worldWidth = 120;
 
 	// Initialize Game state
 	state = STATE_MENU;
@@ -1371,8 +1371,8 @@ void SceneArchangel::Render()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	//Calculating aspect ratio
-	m_worldHeight = 100.f;
-	m_worldWidth = m_worldHeight * (float)Application::GetWindowWidth() / Application::GetWindowHeight();
+	m_screenHeight = 60;
+	m_screenWidth = m_screenHeight * (float)Application::GetWindowWidth() / Application::GetWindowHeight();
 
 	// Projection matrix : Orthographic Projection
 	Mtx44 projection;
@@ -1402,8 +1402,8 @@ void SceneArchangel::Render()
 	if (state == STATE_MENU)
 	{
 		modelStack.PushMatrix();
-		modelStack.Translate(80, 50, 1);
-		modelStack.Scale(80, 50, 1);
+		modelStack.Translate(m_worldWidth * .5f, m_worldHeight * .5f, 1);
+		modelStack.Scale(m_worldWidth * .5f, m_worldHeight * .5f, 1);
 		RenderMesh(meshList[GEO_MENU2], false);
 		modelStack.PopMatrix();
 	}
