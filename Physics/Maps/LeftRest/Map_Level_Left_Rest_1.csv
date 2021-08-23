@@ -1,0 +1,11 @@
+﻿// type,x pos,y pos,x scale,y scale,rot (Deg)
+playerEnter,118,35,2,2,0
+playerExit,2,35,2,2,0
+potion,15,50,1,1,0
+coin,60,50,1,1,0
+manaPotion,105,50,1,1,0
+wall,15,15,15,15,90
+wall,60,15,15,15,90
+wall,105,15,15,15,90
+wall,118,95,2,50,0
+wall,2,95,2,50,0

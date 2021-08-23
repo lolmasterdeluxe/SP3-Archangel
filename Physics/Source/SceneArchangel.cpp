@@ -1015,8 +1015,19 @@ void SceneArchangel::InitMap()
 	{
 		if (mapInfo->entityDataList[i]->type == GameObject::GO_CUBE)
 		{ // set player position
-			m_player->pos = mapInfo->entityDataList[i]->pos;
-			cout << "set player pos" << m_player->pos << endl;
+			if (mapMaker.IsFromFront())
+			{
+				m_player->pos = mapInfo->entityDataList[i]->pos;
+				cout << "set player pos enter" << m_player->pos << endl;
+			}
+		}
+		else if (mapInfo->entityDataList[i]->type == GameObject::GO_GHOSTBALL)
+		{
+			if (!mapMaker.IsFromFront())
+			{
+				m_player->pos = mapInfo->entityDataList[i]->pos;
+				cout << "set player pos exit" << m_player->pos << endl;
+			}
 		}
 		else if (!mapMaker.IsVisited())
 		{ // Spawn loot and enemies

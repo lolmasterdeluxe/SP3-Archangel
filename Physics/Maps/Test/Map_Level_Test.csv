@@ -1,6 +1,7 @@
 ﻿// type,x pos,y pos,x scale,y scale,rot (Deg)
 wall,60,3,2,100,90
-player,50,30,2,2,0
+playerEnter,120,30,2,2,0
+playerExit,0,30,2,2,0
 wall,30,25,2,25,0
 wall,80,30,10,10,0
 chest,80,50,1.5,1.5,0
