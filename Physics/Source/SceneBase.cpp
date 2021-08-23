@@ -213,6 +213,8 @@ void SceneBase::Init()
 	meshList[GEO_20HEART]->textureID = LoadTGA("Image//20heart.tga");
 	meshList[GEO_EMPTYHEART] = MeshBuilder::GenerateQuad("Full heart", Color(1, 1, 1), 2.f);
 	meshList[GEO_EMPTYHEART]->textureID = LoadTGA("Image//emptyheart.tga");
+	meshList[GEO_FIREBALL] = MeshBuilder::GenerateQuad("Fireball", Color(1, 1, 1), 2.f);
+	meshList[GEO_FIREBALL]->textureID = LoadTGA("Image//fireball.tga");
 
 
 	bLightEnabled = false;

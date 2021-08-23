@@ -90,6 +90,11 @@ CMapStorage::CMapStorage()
 					info->type = GameObject::GO_BARREL;
 					entityInfo.push_back(info);
 				}
+				else if (values[i].first == "demon")
+				{
+					info->type = GameObject::GO_DEMON;
+					entityInfo.push_back(info);
+				}
 			}
 
 			mapInfo->wallDataList = wallInfo;

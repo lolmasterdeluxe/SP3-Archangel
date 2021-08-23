@@ -12,6 +12,8 @@ GameObject::GameObject(GAMEOBJECT_TYPE typeValue)
 	missile(false),
 	bounce(false),
 	initPos(false),
+	left(false),
+	right(false),
 	color(Math::RandIntMinMax(0, 7)),
 	prevpos(0),
 	grenade_count(0),
@@ -42,7 +44,10 @@ GameObject::GameObject(GAMEOBJECT_TYPE typeValue)
 	pause(0),
 	shoot_period(0),
 	fire_style(0),
-	animation_delay(1)
+	animation_delay(1),
+	FSMCounter(0),
+	MaxFSMCounter(1),
+	state(STATE_IDLE)
 {
 
 }

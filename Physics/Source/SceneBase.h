@@ -116,6 +116,8 @@ public:
 		GEO_SMG,
 		GEO_SHOTGUN,
 		GEO_REVOLVER,
+		GEO_DEMON,
+		GEO_FIREBALL,
 		NUM_GEOMETRY,
 	};
 public:
