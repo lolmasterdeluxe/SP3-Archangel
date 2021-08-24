@@ -591,7 +591,7 @@ void SceneArchangel::playerLogic(double dt)
 	// Jump
 	if (Application::IsKeyPressed(VK_SPACE) && !jump)
 	{
-		m_player->vel.y += 30;
+		m_player->vel.y += 100;
 		jump = true;
 	}
 
@@ -630,19 +630,21 @@ void SceneArchangel::playerLogic(double dt)
 	
 	
 	m_player->under_box->pos.x = m_player->pos.x;
-	m_player->under_box->pos.y = (m_player->pos.y - 2);
-	for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
+	m_player->under_box->pos.y = (m_player->pos.y - 1);
+	if (m_player->vel.y <= 0)
 	{
-		GameObject* go = (GameObject*)*it;
-		if (go->active)
+		for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
 		{
-			if (go->type == GameObject::GO_WALL || go->type == GameObject::GO_PLATFORM)
+			GameObject* go = (GameObject*)*it;
+			if (go->active)
 			{
-				Collision collision = CheckCollision(m_player->under_box, go, dt);
-				if (collision.dist > 0)
+				if (go->type == GameObject::GO_WALL || go->type == GameObject::GO_PLATFORM)
 				{
-					jump = false;
-				
+					Collision collision = CheckCollision(m_player->under_box, go, dt);
+					if (collision.dist > 0)
+					{
+						jump = false;
+					}
 				}
 			}
 		}
