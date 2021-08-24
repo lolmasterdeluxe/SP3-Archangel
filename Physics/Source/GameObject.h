@@ -56,6 +56,7 @@ struct GameObject
 		GO_CHEST,
 		GO_BARREL,
 		GO_FIREBALL,
+		GO_PLATFORM,
 		GO_TOTAL, //must be last
 	};
 	enum STATE

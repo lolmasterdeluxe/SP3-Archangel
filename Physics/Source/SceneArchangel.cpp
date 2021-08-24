@@ -180,6 +180,35 @@ Collision SceneArchangel::CheckCollision(GameObject* go1, GameObject* go2, float
 			return collision;
 		}
 	}
+	else if (go2->type == GameObject::GO_PLATFORM)
+	{
+		if (go1 == m_player && (Application::IsKeyPressed('S') || go1->vel.y > 0))
+			return Collision();
+		Vector3 N = go2->normal; // go2 normal
+		Vector3 NP(N.y, -N.x, 0); //  go2 right vector
+		Vector3 w0_b1 = go2->pos - go1->pos; // point from go1 to go2
+		float r = go1->scale.x; // go1 radius
+		float h_2 = go2->scale.x; // go2 length
+		float l_2 = go2->scale.y; // go2 width
+
+		if (w0_b1.Dot(N) < 0)
+				N = -N; //making sure N is outward normal
+		if (w0_b1.Dot(NP) < 0)
+			NP = -NP; //making sure NP is outward normal
+
+		float dist_N = w0_b1.Dot(N); // dist along N axis
+		float dist_NP = w0_b1.Dot(NP); // dist along NP axis
+
+		if (dist_N <= r + h_2 && dist_NP <= r + l_2 && go1->vel.Dot(N) >= 0)
+		{
+			Collision collision;
+			collision.go = go2;
+			collision.axis = -N.Normalize();
+			collision.dist = r + h_2 - (w0_b1).Dot(N);
+			collision.normal = N;
+			return collision;
+		}
+	}
 	else if (go2->type == GameObject::GO_WALL)
 	{
 		Vector3 N = go2->normal; // go2 normal
@@ -231,7 +260,7 @@ Collision SceneArchangel::CheckCollision(GameObject* go1, GameObject* go2, float
 		}
 	}
 	else
-	{
+	{ //static ball and non static ball collision
 		Vector3 u = go1->vel;
 		Vector3 p2_p1 = go2->pos - go1->pos;
 		float r1 = go1->scale.x;
@@ -266,7 +295,7 @@ void SceneArchangel::PhysicsResponse(GameObject* go1, Collision collision)
 		collision.go->vel = u2 - (2 * m1 / (m1 + m2)) * (((u2 - u1).Dot(collision.go->pos - go1->pos)) / (collision.go->pos - go1->pos).LengthSquared()) * (collision.go->pos - go1->pos);
 		go1->vel.y *= 0.4;
 	}
-	else if (collision.go->type == GameObject::GO_WALL)
+	else if (collision.go->type == GameObject::GO_WALL || collision.go->type == GameObject::GO_PLATFORM)
 	{
 		if (go1 == m_player)
 		{
@@ -607,7 +636,7 @@ void SceneArchangel::playerLogic(double dt)
 		GameObject* go = (GameObject*)*it;
 		if (go->active)
 		{
-			if (go->type == GameObject::GO_WALL)
+			if (go->type == GameObject::GO_WALL || go->type == GameObject::GO_PLATFORM)
 			{
 				Collision collision = CheckCollision(m_player->under_box, go, dt);
 				if (collision.dist > 0)
@@ -776,7 +805,7 @@ void SceneArchangel::enableCollision(double dt, GameObject::GAMEOBJECT_TYPE GO)
 					Collision collision = CheckCollision(first, other, dt);
 					if (collision.dist > 0)
 					{
-						if (go == m_player && go2->type == GameObject::GO_WALL || go != m_player && go2->type == GameObject::GO_WALL)
+						if (go2->type == GameObject::GO_WALL || go2->type == GameObject::GO_PLATFORM)
 						{
 							CollisionBound(first, collision);
 						}
@@ -1479,6 +1508,15 @@ void SceneArchangel::RenderGO(GameObject *go)
 			RenderMesh(meshList[GEO_BLUECUBE], false);
 		if (go->hp >= 30)
 			RenderMesh(meshList[GEO_PURPLECUBE], false);
+		modelStack.PopMatrix();
+		break;	
+	case GameObject::GO_PLATFORM:
+		modelStack.PushMatrix();
+		modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
+	    angle = atan2f(go->normal.y, go->normal.x);
+		modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
+		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
+		RenderMesh(meshList[GEO_GREENCUBE], false);
 		modelStack.PopMatrix();
 		break;
 
