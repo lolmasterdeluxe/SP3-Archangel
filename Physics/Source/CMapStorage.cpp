@@ -105,6 +105,16 @@ CMapStorage::CMapStorage()
 					info->type = GameObject::GO_FALLENANGEL;
 					entityInfo.push_back(info);
 				}
+				else if (values[i].first == "terminator")
+				{
+					info->type = GameObject::GO_TERMINATOR;
+					entityInfo.push_back(info);
+				}
+				else if (values[i].first == "soldier")
+				{
+					info->type = GameObject::GO_SOLDIER;
+					entityInfo.push_back(info);
+				}
 			}
 
 			mapInfo->wallDataList = wallInfo;

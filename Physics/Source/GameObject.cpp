@@ -15,6 +15,7 @@ GameObject::GameObject(GAMEOBJECT_TYPE typeValue)
 	left(false),
 	right(false),
 	attack(false),
+	rage(false),
 	color(Math::RandIntMinMax(0, 7)),
 	prevpos(0),
 	grenade_count(0),
@@ -48,6 +49,7 @@ GameObject::GameObject(GAMEOBJECT_TYPE typeValue)
 	animation_delay(1),
 	FSMCounter(0),
 	MaxFSMCounter(1),
+	speed(0),
 	state(STATE_IDLE)
 {
 

@@ -15,13 +15,11 @@ struct GameObject
 		GO_CUBE,
 		GO_ASTEROID, //asteroid
 		GO_SHIP, //player ship
-		GO_BULLET, //player bullet
 		GO_GRENADE, //grenade
 		GO_ALLY_BULLET,
 		GO_ENEMY_SHIP, //enemy ship
 		GO_YWING,
 		GO_AWING,
-		GO_ENEMY_BULLET, //enemy bullet
 		GO_ALLY_SHIP,
 		GO_INTERCEPTOR, //ally ship 2
 		GO_TIE_BOMBER,
@@ -44,8 +42,18 @@ struct GameObject
 		GO_LASERGUN,
 		GO_BLUELASER,
 		GO_LASERBEAM,
+
+		// Enemies GO
 		GO_DEMON,
 		GO_FALLENANGEL,
+		GO_TERMINATOR,
+		GO_SOLDIER,
+
+		// Bullet GO
+		GO_BULLET, //player bullet
+		GO_ENEMY_BULLET, //enemy bullet
+
+		// Wall / Interactable Objects GO
 		GO_WALL,
 		GO_PILLAR,
 		GO_PORTAL_IN,
@@ -58,6 +66,7 @@ struct GameObject
 		GO_BARREL,
 		GO_FIREBALL,
 		GO_PLATFORM,
+
 		GO_TOTAL, //must be last
 	};
 	enum STATE
@@ -66,6 +75,9 @@ struct GameObject
 		STATE_PATROL,
 		STATE_CLOSE_ATTACK,
 		STATE_FAR_ATTACK,
+		STATE_RAGE,
+		STATE_RELOAD,
+		STATE_TOTAL
 	};
 	GAMEOBJECT_TYPE type;
 	STATE state;
@@ -84,8 +96,8 @@ struct GameObject
 	GameObject* right_box;
 
 	// Conditions and variables for GO
-	bool active, turn, shoot, aim, idle, missile, reset, cannon, laser, rifle, bounce, initPos, left, right, attack;
-	float mass, pause, shoot_period, prevpos, mana;
+	bool active, turn, shoot, aim, idle, missile, reset, cannon, laser, rifle, bounce, initPos, left, right, attack, rage;
+	float mass, pause, shoot_period, prevpos, mana, speed;
 	int hp, max_hp, shield, movement_phase, bullet_count, fire_style, color, grenade_count, gold_count, item_count;
 	double bullet_delay, grenade_delay, portal_delay, movement_delay, fire_rate, shoot_delay, shield_delay, shield_recharge, animation_delay, FSMCounter, MaxFSMCounter;
 	float movement_change;

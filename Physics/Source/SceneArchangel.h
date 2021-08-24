@@ -45,6 +45,8 @@ public:
 	void setCollisionBox(GameObject* go);
 	void demonAI(double dt);
 	void fallenAngelAI(double dt);
+	void terminatorAI(double dt);
+	void soldierAI(double dt);
 
 	void screenSpaceToWorldSpace(double& x, double& y);
 
