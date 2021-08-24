@@ -95,6 +95,11 @@ CMapStorage::CMapStorage()
 					info->type = GameObject::GO_DEMON;
 					entityInfo.push_back(info);
 				}
+				else if (values[i].first == "angel")
+				{
+					info->type = GameObject::GO_FALLENANGEL;
+					entityInfo.push_back(info);
+				}
 			}
 
 			mapInfo->wallDataList = wallInfo;

@@ -45,6 +45,7 @@ struct GameObject
 		GO_BLUELASER,
 		GO_LASERBEAM,
 		GO_DEMON,
+		GO_FALLENANGEL,
 		GO_WALL,
 		GO_PILLAR,
 		GO_PORTAL_IN,
@@ -82,7 +83,7 @@ struct GameObject
 	GameObject* right_box;
 
 	// Conditions and variables for GO
-	bool active, turn, shoot, aim, idle, missile, reset, cannon, laser, rifle, bounce, initPos, left, right;
+	bool active, turn, shoot, aim, idle, missile, reset, cannon, laser, rifle, bounce, initPos, left, right, attack;
 	float mass, pause, shoot_period, prevpos, mana;
 	int hp, max_hp, shield, movement_phase, bullet_count, fire_style, color, grenade_count, gold_count, item_count;
 	double bullet_delay, grenade_delay, portal_delay, movement_delay, fire_rate, shoot_delay, shield_delay, shield_recharge, animation_delay, FSMCounter, MaxFSMCounter;

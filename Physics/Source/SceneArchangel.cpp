@@ -320,7 +320,7 @@ void SceneArchangel::PhysicsResponse(GameObject* go1, Collision collision)
 		{
 			openChest(collision.go);
 		}
-		if (collision.go->type == GameObject::GO_DEMON)
+		if (collision.go->type == GameObject::GO_DEMON || collision.go->type == GameObject::GO_FALLENANGEL)
 		{
 			takeDMG();
 		}
@@ -332,7 +332,7 @@ void SceneArchangel::PhysicsResponse(GameObject* go1, Collision collision)
 	}
 	if (go1->type == GameObject::GO_BULLET)
 	{
-		if (collision.go->type == GameObject::GO_BARREL || collision.go->type == GameObject::GO_DEMON)
+		if (collision.go->type == GameObject::GO_BARREL || collision.go->type == GameObject::GO_DEMON || collision.go->type == GameObject::GO_FALLENANGEL)
 		{
 			collision.go->hp -= weapon_dmg;
 			go1->active = false;
@@ -728,6 +728,7 @@ void SceneArchangel::itemLogic(double dt)
 	enableCollision(dt, GameObject::GO_BARREL);
 	enableCollision(dt, GameObject::GO_DEMON);
 	enableCollision(dt, GameObject::GO_FIREBALL);
+	enableCollision(dt, GameObject::GO_FALLENANGEL);
 }
 
 void SceneArchangel::activatePortal(GameObject* go)
@@ -1123,15 +1124,18 @@ void SceneArchangel::demonAI(double dt)
 					break;
 
 				case go->STATE_FAR_ATTACK:
-					go->fire_rate = 1;
-					if (go->FSMCounter > go->MaxFSMCounter * 10)
+					go->fire_rate = 2;
+					if (go->FSMCounter > go->MaxFSMCounter * 5)
 					{
 						go->state = go->STATE_IDLE;
 						go->FSMCounter = 0;
 					}
 
 					if (go->pos.y + 5 > m_player->pos.y && go->pos.y - 5 < m_player->pos.y)
+					{
 						go->state = go->STATE_CLOSE_ATTACK;
+						go->FSMCounter = 0;
+					}
 
 					if (go->bullet_delay > go->fire_rate / time_manip)
 					{
@@ -1140,9 +1144,170 @@ void SceneArchangel::demonAI(double dt)
 						newGO->type = GameObject::GO_FIREBALL;
 						newGO->scale.Set(2.f, 1.f, 0);
 						newGO->pos = go->pos;
-						float dot = (m_player->pos.y - go->pos.y);
-						float det = (m_player->pos.x - go->pos.x);
-						float angle = atan2f(dot, det);
+						float angle = atan2f(m_player->pos.y - go->pos.y, m_player->pos.x - go->pos.x);
+						newGO->vel = Vector3(cosf(angle), sin(angle), 0);
+						newGO->vel.Normalize() * 100;
+						go->bullet_delay = 0;
+					}
+					break;
+
+				default:
+					break;
+
+				}
+			}
+		}
+	}
+}
+
+void SceneArchangel::fallenAngelAI(double dt)
+{
+	for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
+	{
+		GameObject* go = (GameObject*)*it;
+		if (go->active)
+		{
+			if (go->type == GameObject::GO_FIREBALL)
+			{
+				go->pos += go->vel * dt * 100 * time_manip;
+				Boundary(go, 2);
+			}
+
+			if (go->type == GameObject::GO_FALLENANGEL)
+			{
+				go->pos += go->vel * dt * m_speed * time_manip;
+				go->FSMCounter += dt;
+				go->bullet_delay += dt;
+
+				go->left_box->pos.x = go->pos.x - 4.f;
+				go->left_box->pos.y = go->pos.y;
+				go->right_box->pos.x = go->pos.x + 4.f;
+				go->right_box->pos.y = go->pos.y;
+
+				if (go->hp <= 0)
+				{
+					go->active = false;
+					go->left_box->active = false;
+					go->right_box->active = false;
+				}
+
+
+				// Setting speed limiters
+				if (go->vel.x >= 100)
+				{
+					go->vel.x = 100;
+				}
+				if (go->vel.x <= -100)
+				{
+					go->vel.x = -100;
+				}
+
+				switch (go->state)
+				{
+				case go->STATE_IDLE:
+					if (go->FSMCounter > go->MaxFSMCounter)
+					{
+						go->state = go->STATE_PATROL;
+						go->FSMCounter = 0;
+					}
+					break;
+
+				case go->STATE_PATROL:
+					if (go->left)
+						go->vel.x -= 6;
+					else if (!go->left)
+						go->vel.x += 6;
+
+					for (std::vector<GameObject*>::iterator it2 = m_goList.begin(); it2 != m_goList.end(); ++it2)
+					{
+						GameObject* go2 = (GameObject*)*it2;
+						if (go2->active)
+						{
+							if (go2->type == GameObject::GO_WALL)
+							{
+								Collision collision = CheckCollision(go->left_box, go2, dt);
+								Collision collision2 = CheckCollision(go->right_box, go2, dt);
+								if (collision.dist > 0 && collision2.dist <= 0)
+									go->left = true;
+								else if (collision2.dist > 0 && collision.dist <= 0)
+									go->left = false;
+							}
+						}
+					}
+
+					// To the right / left of angel
+					if (go->pos.x + 20 > m_player->pos.x || go->pos.x - 20 < m_player->pos.x)
+					{
+						float rng = Math::RandIntMinMax(1, 2);
+						if (rng == 1)
+							go->state = go->STATE_CLOSE_ATTACK;
+						else if (rng == 2)
+							go->state = go->STATE_FAR_ATTACK;
+					}
+
+
+					if (go->FSMCounter > go->MaxFSMCounter * 3)
+					{
+						go->state = go->STATE_IDLE;
+						go->FSMCounter = 0;
+					}
+
+					break;
+
+				case go->STATE_CLOSE_ATTACK:
+					// To the right / left of demon
+					if (go->pos.x > m_player->pos.x)
+						go->vel.x -= 3;
+					else if (go->pos.x < m_player->pos.x)
+						go->vel.x += 3;
+
+					if (!go->attack)
+					{
+						if (go->pos.y > m_player->pos.y + 3)
+							go->pos.y -= 1;
+						else if (go->pos.y < m_player->pos.y)
+							go->pos.y += 1;
+						else
+							go->attack = true;
+					}
+
+					if (go->FSMCounter > go->MaxFSMCounter * 5)
+					{
+						if (go->pos.y <= m_player->pos.y + 30)
+						{
+							go->pos.y += 1;
+						}
+						else
+						{
+							go->state = go->STATE_IDLE;
+							go->FSMCounter = 0;
+							go->attack = false;
+						}
+					}
+					break;
+
+				case go->STATE_FAR_ATTACK:
+					go->fire_rate = 1;
+					if (go->FSMCounter > go->MaxFSMCounter * 5)
+					{
+						go->state = go->STATE_IDLE;
+						go->FSMCounter = 0;
+					}
+
+					if (go->pos.y + 5 > m_player->pos.y && go->pos.y - 5 < m_player->pos.y)
+					{
+						go->state = go->STATE_CLOSE_ATTACK;
+						go->FSMCounter = 0;
+					}
+
+					if (go->bullet_delay > go->fire_rate / time_manip)
+					{
+						GameObject* newGO = FetchGO();
+						newGO->active = true;
+						newGO->type = GameObject::GO_FIREBALL;
+						newGO->scale.Set(2.f, 1.f, 0);
+						newGO->pos = go->pos;
+						float angle = atan2f(m_player->pos.y - go->pos.y, m_player->pos.x - go->pos.x);
 						newGO->vel = Vector3(cosf(angle), sin(angle), 0);
 						newGO->vel.Normalize() * 100;
 						go->bullet_delay = 0;
@@ -1190,6 +1355,23 @@ void SceneArchangel::manipTime(double dt)
 	{
 		bLButtonState3 = false;
 	}
+}
+
+void SceneArchangel::setCollisionBox(GameObject* go)
+{
+	go->left_box = FetchGO();
+	go->left_box->active = true;
+	go->left_box->type = GameObject::GO_GHOSTBALL;
+	go->left_box->pos = go->pos;
+	go->left_box->scale = go->scale;
+	go->left_box->normal = go->normal;
+
+	go->right_box = FetchGO();
+	go->right_box->active = true;
+	go->right_box->type = GameObject::GO_GHOSTBALL;
+	go->right_box->pos = go->pos;
+	go->right_box->scale = go->scale;
+	go->right_box->normal = go->normal;
 }
 
 void SceneArchangel::InitMap()
@@ -1245,20 +1427,13 @@ void SceneArchangel::InitMap()
 				go->hp = 15;
 			if (mapInfo->entityDataList[i]->type == GameObject::GO_DEMON)
 			{
-				go->hp = 20;
-				go->left_box = FetchGO();
-				go->left_box->active = true;
-				go->left_box->type = GameObject::GO_GHOSTBALL;
-				go->left_box->pos = go->pos;
-				go->left_box->scale = go->scale;
-				go->left_box->normal = go->normal;
-
-				go->right_box = FetchGO();
-				go->right_box->active = true;
-				go->right_box->type = GameObject::GO_GHOSTBALL;
-				go->right_box->pos = go->pos;
-				go->right_box->scale = go->scale;
-				go->right_box->normal = go->normal;
+				go->hp = 30;
+				setCollisionBox(go);
+			}
+			else if (mapInfo->entityDataList[i]->type == GameObject::GO_FALLENANGEL)
+			{
+				go->hp = 60;
+				setCollisionBox(go);
 			}
 		}
 	}
@@ -1332,6 +1507,7 @@ void SceneArchangel::Update(double dt)
 		throwGrenade(dt);
 		manipTime(dt);
 		demonAI(dt);
+		fallenAngelAI(dt);
 
 		// Change Level
 		if (m_AttemptLeft)
@@ -1601,6 +1777,15 @@ void SceneArchangel::RenderGO(GameObject *go)
 		modelStack.Rotate(Math::RadianToDegree(atan2(go->dir.y, go->dir.x)), 0, 0, 1);
 		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
 		RenderMesh(meshList[GEO_REDCUBE], false);
+		modelStack.PopMatrix();
+		break;
+
+	case GameObject::GO_FALLENANGEL:
+		modelStack.PushMatrix();
+		modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
+		modelStack.Rotate(Math::RadianToDegree(atan2(go->dir.y, go->dir.x)), 0, 0, 1);
+		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
+		RenderMesh(meshList[GEO_BLUECUBE], false);
 		modelStack.PopMatrix();
 		break;
 

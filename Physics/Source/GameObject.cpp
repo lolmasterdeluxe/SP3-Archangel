@@ -14,6 +14,7 @@ GameObject::GameObject(GAMEOBJECT_TYPE typeValue)
 	initPos(false),
 	left(false),
 	right(false),
+	attack(false),
 	color(Math::RandIntMinMax(0, 7)),
 	prevpos(0),
 	grenade_count(0),

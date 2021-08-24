@@ -42,7 +42,9 @@ public:
 	void mana(float interval, int amount, bool restore);
 	void openChest(GameObject* go);
 	void manipTime(double dt);
+	void setCollisionBox(GameObject* go);
 	void demonAI(double dt);
+	void fallenAngelAI(double dt);
 
 	void screenSpaceToWorldSpace(double& x, double& y);
 
