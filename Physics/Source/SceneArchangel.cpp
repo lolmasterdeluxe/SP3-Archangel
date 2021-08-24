@@ -33,7 +33,7 @@ void SceneArchangel::Init()
 	left = false;
 	right = true;
 	time_change = false;
-	weapon_dmg = 0;
+	weapon_dmg = 6;
 	max_vel = 50;
 	for (int i = 0; i < 5; ++i)
 	{
@@ -334,9 +334,9 @@ void SceneArchangel::PhysicsResponse(GameObject* go1, Collision collision)
 	{
 		if (collision.go->type == GameObject::GO_BARREL || collision.go->type == GameObject::GO_DEMON)
 		{
-			collision.go->hp--;
+			collision.go->hp -= weapon_dmg;
 			go1->active = false;
-			if (collision.go->hp == 0)
+			if (collision.go->hp <= 0)
 			{
 				if (collision.go->type == GameObject::GO_BARREL)
 					openChest(collision.go);
@@ -852,7 +852,7 @@ void SceneArchangel::pickWeapon(double dt)
 	// LMG
 	else if (Application::IsKeyPressed('3'))
 	{
-		setGun(0.3f, 7);
+		setGun(0.25f, 7);
 		shotgun = false;
 		weapon_choice = 3;
 	}
@@ -1244,10 +1244,10 @@ void SceneArchangel::InitMap()
 			go->normal = mapInfo->entityDataList[i]->rot;
 			cout << go->normal << endl;
 			if (mapInfo->entityDataList[i]->type == GameObject::GO_BARREL)
-				go->hp = 3;
+				go->hp = 15;
 			if (mapInfo->entityDataList[i]->type == GameObject::GO_DEMON)
 			{
-				go->hp = 5;
+				go->hp = 20;
 				go->left_box = FetchGO();
 				go->left_box->active = true;
 				go->left_box->type = GameObject::GO_GHOSTBALL;
@@ -1688,23 +1688,23 @@ void SceneArchangel::Render()
 
 		if (weapon_choice == 1)
 		{
-			RenderMeshOnScreen(meshList[GEO_ORANGEBALL], 4, 5, 2.5f, 3);
+			RenderMeshOnScreen(meshList[GEO_AK47], 4.2f, 5, 4.f, 3);
 		}
 		else if (weapon_choice == 2)
 		{
-			RenderMeshOnScreen(meshList[GEO_YELLOWBALL], 4, 5, 2.5f, 3);
+			RenderMeshOnScreen(meshList[GEO_SMG], 4.2f, 5, 4.f, 3);
 		}
 		else if (weapon_choice == 3)
 		{
-			RenderMeshOnScreen(meshList[GEO_REDBALL], 4, 5, 2.5f, 3);
+			RenderMeshOnScreen(meshList[GEO_LMG], 4.2f, 5, 4.f, 3);
 		}
 		else if (weapon_choice == 4)
 		{
-			RenderMeshOnScreen(meshList[GEO_BLUEBALL], 4, 5, 2.5f, 3);
+			RenderMeshOnScreen(meshList[GEO_SHOTGUN], 4.2f, 5, 4.f, 3);
 		}
 		else if (weapon_choice == 5)
 		{
-			RenderMeshOnScreen(meshList[GEO_PURPLEBALL], 4, 5, 2.5f, 3);
+			RenderMeshOnScreen(meshList[GEO_REVOLVER], 4.2f, 5, 4.f, 3);
 		}
 		for (int i = 0; i <= heart_count; ++i)
 		{

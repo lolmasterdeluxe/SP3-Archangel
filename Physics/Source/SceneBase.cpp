@@ -215,6 +215,16 @@ void SceneBase::Init()
 	meshList[GEO_EMPTYHEART]->textureID = LoadTGA("Image//emptyheart.tga");
 	meshList[GEO_FIREBALL] = MeshBuilder::GenerateQuad("Fireball", Color(1, 1, 1), 2.f);
 	meshList[GEO_FIREBALL]->textureID = LoadTGA("Image//fireball.tga");
+	meshList[GEO_AK47] = MeshBuilder::GenerateQuad("AK47", Color(1, 1, 1), 2.f);
+	meshList[GEO_AK47]->textureID = LoadTGA("Image//AK.tga");
+	meshList[GEO_SMG] = MeshBuilder::GenerateQuad("SMG", Color(1, 1, 1), 2.f);
+	meshList[GEO_SMG]->textureID = LoadTGA("Image//SMG.tga");
+	meshList[GEO_SHOTGUN] = MeshBuilder::GenerateQuad("Shotgun", Color(1, 1, 1), 2.f);
+	meshList[GEO_SHOTGUN]->textureID = LoadTGA("Image//Shotgun.tga");
+	meshList[GEO_LMG] = MeshBuilder::GenerateQuad("LMG", Color(1, 1, 1), 2.f);
+	meshList[GEO_LMG]->textureID = LoadTGA("Image//Light_Machine_Gun.tga");
+	meshList[GEO_REVOLVER] = MeshBuilder::GenerateQuad("Revolver", Color(1, 1, 1), 2.f);
+	meshList[GEO_REVOLVER]->textureID = LoadTGA("Image//Revolver.tga");
 
 
 	bLightEnabled = false;
