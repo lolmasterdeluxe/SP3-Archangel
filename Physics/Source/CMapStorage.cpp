@@ -50,6 +50,11 @@ CMapStorage::CMapStorage()
 					info->type = GameObject::GO_WALL;
 					wallInfo.push_back(info);
 				}
+				else if (values[i].first == "platform")
+				{
+					info->type = GameObject::GO_PLATFORM;
+					wallInfo.push_back(info);
+				}
 				else if (values[i].first == "playerEnter")
 				{
 					info->type = GameObject::GO_CUBE;
