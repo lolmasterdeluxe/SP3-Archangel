@@ -11,7 +11,7 @@ CMapStorage::CMapStorage()
 	string filename[TOTAL_CATEGORY][MAPS_PER_CATEGORY] = {
 		{"Maps/Test/Map_Level_Test.csv"},
 		{"Maps/Spawn/Map_Level_Spawn_1.csv"},
-		{"Maps/LeftDungeon/Map_Level_Left_Dungeon_1.csv"},
+		{"Maps/LeftDungeon/Map_Level_Left_Dungeon_2.csv"},
 		{"Maps/LeftRest/Map_Level_Left_Rest_1.csv"},
 		{"Maps/LeftTreasure/Map_Level_Left_Treasure_1.csv"},
 		{"Maps/LeftBoss/Map_Level_Left_Boss_1.csv"},
@@ -53,6 +53,11 @@ CMapStorage::CMapStorage()
 				else if (values[i].first == "platform")
 				{
 					info->type = GameObject::GO_PLATFORM;
+					wallInfo.push_back(info);
+				}
+				else if (values[i].first == "bounce")
+				{
+					info->type = GameObject::GO_BOUNCEPLATFORM;
 					wallInfo.push_back(info);
 				}
 				else if (values[i].first == "playerEnter")
