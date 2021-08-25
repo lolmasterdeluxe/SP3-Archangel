@@ -38,8 +38,9 @@ public:
 	void setGun(float fire_rate, int dmg);
 	void pickWeapon(double dt);
 	void takeDMG();
+	void Melee();
 	void heal(bool max_potion);
-	void mana(float interval, int amount, bool restore);
+	void mana(float interval, float amount, bool restore);
 	void openChest(GameObject* go);
 	void manipTime(double dt);
 	void setCollisionBox(GameObject* go);
