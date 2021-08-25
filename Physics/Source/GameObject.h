@@ -66,6 +66,7 @@ struct GameObject
 		GO_BARREL,
 		GO_FIREBALL,
 		GO_PLATFORM,
+		GO_BOUNCEPLATFORM,
 
 		GO_TOTAL, //must be last
 	};

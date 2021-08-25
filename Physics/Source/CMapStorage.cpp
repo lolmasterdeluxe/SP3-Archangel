@@ -55,6 +55,11 @@ CMapStorage::CMapStorage()
 					info->type = GameObject::GO_PLATFORM;
 					wallInfo.push_back(info);
 				}
+				else if (values[i].first == "bounce")
+				{
+					info->type = GameObject::GO_BOUNCEPLATFORM;
+					wallInfo.push_back(info);
+				}
 				else if (values[i].first == "playerEnter")
 				{
 					info->type = GameObject::GO_CUBE;

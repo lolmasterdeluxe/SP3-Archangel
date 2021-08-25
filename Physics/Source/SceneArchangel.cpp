@@ -80,37 +80,7 @@ void SceneArchangel::Init()
 	m_player->under_box->type = GameObject::GO_GHOSTBALL;
 	m_player->under_box->pos = m_player->pos;
 	m_player->under_box->normal.Set(1, 0, 0);
-	m_player->under_box->scale = Vector3(2, 2, 2);
-
-	//GameObject* newGO = FetchGO();
-	//newGO->active = true;
-	//newGO->type = GameObject::GO_POTION;
-	//newGO->scale.Set(1, 1, 0);
-	//newGO->pos = Vector3(m_worldWidth * 0.5 + 20, 10, 0);
-
-	//GameObject* newGO2 = FetchGO();
-	//newGO2->active = true;
-	//newGO2->type = GameObject::GO_MAXPOTION;
-	//newGO2->scale.Set(1, 1, 0);
-	//newGO2->pos = Vector3(m_worldWidth * 0.5 + 40, 10, 0);
-
-	//GameObject* newGO3 = FetchGO();
-	//newGO3->active = true;
-	//newGO3->type = GameObject::GO_MANAPOTION;
-	//newGO3->scale.Set(1, 1, 0);
-	//newGO3->pos = Vector3(m_worldWidth * 0.5 + 60, 10, 0);
-
-	//GameObject* newGO4 = FetchGO();
-	//newGO4->active = true;
-	//newGO4->type = GameObject::GO_GOLD;
-	//newGO4->scale.Set(1, 1, 0);
-	//newGO4->pos = Vector3(m_worldWidth * 0.5 - 10, 10, 0);
-
-	//GameObject* newGO5 = FetchGO();
-	//newGO5->active = true;
-	//newGO5->type = GameObject::GO_CHEST;
-	//newGO5->scale.Set(1.5f, 1.5f, 0);
-	//newGO5->pos = Vector3(m_worldWidth * 0.5 - 20, 10, 0);
+	m_player->under_box->scale = Vector3(1, 1, 1);
 }
 
 GameObject* SceneArchangel::FetchGO()
@@ -180,6 +150,34 @@ Collision SceneArchangel::CheckCollision(GameObject* go1, GameObject* go2, float
 			return collision;
 		}
 	}
+	else if (go2->type == GameObject::GO_BOUNCEPLATFORM)
+	{
+		if (go1->vel.y > 0) return Collision();
+		Vector3 N = go2->normal; // go2 normal
+		Vector3 NP(N.y, -N.x, 0); //  go2 right vector
+		Vector3 w0_b1 = go2->pos - go1->pos; // point from go1 to go2
+		float r = go1->scale.x; // go1 radius
+		float h_2 = go2->scale.x; // go2 length
+		float l_2 = go2->scale.y; // go2 width
+
+		if (w0_b1.Dot(N) < 0)
+			N = -N; //making sure N is outward normal
+		if (w0_b1.Dot(NP) < 0)
+			NP = -NP; //making sure NP is outward normal
+
+		float dist_N = w0_b1.Dot(N); // dist along N axis
+		float dist_NP = w0_b1.Dot(NP); // dist along NP axis
+
+		if (dist_N <= r + h_2 && dist_NP <= r + l_2 && go1->vel.Dot(N) >= 0)
+		{
+			Collision collision;
+			collision.go = go2;
+			collision.axis = -N.Normalize();
+			collision.dist = r + h_2 - (w0_b1).Dot(N);
+			collision.normal = N;
+			return collision;
+		}
+	}
 	else if (go2->type == GameObject::GO_PLATFORM)
 	{
 		if (go1 == m_player && (Application::IsKeyPressed('S') || go1->vel.y > 0))
@@ -199,13 +197,36 @@ Collision SceneArchangel::CheckCollision(GameObject* go1, GameObject* go2, float
 		float dist_N = w0_b1.Dot(N); // dist along N axis
 		float dist_NP = w0_b1.Dot(NP); // dist along NP axis
 
-		if (dist_N <= r + h_2 && dist_NP <= r + l_2 && go1->vel.Dot(N) >= 0)
+		// Scenario 1: object is in the length side of the Box
+		// ball is at least touching and the center of ball must be within the length and it cannot travel opposite to outward normal
+		if (dist_N <= r + h_2 && dist_NP <= l_2 && go1->vel.Dot(N) >= 0)
 		{
 			Collision collision;
 			collision.go = go2;
 			collision.axis = -N.Normalize();
 			collision.dist = r + h_2 - (w0_b1).Dot(N);
 			collision.normal = N;
+			return collision;
+		}
+		// Scenario 2: object is in the width side of the Box
+		else if (dist_NP <= r + l_2 && dist_N <= h_2 && go1->vel.Dot(NP) >= 0)
+		{
+			Collision collision;
+			collision.go = go2;
+			collision.axis = -NP.Normalize();
+			collision.dist = r + l_2 - (w0_b1).Dot(NP);
+			collision.normal = NP;
+			return collision;
+		}
+		// Scenario 3: object is in the corner of the box
+		// center of ball is not within the length and width but is touching the box and velocity cannot be going away from any of the normal
+		else if (dist_NP > l_2 && dist_NP <= r + l_2 && dist_N > h_2 && dist_N <= r + h_2 && (go1->vel.Dot(NP) >= 0 || go1->vel.Dot(N) >= 0))
+		{
+			Collision collision;
+			collision.go = go2;
+			collision.axis = go1->pos - (go2->pos - N * h_2 - NP * l_2);
+			collision.dist = r - collision.axis.Length();
+			collision.normal = collision.axis.Normalize();
 			return collision;
 		}
 	}
@@ -306,7 +327,7 @@ void SceneArchangel::PhysicsResponse(GameObject* go1, Collision collision)
 		}
 		else if (collision.go->type == GameObject::GO_WALL && (go1->type == GameObject::GO_BULLET || go1->type == GameObject::GO_FIREBALL || go1->type == GameObject::GO_ENEMY_BULLET))
 		{
-			go1->active = false;
+			ReturnGO(go1);
 		}
 		else if (go1->type != GameObject::GO_BULLET && go1->type != GameObject::GO_FIREBALL && go1->type != GameObject::GO_ENEMY_BULLET || go1->type == GameObject::GO_DEMON || go1->type == GameObject::GO_FALLENANGEL || go1->type == GameObject::GO_TERMINATOR || go1->type == GameObject::GO_SOLDIER)
 		{
@@ -316,6 +337,11 @@ void SceneArchangel::PhysicsResponse(GameObject* go1, Collision collision)
 			go1->vel.y *= 0.4f;
 			go1->vel.x *= 0.7f;
 		}
+	}
+	else if (collision.go->type == GameObject::GO_BOUNCEPLATFORM)
+	{
+		if (go1->vel.y <= 0)
+			go1->vel.y = 130;
 	}
 	else if (collision.go->type == GameObject::GO_PILLAR || collision.go->type == GameObject::GO_CIRCLE)
 	{
@@ -360,7 +386,7 @@ void SceneArchangel::PhysicsResponse(GameObject* go1, Collision collision)
 		if (collision.go->type == GameObject::GO_FIREBALL || collision.go->type == GameObject::GO_ENEMY_BULLET)
 		{
 			takeDMG();
-			collision.go->active = false;
+			ReturnGO(collision.go);
 		}
 	}
 	if (go1->type == GameObject::GO_BULLET)
@@ -368,13 +394,13 @@ void SceneArchangel::PhysicsResponse(GameObject* go1, Collision collision)
 		if (collision.go->type == GameObject::GO_BARREL || collision.go->type == GameObject::GO_DEMON || collision.go->type == GameObject::GO_FALLENANGEL || collision.go->type == GameObject::GO_TERMINATOR || collision.go->type == GameObject::GO_SOLDIER)
 		{
 			collision.go->hp -= weapon_dmg;
-			go1->active = false;
+			ReturnGO(go1);
 			if (collision.go->hp <= 0)
 			{
 				if (collision.go->type == GameObject::GO_BARREL)
 					openChest(collision.go);
 				if (collision.go->item_count >= 3)
-					collision.go->active = false;
+					ReturnGO(collision.go);
 			}
 		}
 
@@ -602,14 +628,14 @@ void SceneArchangel::playerLogic(double dt)
 	}
 
 	// Movement
-	if (Application::IsKeyPressed('W') || Application::IsKeyPressed(VK_UP))
+	/*if (Application::IsKeyPressed('W') || Application::IsKeyPressed(VK_UP))
 	{
 		m_player->vel.y += 3;
 	}
 	if (Application::IsKeyPressed('S') || Application::IsKeyPressed(VK_DOWN))
 	{
 		m_player->vel.y -= 3;
-	}
+	}*/
 	if (Application::IsKeyPressed('A') || Application::IsKeyPressed(VK_LEFT))
 	{
 		if (!jump)
@@ -1085,9 +1111,9 @@ void SceneArchangel::demonAI(double dt)
 
 				if (go->hp <= 0)
 				{
-					go->active = false;
-					go->left_box->active = false;
-					go->right_box->active = false;
+					ReturnGO(go);
+					ReturnGO(go->left_box);
+					ReturnGO(go->right_box);
 				}
 
 
@@ -1232,9 +1258,9 @@ void SceneArchangel::fallenAngelAI(double dt)
 
 				if (go->hp <= 0)
 				{
-					go->active = false;
-					go->left_box->active = false;
-					go->right_box->active = false;
+					ReturnGO(go);
+					ReturnGO(go->left_box);
+					ReturnGO(go->right_box);
 				}
 
 
@@ -1412,9 +1438,9 @@ void SceneArchangel::terminatorAI(double dt)
 				}
 				else if (go->hp <= 0)
 				{
-					go->active = false;
-					go->left_box->active = false;
-					go->right_box->active = false;
+					ReturnGO(go);
+					ReturnGO(go->left_box);
+					ReturnGO(go->right_box);
 				}
 
 
@@ -1554,9 +1580,9 @@ void SceneArchangel::soldierAI(double dt)
 
 				if (go->hp <= 0)
 				{
-					go->active = false;
-					go->left_box->active = false;
-					go->right_box->active = false;
+					ReturnGO(go);
+					ReturnGO(go->left_box);
+					ReturnGO(go->right_box);
 				}
 
 
@@ -2012,6 +2038,16 @@ void SceneArchangel::RenderGO(GameObject *go)
 		modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
 		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
 		RenderMesh(meshList[GEO_GREENCUBE], false);
+		modelStack.PopMatrix();
+		break;
+		
+	case GameObject::GO_BOUNCEPLATFORM:
+		modelStack.PushMatrix();
+		modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
+	    angle = atan2f(go->normal.y, go->normal.x);
+		modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
+		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
+		RenderMesh(meshList[GEO_BLUECUBE], false);
 		modelStack.PopMatrix();
 		break;
 
