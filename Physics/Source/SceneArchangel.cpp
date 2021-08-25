@@ -325,8 +325,11 @@ void SceneArchangel::PhysicsResponse(GameObject* go1, Collision collision)
 	}
 	else if (collision.go->type == GameObject::GO_BOUNCEPLATFORM)
 	{
-		if (go1->vel.y <= 0)
-			go1->vel.y = 130;
+		if (go1 == m_player || go1->type == GameObject::GO_DEMON || go1->type == GameObject::GO_FALLENANGEL || go1->type == GameObject::GO_TERMINATOR || go1->type == GameObject::GO_SOLDIER)
+		{
+			if (go1->vel.y <= 0)
+				go1->vel.y = 130;
+		}
 	}
 	else if (collision.go->type == GameObject::GO_PILLAR || collision.go->type == GameObject::GO_CIRCLE)
 	{
