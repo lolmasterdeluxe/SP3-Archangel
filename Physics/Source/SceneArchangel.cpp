@@ -205,7 +205,7 @@ Collision SceneArchangel::CheckCollision(GameObject* go1, GameObject* go2, float
 		float dist_N = w0_b1.Dot(N); // dist along N axis
 		float dist_NP = w0_b1.Dot(NP); // dist along NP axis
 
-		if (dist_N <= r + h_2 && dist_NP <= l_2 && go1->vel.Dot(N) >= 0)
+		if (dist_N <= r + h_2 && dist_NP <= r + l_2 && go1->vel.Dot(N) >= 0)
 		{
 			Collision collision;
 			collision.go = go2;
@@ -669,6 +669,7 @@ void SceneArchangel::playerLogic(double dt)
 			}
 		}
 	}
+	else jump = true;
 }
 
 void SceneArchangel::portalLogic(double dt)
@@ -1815,7 +1816,6 @@ void SceneArchangel::ClearMap()
 void SceneArchangel::Update(double dt)
 {
 	// Update timers
-	m_screenHeight = 60.f;
 	m_screenWidth = m_screenHeight * (float)Application::GetWindowWidth() / Application::GetWindowHeight();
 	m_player->bullet_delay += dt;
 	m_player->portal_delay += dt;
@@ -2214,7 +2214,6 @@ void SceneArchangel::Render()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	//Calculating aspect ratio
-	m_screenHeight = 60;
 	m_screenWidth = m_screenHeight * (float)Application::GetWindowWidth() / Application::GetWindowHeight();
 
 	// Projection matrix : Orthographic Projection

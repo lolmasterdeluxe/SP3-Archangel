@@ -60,7 +60,7 @@ void CMapMaker::GenerateMap()
 	start->SetMapData(CMapStorage::GetInstance()->GetMapInfo(CMapStorage::CAT_SPAWN, 0));
 
 	newNode = new CMapNode();
-	newNode->SetMapData(CMapStorage::GetInstance()->GetMapInfo(CMapStorage::CAT_LEFT_DUNGEON, 0));
+	newNode->SetMapData(CMapStorage::GetInstance()->GetMapInfo(CMapStorage::CAT_LEFT_TREASURE, 0));
 	start->SetLeft(newNode);
 	newNode->SetRight(start);
 	current = newNode;
