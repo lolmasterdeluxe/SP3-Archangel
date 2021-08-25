@@ -59,6 +59,14 @@ void SceneArchangel::Init()
 	// Initialize Game state
 	state = STATE_MENU;
 
+
+	for (int i = 0; i < 150; i++)
+	{
+		GameObject* asteroid = new GameObject(GameObject::GO_ASTEROID);
+		m_goList.push_back(asteroid);
+	}
+
+
 	m_player = FetchGO();
 
 	// Set m_player stats
@@ -197,8 +205,6 @@ Collision SceneArchangel::CheckCollision(GameObject* go1, GameObject* go2, float
 		float dist_N = w0_b1.Dot(N); // dist along N axis
 		float dist_NP = w0_b1.Dot(NP); // dist along NP axis
 
-		// Scenario 1: object is in the length side of the Box
-		// ball is at least touching and the center of ball must be within the length and it cannot travel opposite to outward normal
 		if (dist_N <= r + h_2 && dist_NP <= l_2 && go1->vel.Dot(N) >= 0)
 		{
 			Collision collision;
@@ -206,27 +212,6 @@ Collision SceneArchangel::CheckCollision(GameObject* go1, GameObject* go2, float
 			collision.axis = -N.Normalize();
 			collision.dist = r + h_2 - (w0_b1).Dot(N);
 			collision.normal = N;
-			return collision;
-		}
-		// Scenario 2: object is in the width side of the Box
-		else if (dist_NP <= r + l_2 && dist_N <= h_2 && go1->vel.Dot(NP) >= 0)
-		{
-			Collision collision;
-			collision.go = go2;
-			collision.axis = -NP.Normalize();
-			collision.dist = r + l_2 - (w0_b1).Dot(NP);
-			collision.normal = NP;
-			return collision;
-		}
-		// Scenario 3: object is in the corner of the box
-		// center of ball is not within the length and width but is touching the box and velocity cannot be going away from any of the normal
-		else if (dist_NP > l_2 && dist_NP <= r + l_2 && dist_N > h_2 && dist_N <= r + h_2 && (go1->vel.Dot(NP) >= 0 || go1->vel.Dot(N) >= 0))
-		{
-			Collision collision;
-			collision.go = go2;
-			collision.axis = go1->pos - (go2->pos - N * h_2 - NP * l_2);
-			collision.dist = r - collision.axis.Length();
-			collision.normal = collision.axis.Normalize();
 			return collision;
 		}
 	}
