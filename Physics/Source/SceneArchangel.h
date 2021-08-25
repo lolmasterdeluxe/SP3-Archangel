@@ -49,6 +49,7 @@ public:
 	void terminatorAI(double dt);
 	void soldierAI(double dt);
 
+
 	void screenSpaceToWorldSpace(double& x, double& y);
 
 	// Map Stuff
@@ -83,7 +84,7 @@ protected:
 	float m_worldWidth, m_worldHeight, m_screenWidth, m_screenHeight;
 	GameObject * m_ghost, * m_player;
 	int m_objectCount, weapon_dmg, hitpoints[5], heart_count, empty_heart, weapon_choice;
-	bool initPos, jump, portal_in, move_portal_in, move_portal_out, portal_shot, shotgun, left, right, time_change;
+	bool initPos, jump, portal_in, move_portal_in, move_portal_out, portal_shot, shotgun, left, right, time_change, phase;
 	double dmg_delay, mana_delay;
 
 	//Debuging
