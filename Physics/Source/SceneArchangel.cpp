@@ -33,6 +33,7 @@ void SceneArchangel::Init()
 	left = false;
 	right = true;
 	time_change = false;
+	phase = false;
 	weapon_dmg = 6;
 	max_vel = 50;
 	for (int i = 0; i < 5; ++i)
@@ -82,6 +83,7 @@ void SceneArchangel::Init()
 	m_player->scale = Vector3(2, 2, 2);
 	m_player->bullet_delay = 0;
 	m_player->fire_rate = 0.2f;
+	m_player->attack = false;
 
 	m_player->under_box = FetchGO();
 	m_player->under_box->active = true;
@@ -303,7 +305,7 @@ void SceneArchangel::PhysicsResponse(GameObject* go1, Collision collision)
 	}
 	else if (collision.go->type == GameObject::GO_WALL || collision.go->type == GameObject::GO_PLATFORM)
 	{
-		if (go1 == m_player)
+		if (go1 == m_player && !phase)
 		{
 			Vector3 N = collision.normal;
 			Vector3 u = go1->vel;
@@ -325,7 +327,7 @@ void SceneArchangel::PhysicsResponse(GameObject* go1, Collision collision)
 	}
 	else if (collision.go->type == GameObject::GO_BOUNCEPLATFORM)
 	{
-		if (go1 == m_player || go1->type == GameObject::GO_DEMON || go1->type == GameObject::GO_FALLENANGEL || go1->type == GameObject::GO_TERMINATOR || go1->type == GameObject::GO_SOLDIER)
+		if ((go1 == m_player && !phase) || go1->type == GameObject::GO_DEMON || go1->type == GameObject::GO_TERMINATOR || go1->type == GameObject::GO_SOLDIER)
 		{
 			if (go1->vel.y <= 0)
 				go1->vel.y = 130;
@@ -338,7 +340,7 @@ void SceneArchangel::PhysicsResponse(GameObject* go1, Collision collision)
 		go1->vel = u - (2 * u).Dot(N) * N;
 		go1->vel.y *= 0.4;
 	}
-	if (go1 == m_player)
+	if (go1 == m_player && !phase)
 	{
 		if (collision.go->type == GameObject::GO_POTION && m_player->hp < m_player->max_hp)
 		{
@@ -445,8 +447,15 @@ void SceneArchangel::Gravity(GameObject::GAMEOBJECT_TYPE GO, float elasticity, d
 		{
 			if (go->type == GO)
 			{
-				go->pos += go->vel * dt * m_speed * time_manip;
-				go->vel.y -= dt * elasticity;
+				if (!phase)
+				{
+					go->pos += go->vel * dt * m_speed * time_manip;
+					go->vel.y -= dt * elasticity;
+				}
+				else if (go == m_player)
+				{
+					go->pos += go->vel * dt * m_speed;
+				}
 			}
 			// terminal velocity
 			if (go->vel.y <= -200)
@@ -523,18 +532,6 @@ void SceneArchangel::SpawnBullet(double dt)
 				newGO4->vel.Normalize() * 100;
 			}
 			m_player->bullet_delay = 0;
-		}
-	}
-	for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
-	{
-		GameObject* go = (GameObject*)*it;
-		if (go->active)
-		{
-			if (go->type == GameObject::GO_BULLET)
-			{
-				go->pos += go->vel * dt * 100 * time_manip;
-				Boundary(go, 2);
-			}
 		}
 	}
 }
@@ -616,14 +613,17 @@ void SceneArchangel::playerLogic(double dt)
 	}
 
 	// Movement
-	/*if (Application::IsKeyPressed('W') || Application::IsKeyPressed(VK_UP))
+	if (phase)
 	{
-		m_player->vel.y += 3;
+		if (Application::IsKeyPressed('W') || Application::IsKeyPressed(VK_UP))
+		{
+			m_player->vel.y += 3;
+		}
+		if (Application::IsKeyPressed('S') || Application::IsKeyPressed(VK_DOWN))
+		{
+			m_player->vel.y -= 3;
+		}
 	}
-	if (Application::IsKeyPressed('S') || Application::IsKeyPressed(VK_DOWN))
-	{
-		m_player->vel.y -= 3;
-	}*/
 	if (Application::IsKeyPressed('A') || Application::IsKeyPressed(VK_LEFT))
 	{
 		if (!jump)
@@ -890,40 +890,85 @@ void SceneArchangel::setGun(float fire, int dmg)
 
 void SceneArchangel::pickWeapon(double dt)
 {
-	// AK47
+	// Sword
+	if (weapon_choice >= 1 && weapon_choice <= 4)
+		Melee();
+	else
+		SpawnBullet(dt);
+
+	for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
+	{
+		GameObject* go = (GameObject*)*it;
+		if (go->active)
+		{
+			if (go->type == GameObject::GO_BULLET)
+			{
+				go->pos += go->vel * dt * 100 * time_manip;
+				Boundary(go, 2);
+			}
+		}
+	}
 	if (Application::IsKeyPressed('1'))
 	{
-		setGun(0.2f, 6);
+		setGun(0.2f, 20);
 		shotgun = false;
 		weapon_choice = 1;
 	}
-	// SMG
+	// Knife
 	else if (Application::IsKeyPressed('2'))
 	{
-		setGun(0.1f, 5);
+		setGun(0.1f, 15);
 		shotgun = false;
 		weapon_choice = 2;
 	}
-	// LMG
+	// Spear
 	else if (Application::IsKeyPressed('3'))
 	{
-		setGun(0.25f, 7);
+		setGun(0.25f, 20);
 		shotgun = false;
 		weapon_choice = 3;
 	}
-	// SHOTGUN
+	// Scythe
 	else if (Application::IsKeyPressed('4'))
 	{
-		setGun(0.6f, 3);
+		setGun(0.6f, 30);
 		shotgun = true;
 		weapon_choice = 4;
 	}
-	// REVOLVER
+	//AK
 	else if (Application::IsKeyPressed('5'))
 	{
-		setGun(0.4f, 8);
+		setGun(0.2f, 3);
 		shotgun = false;
 		weapon_choice = 5;
+	}
+	// SMG
+	else if (Application::IsKeyPressed('6'))
+	{
+		setGun(0.1f, 2);
+		shotgun = false;
+		weapon_choice = 6;
+	}
+	// LMG
+	else if (Application::IsKeyPressed('7'))
+	{
+		setGun(0.25f, 4);
+		shotgun = false;
+		weapon_choice = 7;
+	}
+	// SHOTGUN
+	else if (Application::IsKeyPressed('8'))
+	{
+		setGun(0.6f, 2);
+		shotgun = true;
+		weapon_choice = 8;
+	}
+	// REVOLVER
+	else if (Application::IsKeyPressed('9'))
+	{
+		setGun(0.4f, 6);
+		shotgun = false;
+		weapon_choice = 9;
 	}
 
 }
@@ -944,6 +989,52 @@ void SceneArchangel::takeDMG()
 		cout << "Current hitpoints: " << hitpoints[heart_count - empty_heart] << endl;
 		cout << "m_player->hp: " << m_player->hp << endl;*/
 	}
+}
+
+void SceneArchangel::Melee()
+{
+	static bool bLButtonState3 = false;
+	if (Application::IsMousePressed(0) && !bLButtonState3)
+	{
+		for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
+		{
+			GameObject* go = (GameObject*)*it;
+			if (go->active)
+			{
+				if (go->type == GameObject::GO_DEMON || go->type == GameObject::GO_FALLENANGEL || go->type == GameObject::GO_TERMINATOR || go->type == GameObject::GO_SOLDIER)
+				{
+					if (go->pos.y + 5 > m_player->pos.y && go->pos.y - 5 < m_player->pos.y)
+					{
+						if (m_player->left)
+						{
+							if (m_player->pos.x - 10 < go->pos.x && m_player->pos.x > go->pos.x && !m_player->attack)
+							{
+								go->hp -= weapon_dmg;
+								go->vel.x -= 25;
+								m_player->attack = true;
+							}
+						}
+						else if (!m_player->left)
+						{
+							if (m_player->pos.x + 10 > go->pos.x && m_player->pos.x < go->pos.x && !m_player->attack)
+							{
+								go->hp -= weapon_dmg;
+								go->vel.x += 25;
+								m_player->attack = true;
+							}
+						}
+					}
+				}
+			}
+		}
+		bLButtonState3 = true;
+	}
+	else if (!Application::IsMousePressed(0))
+	{
+		bLButtonState3 = false;
+		m_player->attack = false;
+	}
+	
 }
 
 void SceneArchangel::heal(bool max_potion)
@@ -996,9 +1087,9 @@ void SceneArchangel::heal(bool max_potion)
 	cout << "m_player->hp: " << m_player->hp << endl;*/
 }
 
-void SceneArchangel::mana(float interval, int amount,  bool restore)
+void SceneArchangel::mana(float interval, float amount,  bool restore)
 {
-	if (mana_delay > interval && m_player->mana > 0 && m_player->mana < 50)
+	if (mana_delay > interval && m_player->mana > 0 && m_player->mana <= 50)
 	{
 		if (restore)
 			m_player->mana += amount;
@@ -1091,7 +1182,7 @@ void SceneArchangel::demonAI(double dt)
 				Boundary(go, 1);
 				go->FSMCounter += dt;
 				go->bullet_delay += dt;
-				go->speed = 3;
+				go->speed = 5;
 
 				go->left_box->pos.x = go->pos.x - 4.f;
 				go->left_box->pos.y = go->pos.y - 1.5f;
@@ -1238,7 +1329,7 @@ void SceneArchangel::fallenAngelAI(double dt)
 				go->pos += go->vel * dt * m_speed * time_manip;
 				go->FSMCounter += dt;
 				go->bullet_delay += dt;
-				go->speed = 5;
+				go->speed = 3;
 
 				go->left_box->pos.x = go->pos.x - 4.f;
 				go->left_box->pos.y = go->pos.y;
@@ -1326,21 +1417,22 @@ void SceneArchangel::fallenAngelAI(double dt)
 					if (!go->attack)
 					{
 						if (go->pos.y > m_player->pos.y + 3)
-							go->pos.y -= go->speed - 2;
+							go->vel.y -= go->speed;
 						else if (go->pos.y < m_player->pos.y)
-							go->pos.y += go->speed - 2;
+							go->vel.y += go->speed;
 						else
 							go->attack = true;
 					}
 
 					if (go->FSMCounter > go->MaxFSMCounter)
 					{
-						if (go->pos.y <= m_player->pos.y + 30)
+						if (go->pos.y <= m_player->pos.y + 20)
 						{
-							go->pos.y += go->speed - 2;
+							go->vel.y += go->speed;
 						}
 						else
 						{
+							go->vel.y *= 0;
 							go->state = go->STATE_IDLE;
 							go->FSMCounter = 0;
 							go->attack = false;
@@ -1350,7 +1442,7 @@ void SceneArchangel::fallenAngelAI(double dt)
 
 				case go->STATE_FAR_ATTACK:
 					go->fire_rate = 1;
-					if (go->FSMCounter > go->MaxFSMCounter * 5)
+					if (go->FSMCounter > go->MaxFSMCounter * 2)
 					{
 						go->state = go->STATE_IDLE;
 						go->FSMCounter = 0;
@@ -1401,7 +1493,6 @@ void SceneArchangel::terminatorAI(double dt)
 			if (go->type == GameObject::GO_TERMINATOR)
 			{
 				Boundary(go, 1);
-				go->pos += go->vel * dt * m_speed * time_manip;
 				go->FSMCounter += dt;
 				go->bullet_delay += dt;
 				if (!go->rage)
@@ -1514,7 +1605,6 @@ void SceneArchangel::terminatorAI(double dt)
 						newGO->vel.Normalize() * 100;
 						go->bullet_delay = 0;
 					}
-					cout << go->hp << endl;
 					break;
 
 
@@ -1556,7 +1646,6 @@ void SceneArchangel::soldierAI(double dt)
 			if (go->type == GameObject::GO_SOLDIER)
 			{
 				Boundary(go, 1);
-				go->pos += go->vel * dt * m_speed * time_manip;
 				go->FSMCounter += dt;
 				go->bullet_delay += dt;
 				go->speed = 2;
@@ -1573,7 +1662,6 @@ void SceneArchangel::soldierAI(double dt)
 					ReturnGO(go->left_box);
 					ReturnGO(go->right_box);
 				}
-
 
 				// Setting speed limiters
 				if (go->vel.x >= 25)
@@ -1628,7 +1716,6 @@ void SceneArchangel::soldierAI(double dt)
 						go->state = go->STATE_IDLE;
 						go->FSMCounter = 0;
 					}
-
 					break;
 
 				case go->STATE_FAR_ATTACK:
@@ -1649,7 +1736,6 @@ void SceneArchangel::soldierAI(double dt)
 						newGO->vel.Normalize() * 100;
 						go->bullet_delay = 0;
 					}
-					cout << go->hp << endl;
 					break;
 
 				case go->STATE_RELOAD:
@@ -1688,6 +1774,7 @@ void SceneArchangel::screenSpaceToWorldSpace(double& x, double& y)
 void SceneArchangel::manipTime(double dt)
 {
 	static bool bLButtonState3 = false;
+	static bool bLButtonState4 = false;
 	if (Application::IsKeyPressed('P') && !bLButtonState3)
 	{
 		bLButtonState3 = true;
@@ -1705,6 +1792,37 @@ void SceneArchangel::manipTime(double dt)
 	else if (!Application::IsKeyPressed('P'))
 	{
 		bLButtonState3 = false;
+		time_change = false;
+	}
+	
+	if (Application::IsKeyPressed('O') && !bLButtonState4)
+	{
+		bLButtonState4 = true;
+		if (!phase)
+		{
+			phase = true;
+			time_manip = 0.0f;
+		}
+		else
+		{
+			phase = false;
+			time_manip = 1.f;
+		}
+	}
+	else if (!Application::IsKeyPressed('O'))
+	{
+		bLButtonState4 = false;
+	}
+	if (time_change)
+		mana(0.25f, 0.75f, false);
+	else if (phase)
+		mana(0.25f, 1.f, false);
+
+	if (m_player->mana <= 0)
+	{
+		time_change = false;
+		phase = false;
+		time_manip = 1.f;
 	}
 }
 
@@ -1859,11 +1977,10 @@ void SceneArchangel::Update(double dt)
 		float clamp_pos_y = Math::Clamp((m_player->pos.y), m_screenHeight * .5f, m_worldHeight - m_screenHeight * .5f);
 		cameraPos.Set(clamp_pos_x, clamp_pos_y);
 
-		SpawnBullet(dt);
-		playerLogic(dt);
 		portalLogic(dt);
 		pickWeapon(dt);
 		itemLogic(dt);
+		playerLogic(dt);
 		throwGrenade(dt);
 		manipTime(dt);
 		demonAI(dt);
@@ -2266,7 +2383,7 @@ void SceneArchangel::Render()
 		std::ostringstream ss2;
 		std::ostringstream ss3;
 
-		RenderMeshOnScreen(meshList[GEO_CHARGE], -6.f + (m_player->mana) * 0.24f, 53, 12, 2.5f);
+		RenderMeshOnScreen(meshList[GEO_CHARGE], -9.f + (m_player->mana) * 0.36f, 53, 18, 2.f);
 
 		RenderMeshOnScreen(meshList[GEO_GREENBALL], 9, 2.5f, 1, 1.2f);
 		ss2 << "x" << m_player->grenade_count;
@@ -2278,21 +2395,37 @@ void SceneArchangel::Render()
 
 		if (weapon_choice == 1)
 		{
-			RenderMeshOnScreen(meshList[GEO_AK47], 4.2f, 5, 4.f, 3);
+			RenderMeshOnScreen(meshList[GEO_SWORD], 4.2f, 5, 4.f, 3);
 		}
 		else if (weapon_choice == 2)
 		{
-			RenderMeshOnScreen(meshList[GEO_SMG], 4.2f, 5, 4.f, 3);
+			RenderMeshOnScreen(meshList[GEO_KNIFE], 4.2f, 5, 2.f, 1);
 		}
 		else if (weapon_choice == 3)
 		{
-			RenderMeshOnScreen(meshList[GEO_LMG], 4.2f, 5, 4.f, 3);
+			RenderMeshOnScreen(meshList[GEO_SPEAR], 4.2f, 5, 4.f, 3);
 		}
 		else if (weapon_choice == 4)
 		{
-			RenderMeshOnScreen(meshList[GEO_SHOTGUN], 4.2f, 5, 4.f, 3);
+			RenderMeshOnScreen(meshList[GEO_SCYTHE], 4.2f, 5, 4.f, 3);
 		}
 		else if (weapon_choice == 5)
+		{
+			RenderMeshOnScreen(meshList[GEO_AK47], 4.2f, 5, 4.f, 3);
+		}
+		else if (weapon_choice == 6)
+		{
+			RenderMeshOnScreen(meshList[GEO_SMG], 4.2f, 5, 4.f, 3);
+		}
+		else if (weapon_choice == 7)
+		{
+			RenderMeshOnScreen(meshList[GEO_LMG], 4.2f, 5, 4.f, 3);
+		}
+		else if (weapon_choice == 8)
+		{
+			RenderMeshOnScreen(meshList[GEO_SHOTGUN], 4.2f, 5, 4.f, 3);
+		}
+		else if (weapon_choice == 9)
 		{
 			RenderMeshOnScreen(meshList[GEO_REVOLVER], 4.2f, 5, 4.f, 3);
 		}

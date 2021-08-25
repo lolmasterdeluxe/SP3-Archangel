@@ -38,8 +38,9 @@ public:
 	void setGun(float fire_rate, int dmg);
 	void pickWeapon(double dt);
 	void takeDMG();
+	void Melee();
 	void heal(bool max_potion);
-	void mana(float interval, int amount, bool restore);
+	void mana(float interval, float amount, bool restore);
 	void openChest(GameObject* go);
 	void manipTime(double dt);
 	void setCollisionBox(GameObject* go);
@@ -47,6 +48,7 @@ public:
 	void fallenAngelAI(double dt);
 	void terminatorAI(double dt);
 	void soldierAI(double dt);
+
 
 	void screenSpaceToWorldSpace(double& x, double& y);
 
@@ -82,7 +84,7 @@ protected:
 	float m_worldWidth, m_worldHeight, m_screenWidth, m_screenHeight;
 	GameObject * m_ghost, * m_player;
 	int m_objectCount, weapon_dmg, hitpoints[5], heart_count, empty_heart, weapon_choice;
-	bool initPos, jump, portal_in, move_portal_in, move_portal_out, portal_shot, shotgun, left, right, time_change;
+	bool initPos, jump, portal_in, move_portal_in, move_portal_out, portal_shot, shotgun, left, right, time_change, phase;
 	double dmg_delay, mana_delay;
 
 	//Debuging
