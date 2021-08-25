@@ -27,6 +27,7 @@ public:
 	void SetRight(CMapNode* map);
 	const MapData* GetMapData();
 	void SetMapData(MapData* mapData);
+	void SetEntityData(vector<GOData*> entityDataList);
 	bool IsVisited();
 	void SetVisitStatus(bool visited);
 	bool Entering(); // check if it is going in from front or back

@@ -95,7 +95,6 @@ bool CMapMaker::GoLeft()
 {
 	if (current->GetLeft() != nullptr)
 	{
-		current->SetVisitStatus(true);
 		current = current->GetLeft();
 		current->SetEnterLocation(checkIfEnteringLeft());
 		return true;
@@ -107,7 +106,6 @@ bool CMapMaker::GoRight()
 {
 	if (current->GetRight() != nullptr)
 	{
-		current->SetVisitStatus(true);
 		current = current->GetRight();
 		current->SetEnterLocation(checkIfEnteringRight());
 		return true;
@@ -120,9 +118,19 @@ const MapData* CMapMaker::GetMapData()
 	return current->GetMapData();
 }
 
+void CMapMaker::SaveEntityData(vector<GOData*> entityDataList)
+{
+	current->SetEntityData(entityDataList);
+}
+
 bool CMapMaker::IsVisited()
 {
 	return current->IsVisited();
+}
+
+void CMapMaker::Visited()
+{
+	current->SetVisitStatus(true);
 }
 
 bool CMapMaker::IsFromFront()

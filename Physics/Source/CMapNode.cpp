@@ -48,6 +48,12 @@ void CMapNode::SetMapData(MapData* mapData)
 	this->mapData = mapData;
 }
 
+void CMapNode::SetEntityData(vector<GOData*> entityDataList)
+{
+	this->mapData->entityDataList.clear();
+	this->mapData->entityDataList = entityDataList;
+}
+
 bool CMapNode::IsVisited()
 {
 	return visited;

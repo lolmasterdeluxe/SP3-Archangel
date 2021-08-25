@@ -1866,7 +1866,7 @@ void SceneArchangel::InitMap()
 	{
 		if (mapInfo->entityDataList[i]->type == GameObject::GO_CUBE)
 		{ // set player position
-			if (mapMaker.IsFromFront())
+			//if (mapMaker.IsFromFront())
 			{
 				m_player->pos = mapInfo->entityDataList[i]->pos;
 				cout << "set player pos enter" << m_player->pos << endl;
@@ -1874,13 +1874,13 @@ void SceneArchangel::InitMap()
 		}
 		else if (mapInfo->entityDataList[i]->type == GameObject::GO_GHOSTBALL)
 		{
-			if (!mapMaker.IsFromFront())
+			/*if (!mapMaker.IsFromFront())
 			{
 				m_player->pos = mapInfo->entityDataList[i]->pos;
 				cout << "set player pos exit" << m_player->pos << endl;
-			}
+			}*/
 		}
-		else if (!mapMaker.IsVisited())
+		else
 		{ // Spawn loot and enemies
 			cout << "spawned entity, ";
 			GameObject* go = FetchGO();
@@ -1916,6 +1916,43 @@ void SceneArchangel::InitMap()
 			}
 		}
 	}
+}
+
+void SceneArchangel::SaveMap()
+{
+	vector<GOData*> savedEntities;
+	for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
+	{
+		GameObject* go = (GameObject*)*it;
+		if (go->active && go != m_player->under_box)
+		{
+			if (go->type == GameObject::GO_CUBE ||
+				go->type == GameObject::GO_BARREL || // Stuff to save
+				go->type == GameObject::GO_POTION ||
+				go->type == GameObject::GO_MAXPOTION ||
+				go->type == GameObject::GO_MANAPOTION ||
+				go->type == GameObject::GO_CHEST ||
+				go->type == GameObject::GO_GOLD ||
+				go->type == GameObject::GO_PORTAL_IN ||
+				go->type == GameObject::GO_PORTAL_OUT
+				)
+			{
+				if (go->type == GameObject::GO_CUBE)
+				{
+					if (go->pos.x > 180 * .5f)
+						go->pos.x = 175;
+					else go->pos.x = 5;
+				}
+				GOData* goData = new GOData();
+				goData->type = go->type;
+				goData->pos = go->pos;
+				goData->rot = go->normal;
+				goData->scale = go->scale;
+				savedEntities.push_back(goData);
+			}
+		}
+	}
+	mapMaker.SaveEntityData(savedEntities);
 }
 
 void SceneArchangel::ClearMap()
@@ -1992,12 +2029,22 @@ void SceneArchangel::Update(double dt)
 		if (m_AttemptLeft)
 		{
 			m_AttemptLeft = false;
-			if (mapMaker.GoLeft()) InitMap();
+			SaveMap();
+			if (mapMaker.GoLeft())
+			{
+				/*if (mapMaker.IsVisited())*/ 
+				InitMap();
+			}
 		}
 		if (m_AttemptRight)
 		{
 			m_AttemptRight = false;
-			if (mapMaker.GoRight()) InitMap();
+			SaveMap();
+			if (mapMaker.GoRight())
+			{
+				/*if (mapMaker.IsVisited())*/
+				InitMap();
+			}
 		}
 
 		static bool bLButtonState = false;
