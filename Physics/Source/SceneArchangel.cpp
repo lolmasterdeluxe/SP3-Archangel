@@ -144,6 +144,22 @@ void SceneArchangel::ReturnGO(GameObject::GAMEOBJECT_TYPE GO)
 	}
 }
 
+GameObject* SceneArchangel::FindGameObjectWithType(GameObject::GAMEOBJECT_TYPE type)
+{
+	for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
+	{
+		GameObject* go = (GameObject*)*it;
+		if (go->active)
+		{
+			if (go->type == type)
+			{
+				return go;
+			}
+		}
+	}
+	return nullptr;
+}
+
 Collision SceneArchangel::CheckCollision(GameObject* go1, GameObject* go2, float dt)
 {
 	// Handle collision between GO_BALL and GO_BALL using velocity swap
@@ -1228,7 +1244,7 @@ void SceneArchangel::demonAI(double dt)
 						GameObject* go2 = (GameObject*)*it2;
 						if (go2->active)
 						{
-							if (go2->type == GameObject::GO_WALL)
+							if (go2->type == GameObject::GO_WALL || go2->type == GameObject::GO_PLATFORM)
 							{
 								Collision collision = CheckCollision(go->left_box, go2, dt);
 								Collision collision2 = CheckCollision(go->right_box, go2, dt);
@@ -1375,7 +1391,7 @@ void SceneArchangel::fallenAngelAI(double dt)
 						GameObject* go2 = (GameObject*)*it2;
 						if (go2->active)
 						{
-							if (go2->type == GameObject::GO_WALL)
+							if (go2->type == GameObject::GO_WALL || go2->type == GameObject::GO_PLATFORM)
 							{
 								Collision collision = CheckCollision(go->left_box, go2, dt);
 								Collision collision2 = CheckCollision(go->right_box, go2, dt);
@@ -1555,7 +1571,7 @@ void SceneArchangel::terminatorAI(double dt)
 						GameObject* go2 = (GameObject*)*it2;
 						if (go2->active)
 						{
-							if (go2->type == GameObject::GO_WALL)
+							if (go2->type == GameObject::GO_WALL || go2->type == GameObject::GO_PLATFORM)
 							{
 								Collision collision = CheckCollision(go->left_box, go2, dt);
 								Collision collision2 = CheckCollision(go->right_box, go2, dt);
@@ -1693,7 +1709,7 @@ void SceneArchangel::soldierAI(double dt)
 						GameObject* go2 = (GameObject*)*it2;
 						if (go2->active)
 						{
-							if (go2->type == GameObject::GO_WALL)
+							if (go2->type == GameObject::GO_WALL || go2->type == GameObject::GO_PLATFORM)
 							{
 								Collision collision = CheckCollision(go->left_box, go2, dt);
 								Collision collision2 = CheckCollision(go->right_box, go2, dt);
@@ -1847,7 +1863,7 @@ void SceneArchangel::InitMap()
 {
 	ClearMap();
 	const MapData* mapInfo = mapMaker.GetMapData();
-	
+	bool haveEnemies = false;
 	for (int i = 0; i < mapInfo->wallDataList.size(); i++)
 	{ // spawn walls
 		cout << "spawned wall, ";
@@ -1880,7 +1896,13 @@ void SceneArchangel::InitMap()
 				cout << "set player pos exit" << m_player->pos << endl;
 			}*/
 		}
-		else
+		else if 
+			(
+				mapInfo->entityDataList[i]->type != GameObject::GO_TERMINATOR &&
+				mapInfo->entityDataList[i]->type != GameObject::GO_SOLDIER &&
+				mapInfo->entityDataList[i]->type != GameObject::GO_FALLENANGEL &&
+				mapInfo->entityDataList[i]->type != GameObject::GO_DEMON
+				)
 		{ // Spawn loot and enemies
 			cout << "spawned entity, ";
 			GameObject* go = FetchGO();
@@ -1894,7 +1916,7 @@ void SceneArchangel::InitMap()
 			cout << go->normal << endl;
 			if (mapInfo->entityDataList[i]->type == GameObject::GO_BARREL)
 				go->hp = 15;
-			if (mapInfo->entityDataList[i]->type == GameObject::GO_DEMON)
+			/*if (mapInfo->entityDataList[i]->type == GameObject::GO_DEMON)
 			{
 				go->hp = 30;
 				setCollisionBox(go);
@@ -1913,8 +1935,22 @@ void SceneArchangel::InitMap()
 			{
 				go->hp = 75;
 				setCollisionBox(go);
-			}
+			}*/
 		}
+		else // have enemies in this level
+		{
+			haveEnemies = true;
+		}
+	}
+	if (haveEnemies)
+	{
+		playState = PLAY_PREBATTLE; // enemies in this level
+		cout << "have enemies\n";
+	}
+	else
+	{
+		playState = PLAY_POSTBATTLE; // no enemies in this level
+		cout << "no enemies\n";
 	}
 }
 
@@ -1966,6 +2002,52 @@ void SceneArchangel::ClearMap()
 		}
 	}
 	cout << "clearmap\n";
+}
+
+void SceneArchangel::SpawnEnemies()
+{
+	const MapData* mapInfo = mapMaker.GetMapData();
+	for (int i = 0; i < mapInfo->entityDataList.size(); i++)
+	{
+		if ( // Put all the enemy types here
+			mapInfo->entityDataList[i]->type == GameObject::GO_TERMINATOR ||
+			mapInfo->entityDataList[i]->type == GameObject::GO_SOLDIER ||
+			mapInfo->entityDataList[i]->type == GameObject::GO_FALLENANGEL ||
+			mapInfo->entityDataList[i]->type == GameObject::GO_DEMON
+			)
+		{ // Spawn loot and enemies
+			cout << "spawned entity, ";
+			GameObject* go = FetchGO();
+			go->active = true;
+			go->type = mapInfo->entityDataList[i]->type;
+			go->pos = mapInfo->entityDataList[i]->pos;
+			cout << go->pos << ", ";
+			go->scale = mapInfo->entityDataList[i]->scale;
+			cout << go->scale << ", ";
+			go->normal = mapInfo->entityDataList[i]->rot;
+			cout << go->normal << endl;
+			if (mapInfo->entityDataList[i]->type == GameObject::GO_DEMON)
+			{
+				go->hp = 30;
+				setCollisionBox(go);
+			}
+			else if (mapInfo->entityDataList[i]->type == GameObject::GO_FALLENANGEL)
+			{
+				go->hp = 60;
+				setCollisionBox(go);
+			}
+			else if (mapInfo->entityDataList[i]->type == GameObject::GO_TERMINATOR)
+			{
+				go->hp = 90;
+				setCollisionBox(go);
+			}
+			else if (mapInfo->entityDataList[i]->type == GameObject::GO_SOLDIER)
+			{
+				go->hp = 75;
+				setCollisionBox(go);
+			}
+		}
+	}
 }
 
 void SceneArchangel::Update(double dt)
@@ -2020,30 +2102,49 @@ void SceneArchangel::Update(double dt)
 		playerLogic(dt);
 		throwGrenade(dt);
 		manipTime(dt);
-		demonAI(dt);
-		fallenAngelAI(dt);
-		terminatorAI(dt);
-		soldierAI(dt);
-
-		// Change Level
-		if (m_AttemptLeft)
+		if (playState == PLAY_BATTLE)
 		{
-			m_AttemptLeft = false;
-			SaveMap();
-			if (mapMaker.GoLeft())
+			demonAI(dt);
+			fallenAngelAI(dt);
+			terminatorAI(dt);
+			soldierAI(dt);
+			m_AttemptLeft = m_AttemptRight = false;
+
+			if  ( // if no more enemies left
+				FindGameObjectWithType(GameObject::GO_SOLDIER) == nullptr &&
+				FindGameObjectWithType(GameObject::GO_FALLENANGEL) == nullptr &&
+				FindGameObjectWithType(GameObject::GO_TERMINATOR) == nullptr &&
+				FindGameObjectWithType(GameObject::GO_DEMON) == nullptr
+				)
 			{
-				/*if (mapMaker.IsVisited())*/ 
-				InitMap();
+				playState = PLAY_POSTBATTLE;
 			}
 		}
-		if (m_AttemptRight)
+		else if (playState == PLAY_PREBATTLE && m_player->pos.x > 20 && m_player->pos.x < 160)
 		{
-			m_AttemptRight = false;
-			SaveMap();
-			if (mapMaker.GoRight())
+			SpawnEnemies();
+			playState = PLAY_BATTLE;
+		}
+		else
+		{
+			// Change Level
+			if (m_AttemptLeft)
 			{
-				/*if (mapMaker.IsVisited())*/
-				InitMap();
+				m_AttemptLeft = false;
+				if (playState == PLAY_POSTBATTLE) SaveMap();
+				if (mapMaker.GoLeft())
+				{
+					InitMap();
+				}
+			}
+			if (m_AttemptRight)
+			{
+				m_AttemptRight = false;
+				if (playState == PLAY_POSTBATTLE) SaveMap();
+				if (mapMaker.GoRight())
+				{
+					InitMap();
+				}
 			}
 		}
 
@@ -2522,6 +2623,9 @@ void SceneArchangel::Render()
 			ss.str("");
 			ss << "Mouse position (world space): " << x << ", " << y;
 			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 0, 50); // cursor pos in screen space
+			ss.str("");
+			ss << "Gameplay State: " << playState;
+			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 0, 48); // gameplay state
 		}
 	}
 	// Lose state bg

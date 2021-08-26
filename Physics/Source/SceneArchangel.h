@@ -23,6 +23,7 @@ public:
 	GameObject* FetchGO();
 	void ReturnGO(GameObject* go);
 	void ReturnGO(GameObject::GAMEOBJECT_TYPE GO);
+	GameObject* FindGameObjectWithType(GameObject::GAMEOBJECT_TYPE type);
 	Collision CheckCollision(GameObject* go1, GameObject* go2, float dt);
 	void PhysicsResponse(GameObject* go1, Collision collision);
 	void CollisionBound(GameObject* go1, Collision collision);
@@ -57,6 +58,7 @@ public:
 	void SaveMap();
 	void ClearMap();
 
+	void SpawnEnemies();
 
 protected:
 	// Game states
@@ -67,8 +69,16 @@ protected:
 		STATE_PLAY,
 		STATE_LOSE
 	};
+	enum PLAY_STATE
+	{
+		PLAY_PREBATTLE,
+		PLAY_BATTLE,
+		PLAY_POSTBATTLE
+	};
 
 	GAME_STATE state;
+
+	PLAY_STATE playState; // state of the gameplay
 
 	// maps and levels
 	CMapMaker mapMaker;
