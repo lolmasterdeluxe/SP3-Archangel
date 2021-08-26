@@ -30,8 +30,6 @@ void SceneArchangel::Init()
 	move_portal_out = false;
 	portal_shot = false;
 	shotgun = false;
-	left = false;
-	right = true;
 	time_change = false;
 	phase = false;
 	weapon_dmg = 6;
@@ -82,7 +80,7 @@ void SceneArchangel::Init()
 	m_player->max_hp = 12;
 	m_player->pos = Vector3(m_worldWidth * 0.5, 30, 0);
 	m_player->normal.Set(1, 0, 0);
-	m_player->scale = Vector3(2, 2, 2);
+	m_player->scale = Vector3(2, 3.f, 2);
 	m_player->bullet_delay = 0;
 	m_player->fire_rate = 0.2f;
 	m_player->attack = false;
@@ -610,6 +608,8 @@ void SceneArchangel::throwGrenade(double dt)
 void SceneArchangel::playerLogic(double dt)
 {
 	Gravity(GameObject::GO_CUBE, 300, dt);
+
+
 	// Setting speed limiters
 	if (m_player->vel.x >= max_vel)
 	{
@@ -909,7 +909,7 @@ void SceneArchangel::setGun(float fire, int dmg)
 void SceneArchangel::pickWeapon(double dt)
 {
 	// Sword
-	if (weapon_choice >= 1 && weapon_choice <= 4)
+	if (weapon_choice >= 0 && weapon_choice <= 4)
 		Melee();
 	else
 		SpawnBullet(dt);
@@ -926,7 +926,13 @@ void SceneArchangel::pickWeapon(double dt)
 			}
 		}
 	}
-	if (Application::IsKeyPressed('1'))
+	if (Application::IsKeyPressed('0'))
+	{
+		setGun(0.2f, 10);
+		shotgun = false;
+		weapon_choice = 0;
+	}
+	else if (Application::IsKeyPressed('1'))
 	{
 		setGun(0.2f, 20);
 		shotgun = false;
@@ -1200,7 +1206,7 @@ void SceneArchangel::demonAI(double dt)
 				Boundary(go, 1);
 				go->FSMCounter += dt;
 				go->bullet_delay += dt;
-				go->speed = 5;
+				go->speed = 6;
 
 				go->left_box->pos.x = go->pos.x - 4.f;
 				go->left_box->pos.y = go->pos.y - 1.5f;
@@ -1778,6 +1784,30 @@ void SceneArchangel::soldierAI(double dt)
 	}
 }
 
+void SceneArchangel::runAnimation(double dt, GameObject::GAMEOBJECT_TYPE GO, double animation_max, int frame_max)
+{
+	for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
+	{
+		GameObject* go = (GameObject*)*it;
+		if (go->active)
+		{
+			if (go->type == GO)
+			{
+				go->animation_delay += dt;
+				if (go->animation_delay > animation_max)
+				{
+					go->frame_count++;
+					go->animation_delay = 0;
+				}
+				if (go->frame_count >= frame_max)
+				{
+					go->frame_count = 0;
+				}
+			}
+		}
+	}
+}
+
 
 void SceneArchangel::ScreenSpaceToWorldSpace(double& x, double& y)
 {
@@ -2140,6 +2170,7 @@ void SceneArchangel::Update(double dt)
 			fallenAngelAI(dt);
 			terminatorAI(dt);
 			soldierAI(dt);
+			runAnimation(dt, GameObject::GO_CUBE, 0.25f, 16);
 			m_AttemptLeft = m_AttemptRight = false;
 
 			if  ( // if no more enemies left
@@ -2230,6 +2261,7 @@ void SceneArchangel::RenderGO(GameObject *go)
 {
 	float angle;
 	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
 	switch(go->type)
 	{
 	case GameObject::GO_BALL:
@@ -2270,15 +2302,15 @@ void SceneArchangel::RenderGO(GameObject *go)
 
 		break;
 
-	case GameObject::GO_GHOSTBALL:
-		// Ball displayed at top
-		modelStack.PushMatrix();
-		modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
-		modelStack.Rotate(Math::RadianToDegree(atan2(go->dir.y, go->dir.x)), 0, 0, 1);
-		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
-		RenderMesh(meshList[GEO_BALL], false);
-		modelStack.PopMatrix();
-		break;
+	//case GameObject::GO_GHOSTBALL:
+	//	// Ball displayed at top
+	//	modelStack.PushMatrix();
+	//	modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
+	//	modelStack.Rotate(Math::RadianToDegree(atan2(go->dir.y, go->dir.x)), 0, 0, 1);
+	//	modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
+	//	RenderMesh(meshList[GEO_BALL], false);
+	//	modelStack.PopMatrix();
+	//	break;
 
 	case GameObject::GO_PILLAR:
 		// Pillars that attach to cube
@@ -2316,6 +2348,7 @@ void SceneArchangel::RenderGO(GameObject *go)
 			RenderMesh(meshList[GEO_PURPLECUBE], false);
 		modelStack.PopMatrix();
 		break;	
+
 	case GameObject::GO_PLATFORM:
 		modelStack.PushMatrix();
 		modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
@@ -2338,11 +2371,91 @@ void SceneArchangel::RenderGO(GameObject *go)
 
 	case GameObject::GO_CUBE:
 		modelStack.PushMatrix();
-		modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
+		modelStack.Translate(go->pos.x, go->pos.y + 1.5f, go->pos.z);
 		angle = atan2f(go->normal.y, go->normal.x);
 		modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
-		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
-		RenderMesh(meshList[GEO_CUBE], false);
+		if (m_player->left)
+			modelStack.Rotate(0, 0, 1, 0);
+		else
+			modelStack.Rotate(180, 0, 1, 0);
+		
+
+		if (weapon_choice == 0)
+		{
+			modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
+			if (go->frame_count == 0)
+				RenderMesh(meshList[GEO_FRAME1], false);
+			else if (go->frame_count == 1)
+				RenderMesh(meshList[GEO_FRAME2], false);
+			else if (go->frame_count == 2)
+				RenderMesh(meshList[GEO_FRAME3], false);
+			else if (go->frame_count == 3)
+				RenderMesh(meshList[GEO_FRAME4], false);
+			else if (go->frame_count == 4)
+				RenderMesh(meshList[GEO_FRAME5], false);
+			else if (go->frame_count == 5)
+				RenderMesh(meshList[GEO_FRAME6], false);
+			else if (go->frame_count == 6)
+				RenderMesh(meshList[GEO_FRAME7], false);
+			else if (go->frame_count == 7)
+				RenderMesh(meshList[GEO_FRAME8], false);
+			else if (go->frame_count == 8)
+				RenderMesh(meshList[GEO_FRAME9], false);
+			else if (go->frame_count == 9)
+				RenderMesh(meshList[GEO_FRAME10], false);
+			else if (go->frame_count == 10)
+				RenderMesh(meshList[GEO_FRAME11], false);
+			else if (go->frame_count == 11)
+				RenderMesh(meshList[GEO_FRAME12], false);
+			else if (go->frame_count == 12)
+				RenderMesh(meshList[GEO_FRAME13], false);
+			else if (go->frame_count == 13)
+				RenderMesh(meshList[GEO_FRAME14], false);
+			else if (go->frame_count == 14)
+				RenderMesh(meshList[GEO_FRAME15], false);
+			else if (go->frame_count == 15)
+				RenderMesh(meshList[GEO_FRAME16], false);
+			else if (go->frame_count == 16)
+				RenderMesh(meshList[GEO_FRAME17], false);
+		}
+		else
+		{
+			modelStack.Scale(go->scale.x - 0.7f, go->scale.y, go->scale.z);
+			if (go->frame_count == 0)
+				RenderMesh(meshList[GEO_1FRAME1], false);
+			else if (go->frame_count == 1)
+				RenderMesh(meshList[GEO_1FRAME2], false);
+			else if (go->frame_count == 2)
+				RenderMesh(meshList[GEO_1FRAME3], false);
+			else if (go->frame_count == 3)
+				RenderMesh(meshList[GEO_1FRAME4], false);
+			else if (go->frame_count == 4)
+				RenderMesh(meshList[GEO_1FRAME5], false);
+			else if (go->frame_count == 5)
+				RenderMesh(meshList[GEO_1FRAME6], false);
+			else if (go->frame_count == 6)
+				RenderMesh(meshList[GEO_1FRAME7], false);
+			else if (go->frame_count == 7)
+				RenderMesh(meshList[GEO_1FRAME8], false);
+			else if (go->frame_count == 8)
+				RenderMesh(meshList[GEO_1FRAME9], false);
+			else if (go->frame_count == 9)
+				RenderMesh(meshList[GEO_1FRAME10], false);
+			else if (go->frame_count == 10)
+				RenderMesh(meshList[GEO_1FRAME11], false);
+			else if (go->frame_count == 11)
+				RenderMesh(meshList[GEO_1FRAME12], false);
+			else if (go->frame_count == 12)
+				RenderMesh(meshList[GEO_1FRAME13], false);
+			else if (go->frame_count == 13)
+				RenderMesh(meshList[GEO_1FRAME14], false);
+			else if (go->frame_count == 14)
+				RenderMesh(meshList[GEO_1FRAME15], false);
+			else if (go->frame_count == 15)
+				RenderMesh(meshList[GEO_1FRAME16], false);
+			else if (go->frame_count == 16)
+				RenderMesh(meshList[GEO_1FRAME17], false);
+		}
 		modelStack.PopMatrix();
 		break;
 
@@ -2573,6 +2686,17 @@ void SceneArchangel::Render()
 		ss3 << "x" << m_player->gold_count;
 		RenderTextOnScreen(meshList[GEO_TEXT], ss3.str(), Color(1, 1, 1), 2.5f, 16.5f, 1);
 
+		float angle;
+		double x, y;
+		Application::GetCursorPos(&x, &y);
+		screenSpaceToWorldSpace(x, y);
+
+		if (x < m_player->pos.x)
+			m_player->left = true;
+		else if (x > m_player->pos.x)
+			m_player->left = false;
+		glDisable(GL_CULL_FACE);
+
 		if (weapon_choice == 1)
 		{
 			RenderMeshOnScreen(meshList[GEO_SWORD], 4.2f, 5, 4.f, 3);
@@ -2592,22 +2716,112 @@ void SceneArchangel::Render()
 		else if (weapon_choice == 5)
 		{
 			RenderMeshOnScreen(meshList[GEO_AK47], 4.2f, 5, 4.f, 3);
+			modelStack.PushMatrix();
+			if (m_player->left)
+			{
+				modelStack.Translate(m_player->pos.x + 0.85f, m_player->pos.y + 3.1f, m_player->pos.z);
+				angle = atan2f(y - 4 - m_player->pos.y, x - m_player->pos.x);
+				modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
+				modelStack.Rotate(180, 1, 0, 0);
+			}
+			else
+			{
+				modelStack.Translate(m_player->pos.x - 0.85f, m_player->pos.y + 3.1f, m_player->pos.z);
+				angle = atan2f(y - 4 - m_player->pos.y, x - m_player->pos.x);
+				modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
+				modelStack.Rotate(0, 1, 0, 0);
+			}
+			modelStack.Scale(4, 1, 1);
+			RenderMesh(meshList[GEO_AKARM], false);
+			modelStack.PopMatrix();
 		}
 		else if (weapon_choice == 6)
 		{
 			RenderMeshOnScreen(meshList[GEO_SMG], 4.2f, 5, 4.f, 3);
+			modelStack.PushMatrix();
+			if (m_player->left)
+			{
+				modelStack.Translate(m_player->pos.x + 0.9f, m_player->pos.y + 3.1f, m_player->pos.z);
+				angle = atan2f(y - 4 - m_player->pos.y, x - m_player->pos.x);
+				modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
+				modelStack.Rotate(180, 1, 0, 0);
+			}
+			else
+			{
+				modelStack.Translate(m_player->pos.x - 0.9f, m_player->pos.y + 3.1f, m_player->pos.z);
+				angle = atan2f(y - 4 - m_player->pos.y, x - m_player->pos.x);
+				modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
+				modelStack.Rotate(0, 1, 0, 0);
+			}
+			modelStack.Scale(3.8f, 0.8f, 1);
+			RenderMesh(meshList[GEO_SMGARM], false);
+			modelStack.PopMatrix();
 		}
 		else if (weapon_choice == 7)
 		{
 			RenderMeshOnScreen(meshList[GEO_LMG], 4.2f, 5, 4.f, 3);
+			modelStack.PushMatrix();
+			if (m_player->left)
+			{
+				modelStack.Translate(m_player->pos.x + 0.85f, m_player->pos.y + 3.1f, m_player->pos.z);
+				angle = atan2f(y - 4 - m_player->pos.y, x - m_player->pos.x);
+				modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
+				modelStack.Rotate(180, 1, 0, 0);
+			}
+			else
+			{
+				modelStack.Translate(m_player->pos.x - 0.85f, m_player->pos.y + 3.1f, m_player->pos.z);
+				angle = atan2f(y - 4 - m_player->pos.y, x - m_player->pos.x);
+				modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
+				modelStack.Rotate(0, 1, 0, 0);
+			}
+			modelStack.Scale(4, 1, 1);
+			RenderMesh(meshList[GEO_LMGARM], false);
+			modelStack.PopMatrix();
 		}
 		else if (weapon_choice == 8)
 		{
 			RenderMeshOnScreen(meshList[GEO_SHOTGUN], 4.2f, 5, 4.f, 3);
+			modelStack.PushMatrix();
+			if (m_player->left)
+			{
+				modelStack.Translate(m_player->pos.x + 0.85f, m_player->pos.y + 3.1f, m_player->pos.z);
+				angle = atan2f(y - 4 - m_player->pos.y, x - m_player->pos.x);
+				modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
+				modelStack.Rotate(180, 1, 0, 0);
+			}
+			else
+			{
+				modelStack.Translate(m_player->pos.x - 0.85f, m_player->pos.y + 3.1f, m_player->pos.z);
+				angle = atan2f(y - 4 - m_player->pos.y, x - m_player->pos.x);
+				modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
+				modelStack.Rotate(0, 1, 0, 0);
+			}
+			modelStack.Scale(4, 1, 1);
+			RenderMesh(meshList[GEO_SHOTGUNARM], false);
+			modelStack.PopMatrix();
 		}
 		else if (weapon_choice == 9)
 		{
 			RenderMeshOnScreen(meshList[GEO_REVOLVER], 4.2f, 5, 4.f, 3);
+			modelStack.PushMatrix();
+			if (m_player->left)
+			{
+				modelStack.Translate(m_player->pos.x + 0.85f, m_player->pos.y + 3.1f, m_player->pos.z);
+				angle = atan2f(y - 4 - m_player->pos.y, x - m_player->pos.x);
+				modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
+				modelStack.Rotate(180, 1, 0, 0);
+			}
+			else
+			{
+				modelStack.Translate(m_player->pos.x - 0.85f, m_player->pos.y + 3.1f, m_player->pos.z);
+				angle = atan2f(y - 4 - m_player->pos.y, x - m_player->pos.x);
+				modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
+				modelStack.Rotate(0, 1, 0, 0);
+			}
+			modelStack.Scale(3.8f, 0.8f, 1);
+			RenderMesh(meshList[GEO_REVOLVERARM], false);
+			modelStack.PopMatrix();
 		}
 		for (int i = 0; i <= heart_count; ++i)
 		{
