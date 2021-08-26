@@ -99,7 +99,7 @@ struct GameObject
 	// Conditions and variables for GO
 	bool active, turn, shoot, aim, idle, missile, reset, cannon, laser, rifle, bounce, initPos, left, right, attack, rage;
 	float mass, pause, shoot_period, prevpos, mana, speed;
-	int hp, max_hp, shield, movement_phase, bullet_count, fire_style, color, grenade_count, gold_count, item_count;
+	int hp, max_hp, shield, movement_phase, bullet_count, fire_style, color, grenade_count, gold_count, item_count, frame_count;
 	double bullet_delay, grenade_delay, portal_delay, movement_delay, fire_rate, shoot_delay, shield_delay, shield_recharge, animation_delay, FSMCounter, MaxFSMCounter;
 	float movement_change;
 	std::ostringstream hp_display;

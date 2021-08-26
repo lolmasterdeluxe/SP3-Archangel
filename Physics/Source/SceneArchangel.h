@@ -48,6 +48,7 @@ public:
 	void fallenAngelAI(double dt);
 	void terminatorAI(double dt);
 	void soldierAI(double dt);
+	void runAnimation(double dt, GameObject::GAMEOBJECT_TYPE GO, double animation_max, int frame_max);
 
 
 	void screenSpaceToWorldSpace(double& x, double& y);
@@ -84,7 +85,7 @@ protected:
 	float m_worldWidth, m_worldHeight, m_screenWidth, m_screenHeight;
 	GameObject * m_ghost, * m_player;
 	int m_objectCount, weapon_dmg, hitpoints[5], heart_count, empty_heart, weapon_choice;
-	bool initPos, jump, portal_in, move_portal_in, move_portal_out, portal_shot, shotgun, left, right, time_change, phase;
+	bool initPos, jump, portal_in, move_portal_in, move_portal_out, portal_shot, shotgun, time_change, phase;
 	double dmg_delay, mana_delay;
 
 	//Debuging
