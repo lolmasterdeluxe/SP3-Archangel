@@ -67,6 +67,8 @@ void SceneArchangel::Init()
 		m_goList.push_back(asteroid);
 	}
 
+	m_emptyGO = new GameObject(); // do not push this to vector list
+	m_emptyGO->type = GameObject::GO_GHOSTBALL;
 
 	m_player = FetchGO();
 
@@ -160,7 +162,7 @@ GameObject* SceneArchangel::FindGameObjectWithType(GameObject::GAMEOBJECT_TYPE t
 	return nullptr;
 }
 
-Collision SceneArchangel::CheckCollision(GameObject* go1, GameObject* go2, float dt)
+Collision SceneArchangel::CheckCollision(GameObject* go1, GameObject* go2)
 {
 	// Handle collision between GO_BALL and GO_BALL using velocity swap
 	if (go2->type == GameObject::GO_BALL)
@@ -487,7 +489,7 @@ void SceneArchangel::SpawnBullet(double dt)
 {
 	double x, y;
 	Application::GetCursorPos(&x, &y);
-	screenSpaceToWorldSpace(x, y);
+	ScreenSpaceToWorldSpace(x, y);
 	//Mouse Section
 	static bool bLButtonState = false;
 	float angle;
@@ -676,7 +678,7 @@ void SceneArchangel::playerLogic(double dt)
 			{
 				if (go->type == GameObject::GO_WALL || go->type == GameObject::GO_PLATFORM)
 				{
-					Collision collision = CheckCollision(m_player->under_box, go, dt);
+					Collision collision = CheckCollision(m_player->under_box, go);
 					if (collision.dist > 0)
 					{
 						jump = false;
@@ -744,7 +746,7 @@ void SceneArchangel::portalLogic(double dt)
 					{
 						if (go2->type == GameObject::GO_WALL)
 						{
-							Collision collision = CheckCollision(go, go2, dt);
+							Collision collision = CheckCollision(go, go2);
 							if (collision.dist > 0)
 							{
 								CollisionBound(go, collision);
@@ -846,7 +848,7 @@ void SceneArchangel::enableCollision(double dt, GameObject::GAMEOBJECT_TYPE GO)
 						first = go2;
 						other = go;
 					}
-					Collision collision = CheckCollision(first, other, dt);
+					Collision collision = CheckCollision(first, other);
 					if (collision.dist > 0)
 					{
 						if (go2->type == GameObject::GO_WALL || go2->type == GameObject::GO_PLATFORM)
@@ -1246,8 +1248,8 @@ void SceneArchangel::demonAI(double dt)
 						{
 							if (go2->type == GameObject::GO_WALL || go2->type == GameObject::GO_PLATFORM)
 							{
-								Collision collision = CheckCollision(go->left_box, go2, dt);
-								Collision collision2 = CheckCollision(go->right_box, go2, dt);
+								Collision collision = CheckCollision(go->left_box, go2);
+								Collision collision2 = CheckCollision(go->right_box, go2);
 								if (collision.dist > 0 && collision2.dist <= 0)
 									go->left = true;
 								else if(collision2.dist > 0 && collision.dist <= 0)
@@ -1393,8 +1395,8 @@ void SceneArchangel::fallenAngelAI(double dt)
 						{
 							if (go2->type == GameObject::GO_WALL || go2->type == GameObject::GO_PLATFORM)
 							{
-								Collision collision = CheckCollision(go->left_box, go2, dt);
-								Collision collision2 = CheckCollision(go->right_box, go2, dt);
+								Collision collision = CheckCollision(go->left_box, go2);
+								Collision collision2 = CheckCollision(go->right_box, go2);
 								if (collision.dist > 0 && collision2.dist <= 0)
 									go->left = true;
 								else if (collision2.dist > 0 && collision.dist <= 0)
@@ -1573,8 +1575,8 @@ void SceneArchangel::terminatorAI(double dt)
 						{
 							if (go2->type == GameObject::GO_WALL || go2->type == GameObject::GO_PLATFORM)
 							{
-								Collision collision = CheckCollision(go->left_box, go2, dt);
-								Collision collision2 = CheckCollision(go->right_box, go2, dt);
+								Collision collision = CheckCollision(go->left_box, go2);
+								Collision collision2 = CheckCollision(go->right_box, go2);
 								if (collision.dist > 0 && collision2.dist <= 0)
 									go->left = true;
 								else if (collision2.dist > 0 && collision.dist <= 0)
@@ -1711,8 +1713,8 @@ void SceneArchangel::soldierAI(double dt)
 						{
 							if (go2->type == GameObject::GO_WALL || go2->type == GameObject::GO_PLATFORM)
 							{
-								Collision collision = CheckCollision(go->left_box, go2, dt);
-								Collision collision2 = CheckCollision(go->right_box, go2, dt);
+								Collision collision = CheckCollision(go->left_box, go2);
+								Collision collision2 = CheckCollision(go->right_box, go2);
 								if (collision.dist > 0 && collision2.dist <= 0)
 									go->left = true;
 								else if (collision2.dist > 0 && collision.dist <= 0)
@@ -1777,7 +1779,7 @@ void SceneArchangel::soldierAI(double dt)
 }
 
 
-void SceneArchangel::screenSpaceToWorldSpace(double& x, double& y)
+void SceneArchangel::ScreenSpaceToWorldSpace(double& x, double& y)
 {
 	int w = Application::GetWindowWidth();
 	int h = Application::GetWindowHeight();
@@ -1785,6 +1787,36 @@ void SceneArchangel::screenSpaceToWorldSpace(double& x, double& y)
 	double sY = y;
 	x = (sX / w * m_screenWidth) + (cameraPos.x - m_screenWidth * .5f);
 	y = ((h - sY) / h * m_screenHeight) + (cameraPos.y - m_screenHeight * .5f);
+}
+
+GameObject* SceneArchangel::ObjectOnCursor()
+{
+	double x, y;
+	Application::GetCursorPos(&x, &y);
+	ScreenSpaceToWorldSpace(x, y);
+	
+	for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
+	{
+		GameObject* go = (GameObject*)*it;
+		if (go->active)
+		{
+			m_emptyGO->pos.Set(x, y);
+			m_emptyGO->scale.Set(.01f, .01f, 1);
+			m_emptyGO->type = GameObject::GO_GHOSTBALL;
+			if (CheckCollision(m_emptyGO, go).dist > 0)
+				return go;
+			else if ( // AABB Collision check
+				go->pos.x + go->scale.x >= m_emptyGO->pos.x &&
+				go->pos.x - go->scale.x <= m_emptyGO->pos.x &&
+				go->pos.y + go->scale.y >= m_emptyGO->pos.y &&
+				go->pos.y - go->scale.y >= m_emptyGO->pos.y
+				)
+			{
+				return go;
+			}
+		}
+	}
+	return nullptr;
 }
 
 void SceneArchangel::manipTime(double dt)
@@ -2607,25 +2639,44 @@ void SceneArchangel::Render()
 		if (m_toggleDebugScreen)
 		{
 			// Display FPS
+			int ylvl = 58 / 2;
 			std::ostringstream ss;
 			ss << "FPS: " << fps;
-			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 0, 58); // fps
-			RenderTextOnScreen(meshList[GEO_TEXT], "Object Count: " + std::to_string(m_objectCount), Color(1, 1, 1), 2, 0, 56); // object Count
+			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 0, 2 * ylvl--); // fps
+			RenderTextOnScreen(meshList[GEO_TEXT], "Object Count: " + std::to_string(m_objectCount), Color(1, 1, 1), 2, 0, 2 * ylvl--); // object Count
 			ss.str("");
 			ss << "player position: " << m_player->pos;
-			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 0, 54); // player pos
+			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 0, 2 * ylvl--); // player pos
 			double x, y;
 			Application::GetCursorPos(&x, &y);
 			ss.str("");
 			ss << "Mouse position (screen space): " << x << ", " << y;
-			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 0, 52); // cursor pos in screen space
-			screenSpaceToWorldSpace(x, y);
+			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 0, 2 * ylvl--); // cursor pos in screen space
+			ScreenSpaceToWorldSpace(x, y);
 			ss.str("");
 			ss << "Mouse position (world space): " << x << ", " << y;
-			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 0, 50); // cursor pos in screen space
+			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 0, 2 * ylvl--); // cursor pos in screen space
+			
+			GameObject* goOnCursor = ObjectOnCursor();
+			if (goOnCursor != nullptr)
+			{
+				ss.str("");
+				ss << "Object On Cursor{ type: " << goOnCursor->type;
+				RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 0, 2 * ylvl--); // object on cursor's type
+				ss.str("");
+				ss << "pos: " << goOnCursor->pos;
+				RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 0, 2 * ylvl--); // object on cursor's pos
+				ss.str("");
+				ss << "scale: " << goOnCursor->scale;
+				RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 0, 2 * ylvl--); // object on cursor's scale
+				ss.str("");
+				ss << "hp: " << goOnCursor->hp << " }";
+				RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 0, 2 * ylvl--); // object on cursor's hp
+			}
+
 			ss.str("");
 			ss << "Gameplay State: " << playState;
-			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 0, 48); // gameplay state
+			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 0, 2 * ylvl--); // gameplay state
 		}
 	}
 	// Lose state bg

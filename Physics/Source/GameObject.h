@@ -67,6 +67,8 @@ struct GameObject
 		GO_FIREBALL,
 		GO_PLATFORM,
 		GO_BOUNCEPLATFORM,
+		GO_PORTCULLIS_LEFT,
+		GO_PORTCULLIS_RIGHT,
 
 		GO_TOTAL, //must be last
 	};
