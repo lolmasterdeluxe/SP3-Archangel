@@ -56,7 +56,7 @@ void SceneArchangel::Init()
 	m_worldWidth = 180;
 
 	// Initialize Game state
-	state = STATE_MENU;
+	state = STATE_INITMENU;
 
 
 	for (int i = 0; i < 150; i++)
@@ -1399,7 +1399,7 @@ void SceneArchangel::fallenAngelAI(double dt)
 						GameObject* go2 = (GameObject*)*it2;
 						if (go2->active)
 						{
-							if (go2->type == GameObject::GO_WALL || go2->type == GameObject::GO_PLATFORM)
+							if (go2->type == GameObject::GO_WALL)
 							{
 								Collision collision = CheckCollision(go->left_box, go2);
 								Collision collision2 = CheckCollision(go->right_box, go2);
@@ -2126,28 +2126,28 @@ void SceneArchangel::Update(double dt)
 	cameraPos.Set(m_screenWidth * .5f, m_screenHeight * .5f);
 
 	// Menu / Lose state
-	if (state == STATE_MENU || state == STATE_LOSE)
+	if (state == STATE_INITMENU)
+	{
+		GameObject* button1 = FetchGO();
+		button1->active = true;
+		button1->type = GameObject::GO_WALL;
+		button1->pos.Set(m_worldWidth * .5f, m_worldHeight * .5f);
+		button1->scale.Set(10, 5, 1);
+		button1->hp = 20;
+
+		state = STATE_MENU;
+	} 
+	else if (state == STATE_MENU || state == STATE_LOSE)
 	{
 		// Space to continue
 		if (Application::IsKeyPressed(VK_SPACE))
 		{
-			for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
-			{
-				GameObject* go = (GameObject*)*it;
-				if (go->active)
-				{
-					if (go->type == GameObject::GO_CIRCLE)
-					{
-						ReturnGO(go);
-					}
-				}
-			}
-
 			mapMaker.GenerateMap();
 			InitMap();
 
 			state = STATE_PLAY;
 		}
+		
 	}
 	// Play state
 	else if (state == STATE_PLAY)
@@ -2164,13 +2164,13 @@ void SceneArchangel::Update(double dt)
 		playerLogic(dt);
 		throwGrenade(dt);
 		manipTime(dt);
+		runAnimation(dt, GameObject::GO_CUBE, 0.25f, 16);
 		if (playState == PLAY_BATTLE)
 		{
 			demonAI(dt);
 			fallenAngelAI(dt);
 			terminatorAI(dt);
 			soldierAI(dt);
-			runAnimation(dt, GameObject::GO_CUBE, 0.25f, 16);
 			m_AttemptLeft = m_AttemptRight = false;
 
 			if  ( // if no more enemies left
@@ -2239,7 +2239,7 @@ void SceneArchangel::Update(double dt)
 				GameObject* go = (GameObject*)*it;
 				if (go->active)
 				{
-					cout << go->type << endl;
+					cout << go->type << endl; 
 				}
 			}
 		}
@@ -2658,6 +2658,14 @@ void SceneArchangel::Render()
 		modelStack.Scale(m_worldWidth * .5f, m_worldHeight * .5f, 1);
 		RenderMesh(meshList[GEO_MENU2], false);
 		modelStack.PopMatrix();
+		for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
+		{
+			GameObject* go = (GameObject*)*it;
+			if (go->active && go != m_player)
+			{
+				RenderGO(go);
+			}
+		}
 	}
 	// Play state background
 	else if (state == STATE_PLAY)
@@ -2689,7 +2697,7 @@ void SceneArchangel::Render()
 		float angle;
 		double x, y;
 		Application::GetCursorPos(&x, &y);
-		screenSpaceToWorldSpace(x, y);
+		ScreenSpaceToWorldSpace(x, y);
 
 		if (x < m_player->pos.x)
 			m_player->left = true;

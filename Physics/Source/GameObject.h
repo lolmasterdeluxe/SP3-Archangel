@@ -43,6 +43,9 @@ struct GameObject
 		GO_BLUELASER,
 		GO_LASERBEAM,
 
+		//UI MENU
+		GO_BUTTON,
+
 		// Enemies GO
 		GO_DEMON,
 		GO_FALLENANGEL,
@@ -67,8 +70,6 @@ struct GameObject
 		GO_FIREBALL,
 		GO_PLATFORM,
 		GO_BOUNCEPLATFORM,
-		GO_PORTCULLIS_LEFT,
-		GO_PORTCULLIS_RIGHT,
 
 		GO_TOTAL, //must be last
 	};

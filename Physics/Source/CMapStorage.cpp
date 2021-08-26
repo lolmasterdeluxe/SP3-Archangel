@@ -16,7 +16,7 @@ CMapStorage::CMapStorage()
 		{"Maps/LeftTreasure/Map_Level_Left_Treasure_1.csv"},
 		{"Maps/LeftBoss/Map_Level_Left_Boss_1.csv"},
 		{"Maps/RightDungeon/Map_Level_Right_Dungeon_1.csv"},
-		{"Maps/RightRest/Map_Level_Right_Rest_1.csv"},
+		{"Maps/RightRest/Map_Level_Right_Rest_1.csv"}, 
 		{"Maps/RightTreasure/Map_Level_Right_Treasure_1.csv"},
 		{"Maps/RightBoss/Map_Level_Right_Boss_1.csv"}
 	};

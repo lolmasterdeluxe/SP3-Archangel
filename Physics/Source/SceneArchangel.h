@@ -67,8 +67,10 @@ protected:
 	enum GAME_STATE
 	{
 		STATE_NONE = 0,
+		STATE_INITMENU,
 		STATE_MENU,
 		STATE_PLAY,
+		STATE_PAUSE,
 		STATE_LOSE
 	};
 	enum PLAY_STATE

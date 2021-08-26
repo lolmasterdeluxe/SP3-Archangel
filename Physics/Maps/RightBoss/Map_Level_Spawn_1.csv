@@ -1,8 +1,0 @@
-﻿// type,x pos,y pos,x scale,y scale,rot (Deg)
-wall,60,3,2,100,90
-player,50,30,2,2,0
-potion,70,10,1,1,0
-maxPotion,90,10,1,1,0
-manaPotion,110,10,1,1,0
-gold,40,10,1,1,0
-chest,30,10,1.5,1.5,0

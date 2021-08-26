@@ -1,0 +1,5 @@
+﻿// type,x pos,y pos,x scale,y scale,rot (Deg)
+playerEnter,90,30,2,2,0
+playerExit,90,30,2,2,0
+wall,90,5,5,90,90
+wall,90,13,3,20,90

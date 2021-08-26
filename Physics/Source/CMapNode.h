@@ -15,7 +15,7 @@ using namespace std;
 
 class CMapNode
 {
-	MapData* mapData;
+	MapData mapData;
 	bool visited, entering;
 	CMapNode* left, * right;
 public:

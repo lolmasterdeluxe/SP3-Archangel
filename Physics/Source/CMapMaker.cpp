@@ -60,31 +60,12 @@ void CMapMaker::GenerateMap()
 	start->SetMapData(CMapStorage::GetInstance()->GetMapInfo(CMapStorage::CAT_SPAWN, 0));
 
 	newNode = new CMapNode();
-	newNode->SetMapData(CMapStorage::GetInstance()->GetMapInfo(CMapStorage::CAT_LEFT_DUNGEON, 0));
+	newNode->SetMapData(CMapStorage::GetInstance()->GetMapInfo(CMapStorage::CAT_LEFT_TREASURE, 0));
 	start->SetLeft(newNode);
 	newNode->SetRight(start);
-	current = newNode;
-
-	newNode = new CMapNode();
-	newNode->SetMapData(CMapStorage::GetInstance()->GetMapInfo(CMapStorage::CAT_LEFT_REST, 0));
-	current->SetLeft(newNode);
-	newNode->SetRight(current);
-	current = newNode;
-
-	newNode = new CMapNode();
-	newNode->SetMapData(CMapStorage::GetInstance()->GetMapInfo(CMapStorage::CAT_LEFT_TREASURE, 0));
-	current->SetLeft(newNode);
-	newNode->SetRight(current);
-	current = newNode;
-
-	newNode = new CMapNode();
-	newNode->SetMapData(CMapStorage::GetInstance()->GetMapInfo(CMapStorage::CAT_LEFT_BOSS, 0));
-	current->SetLeft(newNode);
-	newNode->SetRight(current);
-	current = newNode;
 	
 	newNode = new CMapNode();
-	newNode->SetMapData(CMapStorage::GetInstance()->GetMapInfo(CMapStorage::CAT_TEST, 0));
+	newNode->SetMapData(CMapStorage::GetInstance()->GetMapInfo(CMapStorage::CAT_RIGHT_BOSS, 0));
 	start->SetRight(newNode);
 	newNode->SetLeft(start);
 
