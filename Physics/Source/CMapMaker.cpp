@@ -60,7 +60,7 @@ void CMapMaker::GenerateMap()
 	start->SetMapData(CMapStorage::GetInstance()->GetMapInfo(CMapStorage::CAT_SPAWN, 0));
 
 	newNode = new CMapNode();
-	newNode->SetMapData(CMapStorage::GetInstance()->GetMapInfo(CMapStorage::CAT_LEFT_TREASURE, 0));
+	newNode->SetMapData(CMapStorage::GetInstance()->GetMapInfo(CMapStorage::CAT_LEFT_DUNGEON, 0));
 	start->SetLeft(newNode);
 	newNode->SetRight(start);
 	current = newNode;
@@ -72,13 +72,13 @@ void CMapMaker::GenerateMap()
 	current = newNode;
 
 	newNode = new CMapNode();
-	newNode->SetMapData(CMapStorage::GetInstance()->GetMapInfo(CMapStorage::CAT_LEFT_BOSS, 0));
+	newNode->SetMapData(CMapStorage::GetInstance()->GetMapInfo(CMapStorage::CAT_LEFT_TREASURE, 0));
 	current->SetLeft(newNode);
 	newNode->SetRight(current);
 	current = newNode;
 
 	newNode = new CMapNode();
-	newNode->SetMapData(CMapStorage::GetInstance()->GetMapInfo(CMapStorage::CAT_LEFT_TREASURE, 0));
+	newNode->SetMapData(CMapStorage::GetInstance()->GetMapInfo(CMapStorage::CAT_LEFT_BOSS, 0));
 	current->SetLeft(newNode);
 	newNode->SetRight(current);
 	current = newNode;
@@ -95,7 +95,6 @@ bool CMapMaker::GoLeft()
 {
 	if (current->GetLeft() != nullptr)
 	{
-		current->SetVisitStatus(true);
 		current = current->GetLeft();
 		current->SetEnterLocation(checkIfEnteringLeft());
 		return true;
@@ -107,7 +106,6 @@ bool CMapMaker::GoRight()
 {
 	if (current->GetRight() != nullptr)
 	{
-		current->SetVisitStatus(true);
 		current = current->GetRight();
 		current->SetEnterLocation(checkIfEnteringRight());
 		return true;
@@ -120,9 +118,19 @@ const MapData* CMapMaker::GetMapData()
 	return current->GetMapData();
 }
 
+void CMapMaker::SaveEntityData(vector<GOData*> entityDataList)
+{
+	current->SetEntityData(entityDataList);
+}
+
 bool CMapMaker::IsVisited()
 {
 	return current->IsVisited();
+}
+
+void CMapMaker::Visited()
+{
+	current->SetVisitStatus(true);
 }
 
 bool CMapMaker::IsFromFront()

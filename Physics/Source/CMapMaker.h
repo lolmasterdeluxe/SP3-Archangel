@@ -29,8 +29,12 @@ public:
 
 	// get struct that stores list of wall and entity data
 	const MapData* GetMapData();
+	// save GOData vector to current MapNode's entity List
+	void SaveEntityData(vector<GOData*> entityDataList);
 	// get if the room was visited before
 	bool IsVisited();
+	// set the room's visit Status to true
+	void Visited();
 	// get if the room is entered from the front(true) or the back(false)
 	bool IsFromFront();
 };
