@@ -6,7 +6,7 @@
 #ifndef MAP_STORAGE_H
 #define MAP_STORAGE_H
 
-#define MAPS_PER_CATEGORY 2
+#define MAPS_PER_CATEGORY 3
 
 #include <vector>
 
