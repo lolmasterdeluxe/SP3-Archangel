@@ -49,6 +49,8 @@ public:
 	void fallenAngelAI(double dt);
 	void terminatorAI(double dt);
 	void soldierAI(double dt);
+	void demonBossAI(double dt);
+	void metalGearAI(double dt);
 	void runAnimation(double dt, GameObject::GAMEOBJECT_TYPE GO, double animation_max, int frame_max);
 
 	// mouse stuff
