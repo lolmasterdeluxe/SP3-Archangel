@@ -79,6 +79,11 @@ void CMapMaker::GenerateMap()
 	start->SetMapData(CMapStorage::GetInstance()->GetMapInfo(CMapStorage::CAT_SPAWN, Math::RandIntMinMax(0, MAPS_PER_CATEGORY - 1)));
 	current = start;
 
+	/*newNode = new CMapNode();
+	newNode->SetMapData(CMapStorage::GetInstance()->GetMapInfo(CMapStorage::CAT_RIGHT_BOSS, 0));
+	current->SetRight(newNode);
+	newNode->SetLeft(current);
+	current = newNode;*/
 	for (unsigned int i = 0; i < Math::RandIntMinMax(1, 2); i++)
 	{
 		CreateLeft(CMapStorage::CAT_LEFT_DUNGEON);
