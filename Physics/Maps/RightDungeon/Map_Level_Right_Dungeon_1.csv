@@ -1,6 +1,6 @@
 ﻿// type,x pos,y pos,x scale,y scale,rot (Deg)
-playerEnter,175,78,2,2,0
-playerExit,5,20,2,2,0
+playerEnter,5,20,2,2,0
+playerExit,175,78,2,2,0
 wall,170,35,35,10,90
 wall,140,30,30,20,90
 wall,110,20,25,30,90
@@ -14,9 +14,8 @@ platform,55,55,1,15,90
 wall,10,50,10,15,0
 wall,1,80,2,15,0
 barrel,7,70,1.5,1.5,0
-chest,65,24,1.5,1.5,0
 gold,70,24,1,1,0
 barrel,100,73,1.5,1.5,0
-soldier,100,73,2,2,0
-soldier,15,70,2,2,0
-soldier,40,45,2,2,0
+demon,100,73,2,2,0
+soldier,53,60,2,2,0
+demon,40,45,2,2,0

@@ -8,7 +8,6 @@
 CMapNode::CMapNode() :
 	left(nullptr),
 	right(nullptr),
-	mapData(nullptr),
 	visited(false),
 	entering(true)
 {
@@ -40,18 +39,18 @@ void CMapNode::SetRight(CMapNode* map)
 
 const MapData* CMapNode::GetMapData()
 {
-	return mapData;
+	return &mapData;
 }
 
 void CMapNode::SetMapData(MapData* mapData)
 {
-	this->mapData = mapData;
+	this->mapData = *mapData;
 }
 
 void CMapNode::SetEntityData(vector<GOData*> entityDataList)
 {
-	this->mapData->entityDataList.clear();
-	this->mapData->entityDataList = entityDataList;
+	this->mapData.entityDataList.clear();
+	this->mapData.entityDataList = entityDataList;
 }
 
 bool CMapNode::IsVisited()

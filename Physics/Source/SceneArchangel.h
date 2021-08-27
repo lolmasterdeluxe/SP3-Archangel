@@ -24,7 +24,7 @@ public:
 	void ReturnGO(GameObject* go);
 	void ReturnGO(GameObject::GAMEOBJECT_TYPE GO);
 	GameObject* FindGameObjectWithType(GameObject::GAMEOBJECT_TYPE type);
-	Collision CheckCollision(GameObject* go1, GameObject* go2, float dt);
+	Collision CheckCollision(GameObject* go1, GameObject* go2);
 	void PhysicsResponse(GameObject* go1, Collision collision);
 	void CollisionBound(GameObject* go1, Collision collision);
 	void Gravity(GameObject::GAMEOBJECT_TYPE GO, float elasticity, double dt);
@@ -51,8 +51,9 @@ public:
 	void soldierAI(double dt);
 	void runAnimation(double dt, GameObject::GAMEOBJECT_TYPE GO, double animation_max, int frame_max);
 
-
-	void screenSpaceToWorldSpace(double& x, double& y);
+	// mouse stuff
+	void ScreenSpaceToWorldSpace(double& x, double& y);
+	GameObject* ObjectOnCursor();
 
 	// Map Stuff
 	void InitMap();
@@ -66,8 +67,10 @@ protected:
 	enum GAME_STATE
 	{
 		STATE_NONE = 0,
+		STATE_INITMENU,
 		STATE_MENU,
 		STATE_PLAY,
+		STATE_PAUSE,
 		STATE_LOSE
 	};
 	enum PLAY_STATE
@@ -94,7 +97,7 @@ protected:
 	std::vector<GameObject *> m_goList;
 	float m_speed, max_vel, fire_rate, time_manip;
 	float m_worldWidth, m_worldHeight, m_screenWidth, m_screenHeight;
-	GameObject * m_ghost, * m_player;
+	GameObject * m_ghost, * m_player, * m_emptyGO;
 	int m_objectCount, weapon_dmg, hitpoints[5], heart_count, empty_heart, weapon_choice;
 	bool initPos, jump, portal_in, move_portal_in, move_portal_out, portal_shot, shotgun, time_change, phase;
 	double dmg_delay, mana_delay;

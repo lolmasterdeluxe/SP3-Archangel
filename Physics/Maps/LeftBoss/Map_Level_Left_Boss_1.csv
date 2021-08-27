@@ -12,3 +12,6 @@ bounce,55,15,1,5,90
 platform,105,45,1,10,90
 platform,55,45,1,10,90
 platform,80,25,1,15,90
+terminator,80,15,2,2,0
+angel,80,57,2,2,0
+demon,90,15,2,2,0

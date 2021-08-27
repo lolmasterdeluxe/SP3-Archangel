@@ -43,6 +43,9 @@ struct GameObject
 		GO_BLUELASER,
 		GO_LASERBEAM,
 
+		//UI MENU
+		GO_BUTTON,
+
 		// Enemies GO
 		GO_DEMON,
 		GO_FALLENANGEL,

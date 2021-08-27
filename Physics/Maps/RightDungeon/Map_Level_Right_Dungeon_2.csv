@@ -1,6 +1,6 @@
 ﻿// type,x pos,y pos,x scale,y scale,rot (Deg)
-playerEnter,175,17,2,2,0
-playerExit,5,17,2,2,0
+playerEnter,5,17,2,2,0
+playerExit,175,17,2,2,0
 wall,155,5,5,25,90
 wall,25,5,5,25,90
 wall,90,9,9,20,90
