@@ -5,7 +5,7 @@
  */
 #include "CMapMaker.h"
 
-bool CMapMaker::checkIfEnteringLeft()
+bool CMapMaker::CheckIfEnteringLeft()
 {
 	newNode = current;
 	while (newNode != nullptr)
@@ -16,7 +16,7 @@ bool CMapMaker::checkIfEnteringLeft()
 	return true;
 }
 
-bool CMapMaker::checkIfEnteringRight()
+bool CMapMaker::CheckIfEnteringRight()
 {
 	newNode = current;
 	while (newNode != nullptr)
@@ -25,6 +25,24 @@ bool CMapMaker::checkIfEnteringRight()
 		newNode = newNode->GetRight();
 	}
 	return true;
+}
+
+void CMapMaker::CreateLeft(CMapStorage::MAP_CATEGORY category)
+{
+	newNode = new CMapNode();
+	newNode->SetMapData(CMapStorage::GetInstance()->GetMapInfo(category, Math::RandIntMinMax(0, MAPS_PER_CATEGORY - 1)));
+	current->SetLeft(newNode);
+	newNode->SetRight(current);
+	current = newNode;
+}
+
+void CMapMaker::CreateRight(CMapStorage::MAP_CATEGORY category)
+{
+	newNode = new CMapNode();
+	newNode->SetMapData(CMapStorage::GetInstance()->GetMapInfo(category, Math::RandIntMinMax(0, MAPS_PER_CATEGORY - 1)));
+	current->SetRight(newNode);
+	newNode->SetLeft(current);
+	current = newNode;
 }
 
 CMapMaker::CMapMaker() :
@@ -56,18 +74,41 @@ CMapMaker::~CMapMaker()
 
 void CMapMaker::GenerateMap()
 {
+	bool spawnedBossRoom = false;
 	start = new CMapNode();
-	start->SetMapData(CMapStorage::GetInstance()->GetMapInfo(CMapStorage::CAT_SPAWN, 0));
+	start->SetMapData(CMapStorage::GetInstance()->GetMapInfo(CMapStorage::CAT_SPAWN, Math::RandIntMinMax(0, MAPS_PER_CATEGORY - 1)));
+	current = start;
 
-	newNode = new CMapNode();
-	newNode->SetMapData(CMapStorage::GetInstance()->GetMapInfo(CMapStorage::CAT_LEFT_TREASURE, 0));
-	start->SetLeft(newNode);
-	newNode->SetRight(start);
-	
-	newNode = new CMapNode();
-	newNode->SetMapData(CMapStorage::GetInstance()->GetMapInfo(CMapStorage::CAT_RIGHT_BOSS, 0));
-	start->SetRight(newNode);
-	newNode->SetLeft(start);
+	for (unsigned int i = 0; i < Math::RandIntMinMax(1, 2); i++)
+	{
+		CreateLeft(CMapStorage::CAT_LEFT_DUNGEON);
+	}
+	if (Math::RandIntMinMax(1, 2) == 1)
+	{
+		CreateLeft(CMapStorage::CAT_LEFT_REST);
+		CreateLeft(CMapStorage::CAT_LEFT_BOSS);
+		spawnedBossRoom = true;
+	}
+	else
+	{
+		CreateLeft(CMapStorage::CAT_LEFT_TREASURE);
+	}
+
+	current = start;
+
+	for (unsigned int i = 0; i < Math::RandIntMinMax(1, 2); i++)
+	{
+		CreateRight(CMapStorage::CAT_RIGHT_DUNGEON);
+	}
+	if (spawnedBossRoom)
+	{
+		CreateRight(CMapStorage::CAT_RIGHT_TREASURE);
+	}
+	else
+	{
+		CreateRight(CMapStorage::CAT_RIGHT_REST);
+		CreateRight(CMapStorage::CAT_RIGHT_BOSS);
+	}
 
 	current = start;
 }
@@ -77,7 +118,7 @@ bool CMapMaker::GoLeft()
 	if (current->GetLeft() != nullptr)
 	{
 		current = current->GetLeft();
-		current->SetEnterLocation(checkIfEnteringLeft());
+		current->SetEnterLocation(CheckIfEnteringLeft());
 		return true;
 	}
 	return false;
@@ -88,7 +129,7 @@ bool CMapMaker::GoRight()
 	if (current->GetRight() != nullptr)
 	{
 		current = current->GetRight();
-		current->SetEnterLocation(checkIfEnteringRight());
+		current->SetEnterLocation(CheckIfEnteringRight());
 		return true;
 	}
 	return false;

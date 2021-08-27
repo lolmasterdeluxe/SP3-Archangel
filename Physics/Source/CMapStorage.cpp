@@ -9,16 +9,46 @@ CMapStorage::CMapStorage()
 {
 	CCSVReader reader;
 	string filename[TOTAL_CATEGORY][MAPS_PER_CATEGORY] = {
-		{"Maps/Test/Map_Level_Test.csv"},
-		{"Maps/Spawn/Map_Level_Spawn_1.csv"},
-		{"Maps/LeftDungeon/Map_Level_Left_Dungeon_1.csv"},
-		{"Maps/LeftRest/Map_Level_Left_Rest_1.csv"},
-		{"Maps/LeftTreasure/Map_Level_Left_Treasure_1.csv"},
-		{"Maps/LeftBoss/Map_Level_Left_Boss_1.csv"},
-		{"Maps/RightDungeon/Map_Level_Right_Dungeon_1.csv"},
-		{"Maps/RightRest/Map_Level_Right_Rest_1.csv"}, 
-		{"Maps/RightTreasure/Map_Level_Right_Treasure_1.csv"},
-		{"Maps/RightBoss/Map_Level_Right_Boss_1.csv"}
+		{
+			"Maps/Test/Map_Level_Test.csv",
+			"Maps/Test/Map_Level_Test.csv"
+		},
+		{
+			"Maps/Spawn/Map_Level_Spawn_1.csv",
+			"Maps/Spawn/Map_Level_Spawn_2.csv"
+		},
+		{
+			"Maps/LeftDungeon/Map_Level_Left_Dungeon_1.csv",
+			"Maps/LeftDungeon/Map_Level_Left_Dungeon_2.csv"
+		},
+		{
+			"Maps/LeftRest/Map_Level_Left_Rest_1.csv",
+			"Maps/LeftRest/Map_Level_Left_Rest_2.csv"
+		},
+		{
+			"Maps/LeftTreasure/Map_Level_Left_Treasure_1.csv",
+			"Maps/LeftTreasure/Map_Level_Left_Treasure_2.csv"
+		},
+		{
+			"Maps/LeftBoss/Map_Level_Left_Boss_1.csv",
+			"Maps/LeftBoss/Map_Level_Left_Boss_1.csv"
+		},
+		{
+			"Maps/RightDungeon/Map_Level_Right_Dungeon_1.csv",
+			"Maps/RightDungeon/Map_Level_Right_Dungeon_2.csv"
+		},
+		{
+			"Maps/RightRest/Map_Level_Right_Rest_1.csv",
+			"Maps/RightRest/Map_Level_Right_Rest_2.csv"
+		}, 
+		{
+			"Maps/RightTreasure/Map_Level_Right_Treasure_1.csv",
+			"Maps/RightTreasure/Map_Level_Right_Treasure_1.csv"
+		},
+		{
+			"Maps/RightBoss/Map_Level_Right_Boss_1.csv",
+			"Maps/RightBoss/Map_Level_Right_Boss_1.csv"
+		}
 	};
 
 

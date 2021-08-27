@@ -13,8 +13,11 @@
 class CMapMaker
 {
 	CMapNode* current, * start, * newNode;
-	bool checkIfEnteringLeft();
-	bool checkIfEnteringRight();
+	bool CheckIfEnteringLeft();
+	bool CheckIfEnteringRight();
+
+	void CreateLeft(CMapStorage::MAP_CATEGORY category);
+	void CreateRight(CMapStorage::MAP_CATEGORY category);
 public:
 	CMapMaker();
 	~CMapMaker();
