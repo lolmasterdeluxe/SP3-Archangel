@@ -25,6 +25,7 @@ struct GameObject
 		GO_TIE_BOMBER,
 		GO_ALLY_MISSILE,
 		GO_ENEMY_MISSILE, //player missile
+		GO_MISSILE,
 		GO_POWERUP, //powerup item
 		GO_DEATHSTAR,
 		GO_SCRAPMETAL,
@@ -51,6 +52,8 @@ struct GameObject
 		GO_FALLENANGEL,
 		GO_TERMINATOR,
 		GO_SOLDIER,
+		GO_DEMONLORD,
+		GO_METALGEAR,
 
 		// Bullet GO
 		GO_BULLET, //player bullet

@@ -160,6 +160,16 @@ CMapStorage::CMapStorage()
 					info->type = GameObject::GO_SOLDIER;
 					entityInfo.push_back(info);
 				}
+				else if (values[i].first == "demonlord")
+				{
+					info->type = GameObject::GO_DEMONLORD;
+					entityInfo.push_back(info);
+				}
+				else if (values[i].first == "metalgear")
+				{
+					info->type = GameObject::GO_METALGEAR;
+					entityInfo.push_back(info);
+				}
 			}
 
 			mapInfo->wallDataList = wallInfo;
