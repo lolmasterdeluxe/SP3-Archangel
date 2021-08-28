@@ -23,6 +23,8 @@ void SceneArchangel::Init()
 
 
 	// Initialize variables
+	escapeButtonState = false;
+
 	m_objectCount = 0;
 	jump = false;
 	portal_in = false;
@@ -2468,11 +2470,11 @@ void SceneArchangel::Update(double dt)
 	
 	SceneBase::Update(dt);
 
-	cameraPos.Set(m_screenWidth * .5f, m_screenHeight * .5f);
-
 	// Menu / Lose state
 	if (state == STATE_INITMENU)
 	{
+		cameraPos.Set(m_screenWidth * .5f, m_screenHeight * .5f);
+
 		GameObject* button1 = FetchGO();
 		button1->active = true;
 		button1->type = GameObject::GO_WALL;
@@ -2484,6 +2486,11 @@ void SceneArchangel::Update(double dt)
 	} 
 	else if (state == STATE_MENU || state == STATE_LOSE)
 	{
+		if (Application::IsKeyPressed(VK_ESCAPE))
+		{ // leave this if condition here even if not needed this function is kinda bugged
+			EndGame();
+		}
+
 		// Space to continue
 		if (Application::IsKeyPressed(VK_SPACE))
 		{
@@ -2491,27 +2498,44 @@ void SceneArchangel::Update(double dt)
 			InitMap();
 			state = STATE_PLAY;
 		}
-
-		if (Application::IsKeyPressed(VK_ESCAPE))
-		{
-			
-		}
 	}
 	else if (state == STATE_PAUSE)
 	{
 		if (Application::IsKeyPressed(VK_SPACE))
+		{ // leave this if condition here even if not needed this function is kinda bugged
+		}
+
+		if (Application::IsKeyPressed(VK_ESCAPE) && !escapeButtonState)
 		{
+			escapeButtonState = true;
+		}
+		else if (!Application::IsKeyPressed(VK_ESCAPE) && escapeButtonState)
+		{
+			escapeButtonState = false;
 			state = STATE_PLAY;
+		}
+		if (Application::IsKeyPressed('Q'))
+		{
+			EndGame();
 		}
 	}
 	// Play state
 	else if (state == STATE_PLAY)
 	{
-		if (Application::IsKeyPressed(VK_ESCAPE))
-		{
-			cout << "Pressed escaped\n";
-			EndGame();
+		if (Application::IsKeyPressed('Q'))
+		{ // leave this if condition here even if not needed this function is kinda bugged
 		}
+
+		if (Application::IsKeyPressed(VK_ESCAPE) && !escapeButtonState)
+		{
+			escapeButtonState = true;
+		}
+		else if (!Application::IsKeyPressed(VK_ESCAPE) && escapeButtonState)
+		{
+			escapeButtonState = false;
+			state = STATE_PAUSE;
+		}
+
 		//Camera Position Setting
 		// Clamp screen space if reached end of world space
 		float clamp_pos_x = Math::Clamp((m_player->pos.x), m_screenWidth * .5f, m_worldWidth - m_screenWidth * .5f);
@@ -3024,13 +3048,13 @@ void SceneArchangel::Render()
 
 	// Projection matrix : Orthographic Projection
 	Mtx44 projection;
-	if (state == STATE_PLAY)
+	if (state == STATE_MENU)
 	{
-		projection.SetToOrtho(cameraPos.x - m_screenWidth * .5f, cameraPos.x + m_screenWidth * .5f, cameraPos.y - m_screenHeight * .5f, cameraPos.y + m_screenHeight * .5f, -10, 10);
+		projection.SetToOrtho(0, m_worldWidth, 0, m_worldHeight, -10, 10);
 	}
 	else
 	{
-		projection.SetToOrtho(0, m_worldWidth, 0, m_worldHeight, -10, 10);
+		projection.SetToOrtho(cameraPos.x - m_screenWidth * .5f, cameraPos.x + m_screenWidth * .5f, cameraPos.y - m_screenHeight * .5f, cameraPos.y + m_screenHeight * .5f, -10, 10);
 	}
 	projectionStack.LoadMatrix(projection);
 	
@@ -3064,7 +3088,7 @@ void SceneArchangel::Render()
 		}
 	}
 	// Play state background
-	else if (state == STATE_PLAY)
+	else if (state == STATE_PLAY || state == STATE_PAUSE)
 	{
 		for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
 		{
@@ -3074,183 +3098,190 @@ void SceneArchangel::Render()
 				RenderGO(go);
 			}
 		}
-		//On screen in - game text
+		if (state == STATE_PAUSE)
+		{
+			RenderTextOnScreen(meshList[GEO_TEXT], "temporary controls", Color(1, 1, 1), 4, 0, 8); // object Count
+			RenderTextOnScreen(meshList[GEO_TEXT], "esc: resume", Color(1, 1, 1), 4, 0, 4); // object Count
+			RenderTextOnScreen(meshList[GEO_TEXT], "Q: quit game ", Color(1, 1, 1), 4, 0, 0); // object Count
+		}
+		if (state == STATE_PLAY)
+		{ // render HUD when not paused
+			std::ostringstream ss;
+			std::ostringstream ss2;
+			std::ostringstream ss3;
 
-		std::ostringstream ss;
-		std::ostringstream ss2;
-		std::ostringstream ss3;
+			RenderMeshOnScreen(meshList[GEO_CHARGE], -9.f + (m_player->mana) * 0.36f, 53, 18, 2.f);
 
-		RenderMeshOnScreen(meshList[GEO_CHARGE], -9.f + (m_player->mana) * 0.36f, 53, 18, 2.f);
+			RenderMeshOnScreen(meshList[GEO_GREENBALL], 9, 2.5f, 1, 1.2f);
+			ss2 << "x" << m_player->grenade_count;
+			RenderTextOnScreen(meshList[GEO_TEXT], ss2.str(), Color(1, 1, 1), 2.5f, 10.5f, 1);
 
-		RenderMeshOnScreen(meshList[GEO_GREENBALL], 9, 2.5f, 1, 1.2f);
-		ss2 << "x" << m_player->grenade_count;
-		RenderTextOnScreen(meshList[GEO_TEXT], ss2.str(), Color(1, 1, 1), 2.5f, 10.5f, 1);
+			RenderMeshOnScreen(meshList[GEO_YELLOWBALL], 15, 2.5f, 1, 1.2f);
+			ss3 << "x" << m_player->gold_count;
+			RenderTextOnScreen(meshList[GEO_TEXT], ss3.str(), Color(1, 1, 1), 2.5f, 16.5f, 1);
 
-		RenderMeshOnScreen(meshList[GEO_YELLOWBALL], 15, 2.5f, 1, 1.2f);
-		ss3 << "x" << m_player->gold_count;
-		RenderTextOnScreen(meshList[GEO_TEXT], ss3.str(), Color(1, 1, 1), 2.5f, 16.5f, 1);
+			float angle;
+			double x, y;
+			Application::GetCursorPos(&x, &y);
+			ScreenSpaceToWorldSpace(x, y);
 
-		float angle;
-		double x, y;
-		Application::GetCursorPos(&x, &y);
-		ScreenSpaceToWorldSpace(x, y);
+			if (x < m_player->pos.x)
+				m_player->left = true;
+			else if (x > m_player->pos.x)
+				m_player->left = false;
+			glDisable(GL_CULL_FACE);
 
-		if (x < m_player->pos.x)
-			m_player->left = true;
-		else if (x > m_player->pos.x)
-			m_player->left = false;
-		glDisable(GL_CULL_FACE);
-
-		if (weapon_choice == 1)
-		{
-			RenderMeshOnScreen(meshList[GEO_SWORD], 4.2f, 5, 4.f, 3);
-		}
-		else if (weapon_choice == 2)
-		{
-			RenderMeshOnScreen(meshList[GEO_KNIFE], 4.2f, 5, 2.f, 1);
-		}
-		else if (weapon_choice == 3)
-		{
-			RenderMeshOnScreen(meshList[GEO_SPEAR], 4.2f, 5, 4.f, 3);
-		}
-		else if (weapon_choice == 4)
-		{
-			RenderMeshOnScreen(meshList[GEO_SCYTHE], 4.2f, 5, 4.f, 3);
-		}
-		else if (weapon_choice == 5)
-		{
-			RenderMeshOnScreen(meshList[GEO_AK47], 4.2f, 5, 4.f, 3);
-			modelStack.PushMatrix();
-			if (m_player->left)
+			if (weapon_choice == 1)
 			{
-				modelStack.Translate(m_player->pos.x + 0.85f, m_player->pos.y + 3.1f, m_player->pos.z);
-				angle = atan2f(y - 4 - m_player->pos.y, x - m_player->pos.x);
-				modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
-				modelStack.Rotate(180, 1, 0, 0);
+				RenderMeshOnScreen(meshList[GEO_SWORD], 4.2f, 5, 4.f, 3);
 			}
-			else
+			else if (weapon_choice == 2)
 			{
-				modelStack.Translate(m_player->pos.x - 0.85f, m_player->pos.y + 3.1f, m_player->pos.z);
-				angle = atan2f(y - 4 - m_player->pos.y, x - m_player->pos.x);
-				modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
-				modelStack.Rotate(0, 1, 0, 0);
+				RenderMeshOnScreen(meshList[GEO_KNIFE], 4.2f, 5, 2.f, 1);
 			}
-			modelStack.Scale(4, 1, 1);
-			RenderMesh(meshList[GEO_AKARM], false);
-			modelStack.PopMatrix();
-		}
-		else if (weapon_choice == 6)
-		{
-			RenderMeshOnScreen(meshList[GEO_SMG], 4.2f, 5, 4.f, 3);
-			modelStack.PushMatrix();
-			if (m_player->left)
+			else if (weapon_choice == 3)
 			{
-				modelStack.Translate(m_player->pos.x + 0.9f, m_player->pos.y + 3.1f, m_player->pos.z);
-				angle = atan2f(y - 4 - m_player->pos.y, x - m_player->pos.x);
-				modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
-				modelStack.Rotate(180, 1, 0, 0);
+				RenderMeshOnScreen(meshList[GEO_SPEAR], 4.2f, 5, 4.f, 3);
 			}
-			else
+			else if (weapon_choice == 4)
 			{
-				modelStack.Translate(m_player->pos.x - 0.9f, m_player->pos.y + 3.1f, m_player->pos.z);
-				angle = atan2f(y - 4 - m_player->pos.y, x - m_player->pos.x);
-				modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
-				modelStack.Rotate(0, 1, 0, 0);
+				RenderMeshOnScreen(meshList[GEO_SCYTHE], 4.2f, 5, 4.f, 3);
 			}
-			modelStack.Scale(3.8f, 0.8f, 1);
-			RenderMesh(meshList[GEO_SMGARM], false);
-			modelStack.PopMatrix();
-		}
-		else if (weapon_choice == 7)
-		{
-			RenderMeshOnScreen(meshList[GEO_LMG], 4.2f, 5, 4.f, 3);
-			modelStack.PushMatrix();
-			if (m_player->left)
+			else if (weapon_choice == 5)
 			{
-				modelStack.Translate(m_player->pos.x + 0.85f, m_player->pos.y + 3.1f, m_player->pos.z);
-				angle = atan2f(y - 4 - m_player->pos.y, x - m_player->pos.x);
-				modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
-				modelStack.Rotate(180, 1, 0, 0);
+				RenderMeshOnScreen(meshList[GEO_AK47], 4.2f, 5, 4.f, 3);
+				modelStack.PushMatrix();
+				if (m_player->left)
+				{
+					modelStack.Translate(m_player->pos.x + 0.85f, m_player->pos.y + 3.1f, m_player->pos.z);
+					angle = atan2f(y - 4 - m_player->pos.y, x - m_player->pos.x);
+					modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
+					modelStack.Rotate(180, 1, 0, 0);
+				}
+				else
+				{
+					modelStack.Translate(m_player->pos.x - 0.85f, m_player->pos.y + 3.1f, m_player->pos.z);
+					angle = atan2f(y - 4 - m_player->pos.y, x - m_player->pos.x);
+					modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
+					modelStack.Rotate(0, 1, 0, 0);
+				}
+				modelStack.Scale(4, 1, 1);
+				RenderMesh(meshList[GEO_AKARM], false);
+				modelStack.PopMatrix();
 			}
-			else
+			else if (weapon_choice == 6)
 			{
-				modelStack.Translate(m_player->pos.x - 0.85f, m_player->pos.y + 3.1f, m_player->pos.z);
-				angle = atan2f(y - 4 - m_player->pos.y, x - m_player->pos.x);
-				modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
-				modelStack.Rotate(0, 1, 0, 0);
+				RenderMeshOnScreen(meshList[GEO_SMG], 4.2f, 5, 4.f, 3);
+				modelStack.PushMatrix();
+				if (m_player->left)
+				{
+					modelStack.Translate(m_player->pos.x + 0.9f, m_player->pos.y + 3.1f, m_player->pos.z);
+					angle = atan2f(y - 4 - m_player->pos.y, x - m_player->pos.x);
+					modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
+					modelStack.Rotate(180, 1, 0, 0);
+				}
+				else
+				{
+					modelStack.Translate(m_player->pos.x - 0.9f, m_player->pos.y + 3.1f, m_player->pos.z);
+					angle = atan2f(y - 4 - m_player->pos.y, x - m_player->pos.x);
+					modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
+					modelStack.Rotate(0, 1, 0, 0);
+				}
+				modelStack.Scale(3.8f, 0.8f, 1);
+				RenderMesh(meshList[GEO_SMGARM], false);
+				modelStack.PopMatrix();
 			}
-			modelStack.Scale(4, 1, 1);
-			RenderMesh(meshList[GEO_LMGARM], false);
-			modelStack.PopMatrix();
-		}
-		else if (weapon_choice == 8)
-		{
-			RenderMeshOnScreen(meshList[GEO_SHOTGUN], 4.2f, 5, 4.f, 3);
-			modelStack.PushMatrix();
-			if (m_player->left)
+			else if (weapon_choice == 7)
 			{
-				modelStack.Translate(m_player->pos.x + 0.85f, m_player->pos.y + 3.1f, m_player->pos.z);
-				angle = atan2f(y - 4 - m_player->pos.y, x - m_player->pos.x);
-				modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
-				modelStack.Rotate(180, 1, 0, 0);
+				RenderMeshOnScreen(meshList[GEO_LMG], 4.2f, 5, 4.f, 3);
+				modelStack.PushMatrix();
+				if (m_player->left)
+				{
+					modelStack.Translate(m_player->pos.x + 0.85f, m_player->pos.y + 3.1f, m_player->pos.z);
+					angle = atan2f(y - 4 - m_player->pos.y, x - m_player->pos.x);
+					modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
+					modelStack.Rotate(180, 1, 0, 0);
+				}
+				else
+				{
+					modelStack.Translate(m_player->pos.x - 0.85f, m_player->pos.y + 3.1f, m_player->pos.z);
+					angle = atan2f(y - 4 - m_player->pos.y, x - m_player->pos.x);
+					modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
+					modelStack.Rotate(0, 1, 0, 0);
+				}
+				modelStack.Scale(4, 1, 1);
+				RenderMesh(meshList[GEO_LMGARM], false);
+				modelStack.PopMatrix();
 			}
-			else
+			else if (weapon_choice == 8)
 			{
-				modelStack.Translate(m_player->pos.x - 0.85f, m_player->pos.y + 3.1f, m_player->pos.z);
-				angle = atan2f(y - 4 - m_player->pos.y, x - m_player->pos.x);
-				modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
-				modelStack.Rotate(0, 1, 0, 0);
+				RenderMeshOnScreen(meshList[GEO_SHOTGUN], 4.2f, 5, 4.f, 3);
+				modelStack.PushMatrix();
+				if (m_player->left)
+				{
+					modelStack.Translate(m_player->pos.x + 0.85f, m_player->pos.y + 3.1f, m_player->pos.z);
+					angle = atan2f(y - 4 - m_player->pos.y, x - m_player->pos.x);
+					modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
+					modelStack.Rotate(180, 1, 0, 0);
+				}
+				else
+				{
+					modelStack.Translate(m_player->pos.x - 0.85f, m_player->pos.y + 3.1f, m_player->pos.z);
+					angle = atan2f(y - 4 - m_player->pos.y, x - m_player->pos.x);
+					modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
+					modelStack.Rotate(0, 1, 0, 0);
+				}
+				modelStack.Scale(4, 1, 1);
+				RenderMesh(meshList[GEO_SHOTGUNARM], false);
+				modelStack.PopMatrix();
 			}
-			modelStack.Scale(4, 1, 1);
-			RenderMesh(meshList[GEO_SHOTGUNARM], false);
-			modelStack.PopMatrix();
-		}
-		else if (weapon_choice == 9)
-		{
-			RenderMeshOnScreen(meshList[GEO_REVOLVER], 4.2f, 5, 4.f, 3);
-			modelStack.PushMatrix();
-			if (m_player->left)
+			else if (weapon_choice == 9)
 			{
-				modelStack.Translate(m_player->pos.x + 0.85f, m_player->pos.y + 3.1f, m_player->pos.z);
-				angle = atan2f(y - 4 - m_player->pos.y, x - m_player->pos.x);
-				modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
-				modelStack.Rotate(180, 1, 0, 0);
+				RenderMeshOnScreen(meshList[GEO_REVOLVER], 4.2f, 5, 4.f, 3);
+				modelStack.PushMatrix();
+				if (m_player->left)
+				{
+					modelStack.Translate(m_player->pos.x + 0.85f, m_player->pos.y + 3.1f, m_player->pos.z);
+					angle = atan2f(y - 4 - m_player->pos.y, x - m_player->pos.x);
+					modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
+					modelStack.Rotate(180, 1, 0, 0);
+				}
+				else
+				{
+					modelStack.Translate(m_player->pos.x - 0.85f, m_player->pos.y + 3.1f, m_player->pos.z);
+					angle = atan2f(y - 4 - m_player->pos.y, x - m_player->pos.x);
+					modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
+					modelStack.Rotate(0, 1, 0, 0);
+				}
+				modelStack.Scale(3.8f, 0.8f, 1);
+				RenderMesh(meshList[GEO_REVOLVERARM], false);
+				modelStack.PopMatrix();
 			}
-			else
+			for (int i = 0; i <= heart_count; ++i)
 			{
-				modelStack.Translate(m_player->pos.x - 0.85f, m_player->pos.y + 3.1f, m_player->pos.z);
-				angle = atan2f(y - 4 - m_player->pos.y, x - m_player->pos.x);
-				modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
-				modelStack.Rotate(0, 1, 0, 0);
-			}
-			modelStack.Scale(3.8f, 0.8f, 1);
-			RenderMesh(meshList[GEO_REVOLVERARM], false);
-			modelStack.PopMatrix();
-		}
-		for (int i = 0; i <= heart_count; ++i)
-		{
-			if (i >= (heart_count - empty_heart))
-			{
-				if (hitpoints[i] == 4)
+				if (i >= (heart_count - empty_heart))
+				{
+					if (hitpoints[i] == 4)
+					{
+						RenderMeshOnScreen(meshList[GEO_FULLHEART], 2 + i * 4, 57, 1.7f, 1.7f);
+					}
+					else if (hitpoints[i] == 3)
+					{
+						RenderMeshOnScreen(meshList[GEO_80HEART], 2 + i * 4, 57, 1.7f, 1.7f);
+					}
+					else if (hitpoints[i] == 2)
+					{
+						RenderMeshOnScreen(meshList[GEO_20HEART], 2 + i * 4, 57, 1.7f, 1.7f);
+					}
+					else if (hitpoints[i] <= 1)
+					{
+						RenderMeshOnScreen(meshList[GEO_EMPTYHEART], 2 + i * 4, 57, 1.7f, 1.7f);
+					}
+				}
+				else
 				{
 					RenderMeshOnScreen(meshList[GEO_FULLHEART], 2 + i * 4, 57, 1.7f, 1.7f);
 				}
-				else if (hitpoints[i] == 3)
-				{
-					RenderMeshOnScreen(meshList[GEO_80HEART], 2 + i * 4, 57, 1.7f, 1.7f);
-				}
-				else if (hitpoints[i] == 2)
-				{
-					RenderMeshOnScreen(meshList[GEO_20HEART], 2 + i * 4, 57, 1.7f, 1.7f);
-				}
-				else if (hitpoints[i] <= 1)
-				{
-					RenderMeshOnScreen(meshList[GEO_EMPTYHEART], 2 + i * 4, 57, 1.7f, 1.7f);
-				}
-			}
-			else
-			{
-				RenderMeshOnScreen(meshList[GEO_FULLHEART], 2 + i * 4, 57, 1.7f, 1.7f);
 			}
 		}
 
