@@ -28,14 +28,14 @@ CCSVReader::~CCSVReader()
 /**
  @brief Read a CSV file that contains GO spawning information
  @param filename A string containing the name of the input file
- @return A vector<pair<string, float[4]>> variable
+ @return A vector<pair<string, float[5]>> variable
  */
 vector<pair<string, float[5]>> CCSVReader::read_csv_map(string filename)
 {
 	// The result of this CSV reading attempt
 	bool bResult = true;
 
-	// Create a vector of string and float[4] array to store the result
+	// Create a vector of string and float[5] array to store the result
 	vector<pair<string, float[5]>> vListOfValues;
 
 	// Create an input filestream

@@ -2487,16 +2487,31 @@ void SceneArchangel::Update(double dt)
 		// Space to continue
 		if (Application::IsKeyPressed(VK_SPACE))
 		{
-			mapMaker.GenerateMap();
+			mapMaker.GenerateMap(0);
 			InitMap();
-
 			state = STATE_PLAY;
 		}
-		
+
+		if (Application::IsKeyPressed(VK_ESCAPE))
+		{
+			
+		}
+	}
+	else if (state == STATE_PAUSE)
+	{
+		if (Application::IsKeyPressed(VK_SPACE))
+		{
+			state = STATE_PLAY;
+		}
 	}
 	// Play state
 	else if (state == STATE_PLAY)
 	{
+		if (Application::IsKeyPressed(VK_ESCAPE))
+		{
+			cout << "Pressed escaped\n";
+			EndGame();
+		}
 		//Camera Position Setting
 		// Clamp screen space if reached end of world space
 		float clamp_pos_x = Math::Clamp((m_player->pos.x), m_screenWidth * .5f, m_worldWidth - m_screenWidth * .5f);
