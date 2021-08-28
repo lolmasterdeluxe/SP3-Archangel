@@ -102,6 +102,7 @@ void SceneBase::Init()
 		meshList[i] = NULL;
 	}
 	meshList[GEO_AXES] = MeshBuilder::GenerateAxes("reference", 1000, 1000, 1000);
+
 	meshList[GEO_BALL] = MeshBuilder::GenerateSphere("ball", Color(1, 1, 1), 10, 10, 1.f);
 	meshList[GEO_REDBALL] = MeshBuilder::GenerateSphere("red ball", Color(1, 0, 0), 10, 10, 1.f);
 	meshList[GEO_ORANGEBALL] = MeshBuilder::GenerateSphere("orange ball", Color(1, 0.647f, 0), 10, 10, 1.f);
@@ -110,6 +111,7 @@ void SceneBase::Init()
 	meshList[GEO_CYANBALL] = MeshBuilder::GenerateSphere("cyan ball", Color(0, 1, 1), 10, 10, 1.f);
 	meshList[GEO_BLUEBALL] = MeshBuilder::GenerateSphere("blue ball", Color(0, 0, 1), 10, 10, 1.f);
 	meshList[GEO_PURPLEBALL] = MeshBuilder::GenerateSphere("purple ball", Color(0.502f, 0.000, 0.502f), 10, 10, 1.f);
+
 	meshList[GEO_CUBE] = MeshBuilder::GenerateCube("cube", Color(1, 1, 1), 2.f);
 	meshList[GEO_REDCUBE] = MeshBuilder::GenerateCube("red cube", Color(1, 0, 0), 2.f);
 	meshList[GEO_ORANGECUBE] = MeshBuilder::GenerateCube("orange cube", Color(1, 0.647f, 0), 2.f);
@@ -118,93 +120,49 @@ void SceneBase::Init()
 	meshList[GEO_CYANCUBE] = MeshBuilder::GenerateCube("cyan cube", Color(0, 1, 1), 2.f);
 	meshList[GEO_BLUECUBE] = MeshBuilder::GenerateCube("blue cube", Color(0, 0, 1), 2.f);
 	meshList[GEO_PURPLECUBE] = MeshBuilder::GenerateCube("purple cube", Color(0.502f, 0.000, 0.502f), 2.f);
-	meshList[GEO_BALLUP] = MeshBuilder::GenerateQuad("ball", Color(1, 1, 1), 1.f);
-	meshList[GEO_BALLUP]->textureID = LoadTGA("Image//ballup.tga");
+
 	meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
 	meshList[GEO_TEXT]->textureID = LoadTGA("Image//Arial_N.tga");
 	meshList[GEO_TEXT]->material.kAmbient.Set(1, 0, 0);
-	meshList[GEO_SHIP] = MeshBuilder::GenerateQuad("spaceship", Color(1, 1, 1), 2.f);
-	meshList[GEO_SHIP]->textureID = LoadTGA("Image//tiefighter.tga");
-	meshList[GEO_ASTEROID] = MeshBuilder::GenerateQuad("asteroid", Color(1, 1, 1), 2.f);
-	meshList[GEO_ASTEROID]->textureID = LoadTGA("Image//asteroid.tga");
-	meshList[GEO_BULLET] = MeshBuilder::GenerateQuad("greenlaser", Color(1, 1, 1), 2.f);
-	meshList[GEO_BULLET]->textureID = LoadTGA("Image//allylaser.tga");
-	meshList[GEO_BLUELASER] = MeshBuilder::GenerateQuad("bluelaser", Color(1, 1, 1), 2.f);
-	meshList[GEO_BLUELASER]->textureID = LoadTGA("Image//bluelaser.tga");
-	meshList[GEO_LASERBEAM] = MeshBuilder::GenerateQuad("laserbeam", Color(1, 1, 1), 2.f);
-	meshList[GEO_LASERBEAM]->textureID = LoadTGA("Image//laserbeam.tga");
+
+	meshList[GEO_BULLET] = MeshBuilder::GenerateQuad("Bullet", Color(1, 1, 1), 2.f);
+	meshList[GEO_BULLET]->textureID = LoadTGA("Image//bullet.tga");
+
 	meshList[GEO_BACKGROUND] = MeshBuilder::GenerateQuad("background", Color(1, 1, 1), 2.f);
 	meshList[GEO_BACKGROUND]->textureID = LoadTGA("Image//space.tga");
-	meshList[GEO_ENEMY_SHIP] = MeshBuilder::GenerateQuad("xwing", Color(1, 1, 1), 2.f);
-	meshList[GEO_ENEMY_SHIP]->textureID = LoadTGA("Image//xwing.tga");
-	meshList[GEO_ENEMY_BULLET] = MeshBuilder::GenerateQuad("redlaser", Color(1, 1, 1), 2.f);
-	meshList[GEO_ENEMY_BULLET]->textureID = LoadTGA("Image//enemylaser.tga");
+
 	meshList[GEO_CHARGEBG] = MeshBuilder::GenerateQuad("ChargeBG", Color(0, 0, 0), 1);
 	meshList[GEO_CHARGE] = MeshBuilder::GenerateQuad("Charge", Color(0, 0, 1), 1);
-	meshList[GEO_COOLDOWN] = MeshBuilder::GenerateQuad("Cooldown", Color(1, 0, 0), 1);
-	meshList[GEO_DEATHSTAR] = MeshBuilder::GenerateQuad("deathstar", Color(1, 1, 1), 2.f);
-	meshList[GEO_DEATHSTAR]->textureID = LoadTGA("Image//deathstar.tga");
-	meshList[GEO_SCRAPMETAL] = MeshBuilder::GenerateQuad("scrap metal", Color(1, 1, 1), 2.f);
-	meshList[GEO_SCRAPMETAL]->textureID = LoadTGA("Image//scrapmetal.tga");
-	meshList[GEO_TANTIVE] = MeshBuilder::GenerateQuad("Tantive IV", Color(1, 1, 1), 2.f);
-	meshList[GEO_TANTIVE]->textureID = LoadTGA("Image//tantive.tga");
-	meshList[GEO_TURRETSINGLE] = MeshBuilder::GenerateQuad("Turret Single", Color(1, 1, 1), 2.f);
-	meshList[GEO_TURRETSINGLE]->textureID = LoadTGA("Image//turretsingle.tga");
-	meshList[GEO_TURRETDOUBLE] = MeshBuilder::GenerateQuad("Turret Double", Color(1, 1, 1), 2.f);
-	meshList[GEO_TURRETDOUBLE]->textureID = LoadTGA("Image//turretdouble.tga");
-	meshList[GEO_MENU] = MeshBuilder::GenerateQuad("Menu", Color(1, 1, 1), 2.f);
-	meshList[GEO_MENU]->textureID = LoadTGA("Image//start_menu.tga");
-	meshList[GEO_LEFT_ARROW] = MeshBuilder::GenerateQuad("Left Arrow", Color(1, 1, 1), 2.f);
-	meshList[GEO_LEFT_ARROW]->textureID = LoadTGA("Image//left_arrow.tga");
-	meshList[GEO_RIGHT_ARROW] = MeshBuilder::GenerateQuad("Right Arrow", Color(1, 1, 1), 2.f);
-	meshList[GEO_RIGHT_ARROW]->textureID = LoadTGA("Image//right_arrow.tga");
+
 	meshList[GEO_WIN] = MeshBuilder::GenerateQuad("Win", Color(1, 1, 1), 2.f);
 	meshList[GEO_WIN]->textureID = LoadTGA("Image//winscreen.tga");
-	meshList[GEO_LOSE] = MeshBuilder::GenerateQuad("Lose", Color(1, 1, 1), 2.f);
-	meshList[GEO_LOSE]->textureID = LoadTGA("Image//losescreen.tga");
-	meshList[GEO_MENU2] = MeshBuilder::GenerateQuad("Win", Color(1, 1, 1), 2.f);
-	meshList[GEO_MENU2]->textureID = LoadTGA("Image//MenuScrn.tga");
-	meshList[GEO_LOSE2] = MeshBuilder::GenerateQuad("Ball Menu", Color(1, 1, 1), 2.f);
-	meshList[GEO_LOSE2]->textureID = LoadTGA("Image//LoseScrn.tga");
-	meshList[GEO_DESTROYED] = MeshBuilder::GenerateQuad("Ball Lose", Color(1, 1, 1), 2.f);
-	meshList[GEO_DESTROYED]->textureID = LoadTGA("Image//stardestroyerdestroyed.tga");
-	meshList[GEO_INTERCEPTOR] = MeshBuilder::GenerateQuad("Interceptor", Color(1, 1, 1), 2.f);
-	meshList[GEO_INTERCEPTOR]->textureID = LoadTGA("Image//interceptor.tga");
-	meshList[GEO_IMPERIAL] = MeshBuilder::GenerateQuad("Imperial Star Destroyer", Color(1, 1, 1), 2.f);
-	meshList[GEO_IMPERIAL]->textureID = LoadTGA("Image//StarDestroyer.tga");
-	meshList[GEO_AWING] = MeshBuilder::GenerateQuad("A wing", Color(1, 1, 1), 2.f);
-	meshList[GEO_AWING]->textureID = LoadTGA("Image//Awing.tga");
-	meshList[GEO_YWING] = MeshBuilder::GenerateQuad("Y wing", Color(1, 1, 1), 2.f);
-	meshList[GEO_YWING]->textureID = LoadTGA("Image//ywing.tga");
-	meshList[GEO_SINGLEBARREL] = MeshBuilder::GenerateQuad("Single Barrel", Color(1, 1, 1), 2.f);
-	meshList[GEO_SINGLEBARREL]->textureID = LoadTGA("Image//singlebarrel.tga");
-	meshList[GEO_DOUBLEBARREL] = MeshBuilder::GenerateQuad("Double barrel", Color(1, 1, 1), 2.f);
-	meshList[GEO_DOUBLEBARREL]->textureID = LoadTGA("Image//doublebarrel.tga");
-	meshList[GEO_MINITURRET] = MeshBuilder::GenerateQuad("Small turret", Color(1, 1, 1), 2.f);
-	meshList[GEO_MINITURRET]->textureID = LoadTGA("Image//smallturret.tga");
+	meshList[GEO_MENU] = MeshBuilder::GenerateQuad("Win", Color(1, 1, 1), 2.f);
+	meshList[GEO_MENU]->textureID = LoadTGA("Image//MenuScrn.tga");
+	meshList[GEO_LOSE] = MeshBuilder::GenerateQuad("Ball Menu", Color(1, 1, 1), 2.f);
+	meshList[GEO_LOSE]->textureID = LoadTGA("Image//LoseScrn.tga");
+
 	meshList[GEO_MISSILE] = MeshBuilder::GenerateQuad("Missile", Color(1, 1, 1), 2.f);
 	meshList[GEO_MISSILE]->textureID = LoadTGA("Image//missile.tga");
-	meshList[GEO_TIE_BOMBER] = MeshBuilder::GenerateQuad("Tie Bomber", Color(1, 1, 1), 2.f);
-	meshList[GEO_TIE_BOMBER]->textureID = LoadTGA("Image//bomber.tga");
-	meshList[GEO_TIE_ADVANCED] = MeshBuilder::GenerateQuad("Advanced", Color(1, 1, 1), 2.f);
-	meshList[GEO_TIE_ADVANCED]->textureID = LoadTGA("Image//tieadvanced.tga");
-	meshList[GEO_FALCON] = MeshBuilder::GenerateQuad("Millenium Falcon", Color(1, 1, 1), 2.f);
-	meshList[GEO_FALCON]->textureID = LoadTGA("Image//milleniumfalcon.tga");
-	meshList[GEO_FALCONTURRET] = MeshBuilder::GenerateQuad("Millenium Falcon Turret", Color(1, 1, 1), 2.f);
-	meshList[GEO_FALCONTURRET]->textureID = LoadTGA("Image//falconturret.tga");
-	meshList[GEO_CANNON] = MeshBuilder::GenerateQuad("Cannon", Color(1, 1, 1), 2.f);
-	meshList[GEO_CANNON]->textureID = LoadTGA("Image//cannon.tga");
-	meshList[GEO_RIFLE] = MeshBuilder::GenerateQuad("Rifle gun", Color(1, 1, 1), 2.f);
-	meshList[GEO_RIFLE]->textureID = LoadTGA("Image//rifle.tga");
-	meshList[GEO_LASERGUN] = MeshBuilder::GenerateQuad("laser gun", Color(1, 1, 1), 2.f);
-	meshList[GEO_LASERGUN]->textureID = LoadTGA("Image//lasergun.tga");
-	meshList[GEO_WALL] = MeshBuilder::GenerateQuad("wall", Color(1, 1, 1), 2.f);
-	meshList[GEO_HEXBG] = MeshBuilder::GenerateQuad("Hex background", Color(1, 1, 1), 2.f);
-	meshList[GEO_HEXBG]->textureID = LoadTGA("Image//hexbg.tga");
-	meshList[GEO_GREYBG] = MeshBuilder::GenerateQuad("Grey background", Color(1, 1, 1), 2.f);
-	meshList[GEO_GREYBG]->textureID = LoadTGA("Image//greybg.tga");
+
 	meshList[GEO_PORTAL_IN] = MeshBuilder::GenerateSphere("Blue portal", Color(0, 0, 1), 10, 10, 1.f);
 	meshList[GEO_PORTAL_OUT] = MeshBuilder::GenerateSphere("Orange portal", Color(1, 0.647f, 0), 10, 10, 1.f);
+
+	meshList[GEO_BARREL] = MeshBuilder::GenerateQuad("Barrel", Color(1, 1, 1), 2.f);
+	meshList[GEO_BARREL]->textureID = LoadTGA("Image//barrel.tga");
+	meshList[GEO_CHESTCLOSED] = MeshBuilder::GenerateQuad("Chest Closed", Color(1, 1, 1), 2.f);
+	meshList[GEO_CHESTCLOSED]->textureID = LoadTGA("Image//chestclosed.tga");
+	meshList[GEO_CHESTOPENED] = MeshBuilder::GenerateQuad("Chest opened", Color(1, 1, 1), 2.f);
+	meshList[GEO_CHESTOPENED]->textureID = LoadTGA("Image//chestopened.tga");
+
+	meshList[GEO_MANAPOTION] = MeshBuilder::GenerateQuad("Mana Potion", Color(1, 1, 1), 2.f);
+	meshList[GEO_MANAPOTION]->textureID = LoadTGA("Image//manapotion.tga");
+	meshList[GEO_HEALTHPOTION] = MeshBuilder::GenerateQuad("Health Potion", Color(1, 1, 1), 2.f);
+	meshList[GEO_HEALTHPOTION]->textureID = LoadTGA("Image//healthpotion.tga");
+	meshList[GEO_MAXPOTION] = MeshBuilder::GenerateQuad("Max Potion", Color(1, 1, 1), 2.f);
+	meshList[GEO_MAXPOTION]->textureID = LoadTGA("Image//maxpotion.tga");
+	meshList[GEO_COIN] = MeshBuilder::GenerateQuad("Coin", Color(1, 1, 1), 2.f);
+	meshList[GEO_COIN]->textureID = LoadTGA("Image//coin.tga");
+
 	meshList[GEO_FULLHEART] = MeshBuilder::GenerateQuad("Full heart", Color(1, 1, 1), 2.f);
 	meshList[GEO_FULLHEART]->textureID = LoadTGA("Image//fullheart.tga");
 	meshList[GEO_80HEART] = MeshBuilder::GenerateQuad("Full heart", Color(1, 1, 1), 2.f);
@@ -213,8 +171,17 @@ void SceneBase::Init()
 	meshList[GEO_20HEART]->textureID = LoadTGA("Image//20heart.tga");
 	meshList[GEO_EMPTYHEART] = MeshBuilder::GenerateQuad("Full heart", Color(1, 1, 1), 2.f);
 	meshList[GEO_EMPTYHEART]->textureID = LoadTGA("Image//emptyheart.tga");
+
 	meshList[GEO_FIREBALL] = MeshBuilder::GenerateQuad("Fireball", Color(1, 1, 1), 2.f);
 	meshList[GEO_FIREBALL]->textureID = LoadTGA("Image//fireball.tga");
+
+	meshList[GEO_CITYBLOCK] = MeshBuilder::GenerateQuad("Cityblock", Color(1, 1, 1), 2.f);
+	meshList[GEO_CITYBLOCK]->textureID = LoadTGA("Image//cityblock.tga");
+	meshList[GEO_FUTUREBLOCK] = MeshBuilder::GenerateQuad("Futureblock", Color(1, 1, 1), 2.f);
+	meshList[GEO_FUTUREBLOCK]->textureID = LoadTGA("Image//futureblock.tga");
+	meshList[GEO_NETHERBRICK] = MeshBuilder::GenerateQuad("Neatherbrick", Color(1, 1, 1), 2.f);
+	meshList[GEO_NETHERBRICK]->textureID = LoadTGA("Image//netherbrick.tga");
+
 	meshList[GEO_AK47] = MeshBuilder::GenerateQuad("AK47", Color(1, 1, 1), 2.f);
 	meshList[GEO_AK47]->textureID = LoadTGA("Image//AK.tga");
 	meshList[GEO_SMG] = MeshBuilder::GenerateQuad("SMG", Color(1, 1, 1), 2.f);
@@ -225,14 +192,8 @@ void SceneBase::Init()
 	meshList[GEO_LMG]->textureID = LoadTGA("Image//Light_Machine_Gun.tga");
 	meshList[GEO_REVOLVER] = MeshBuilder::GenerateQuad("Revolver", Color(1, 1, 1), 2.f);
 	meshList[GEO_REVOLVER]->textureID = LoadTGA("Image//Revolver.tga");
-	meshList[GEO_KNIFE] = MeshBuilder::GenerateQuad("Knife", Color(1, 1, 1), 2.f);
-	meshList[GEO_KNIFE]->textureID = LoadTGA("Image//Knife.tga");
 	meshList[GEO_SWORD] = MeshBuilder::GenerateQuad("Sword", Color(1, 1, 1), 2.f);
 	meshList[GEO_SWORD]->textureID = LoadTGA("Image//Sword.tga");
-	meshList[GEO_SPEAR] = MeshBuilder::GenerateQuad("Spear", Color(1, 1, 1), 2.f);
-	meshList[GEO_SPEAR]->textureID = LoadTGA("Image//Spear.tga");
-	meshList[GEO_SCYTHE] = MeshBuilder::GenerateQuad("Scythe", Color(1, 1, 1), 2.f);
-	meshList[GEO_SCYTHE]->textureID = LoadTGA("Image//Scythe.tga");
 
 	meshList[GEO_FRAME1] = MeshBuilder::GenerateQuad("Frame 1", Color(1, 1, 1), 2.f);
 	meshList[GEO_FRAME1]->textureID = LoadTGA("Image//sprite_00.tga");
@@ -315,7 +276,18 @@ void SceneBase::Init()
 	meshList[GEO_REVOLVERARM] = MeshBuilder::GenerateQuad("Revolver arm", Color(1, 1, 1), 2.f);
 	meshList[GEO_REVOLVERARM]->textureID = LoadTGA("Image//Revolver_arm.tga");
 
-
+	meshList[GEO_SWORD1] = MeshBuilder::GenerateQuad("Sword", Color(1, 1, 1), 2.f);
+	meshList[GEO_SWORD1]->textureID = LoadTGA("Image//sword05.tga");
+	meshList[GEO_SWORD2] = MeshBuilder::GenerateQuad("Sword", Color(1, 1, 1), 2.f);
+	meshList[GEO_SWORD2]->textureID = LoadTGA("Image//sword00.tga");
+	meshList[GEO_SWORD3] = MeshBuilder::GenerateQuad("Sword", Color(1, 1, 1), 2.f);
+	meshList[GEO_SWORD3]->textureID = LoadTGA("Image//sword01.tga");
+	meshList[GEO_SWORD4] = MeshBuilder::GenerateQuad("Sword", Color(1, 1, 1), 2.f);
+	meshList[GEO_SWORD4]->textureID = LoadTGA("Image//sword02.tga");
+	meshList[GEO_SWORD5] = MeshBuilder::GenerateQuad("Sword", Color(1, 1, 1), 2.f);
+	meshList[GEO_SWORD5]->textureID = LoadTGA("Image//sword03.tga");
+	meshList[GEO_SWORD6] = MeshBuilder::GenerateQuad("Sword", Color(1, 1, 1), 2.f);
+	meshList[GEO_SWORD6]->textureID = LoadTGA("Image//sword04.tga");
 
 	bLightEnabled = false;
 	DisableMonospace("Image//Arial_N.csv");

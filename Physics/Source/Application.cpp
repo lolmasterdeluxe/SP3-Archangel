@@ -11,9 +11,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "SceneKinematics.h"
-#include "SceneAsteroid.h"
-#include "SceneCollision.h"
 #include "SceneArchangel.h"
 
 GLFWwindow* m_window;
