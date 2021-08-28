@@ -32,7 +32,7 @@ void SceneArchangel::Init()
 	shotgun = false;
 	time_change = false;
 	phase = false;
-	weapon_dmg = 6;
+	weapon_dmg = 30;
 	max_vel = 50;
 	for (int i = 0; i < 5; ++i)
 	{
@@ -76,7 +76,6 @@ void SceneArchangel::Init()
 	m_player->hp = 12;
 	m_player->mana = 50;
 	m_player->gold_count = 50;
-	m_player->grenade_count = 50;
 	m_player->max_hp = 12;
 	m_player->pos = Vector3(m_worldWidth * 0.5, 30, 0);
 	m_player->normal.Set(1, 0, 0);
@@ -387,6 +386,7 @@ void SceneArchangel::PhysicsResponse(GameObject* go1, Collision collision)
 		}
 		if (collision.go->type == GameObject::GO_CHEST)
 		{
+			collision.go->open = true;
 			openChest(collision.go);
 		}
 		if (collision.go->type == GameObject::GO_DEMON || collision.go->type == GameObject::GO_FALLENANGEL || collision.go->type == GameObject::GO_TERMINATOR || go1->type == GameObject::GO_SOLDIER || collision.go->type == GameObject::GO_DEMONLORD || collision.go->type == GameObject::GO_METALGEAR)
@@ -505,13 +505,23 @@ void SceneArchangel::SpawnBullet(double dt)
 				GameObject* newGO = FetchGO();
 				newGO->active = true;
 				newGO->type = GameObject::GO_BULLET;
-				newGO->scale.Set(1, 0.5f, 0);
+				newGO->scale.Set(0.6f, 0.1f, 0);
 
 				Vector3 right = m_player->normal.Cross(Vector3(0, 0, -1));
 				if (m_player->left)
-					newGO->pos = m_player->pos + m_player->normal + right * 3.2f;
+				{
+					if (weapon_choice == 3)
+						newGO->pos = m_player->pos + m_player->normal + right * 3.f;
+					else
+						newGO->pos = m_player->pos + m_player->normal + right * 3.4f;
+				}
 				else
-					newGO->pos = m_player->pos - m_player->normal + right * 3.5f;
+				{
+					if (weapon_choice == 3)
+						newGO->pos = m_player->pos - m_player->normal + right * 3.f;
+					else
+						newGO->pos = m_player->pos - m_player->normal + right * 3.4f;
+				}
 
 				cout << newGO->pos << endl;
 				newGO->vel = Vector3(x - newGO->pos.x, y - newGO->pos.y, 0);
@@ -524,9 +534,9 @@ void SceneArchangel::SpawnBullet(double dt)
 				GameObject* newGO = FetchGO();
 				newGO->active = true;
 				newGO->type = GameObject::GO_BULLET;
-				newGO->scale.Set(1, 0.5f, 0);
+				newGO->scale.Set(0.6f, 0.1f, 0);
 				if (m_player->left)
-					newGO->pos = m_player->pos + m_player->normal + right * 3.2f;
+					newGO->pos = m_player->pos + m_player->normal + right * 3.f;
 				else
 					newGO->pos = m_player->pos - m_player->normal + right * 3.5f;
 				newGO->vel = Vector3(x - newGO->pos.x, y - newGO->pos.y, 0);
@@ -537,11 +547,11 @@ void SceneArchangel::SpawnBullet(double dt)
 				GameObject* newGO2 = FetchGO();
 				newGO2->active = true;
 				newGO2->type = GameObject::GO_BULLET;
-				newGO2->scale.Set(1, 0.5f, 0);
+				newGO2->scale.Set(0.6f, 0.1f, 0);
 				if (m_player->left)
-					newGO2->pos = m_player->pos + m_player->normal + right * 3.2f;
+					newGO2->pos = m_player->pos + m_player->normal + right * 3.f;
 				else
-					newGO2->pos = m_player->pos - m_player->normal + right * 3.5f;
+					newGO2->pos = m_player->pos - m_player->normal + right * 3.3f;
 				newGO2->vel = Vector3(x - newGO->pos.x, y - newGO->pos.y, 0);
 				angle = atan2f(newGO2->vel.y, newGO2->vel.x) - Math::DegreeToRadian(1);
 				newGO2->vel = Vector3(cosf(angle), sin(angle), 0);
@@ -550,11 +560,11 @@ void SceneArchangel::SpawnBullet(double dt)
 				GameObject* newGO3 = FetchGO();
 				newGO3->active = true;
 				newGO3->type = GameObject::GO_BULLET;
-				newGO3->scale.Set(1, 0.5f, 0);
+				newGO3->scale.Set(0.6f, 0.1f, 0);
 				if (m_player->left)
-					newGO3->pos = m_player->pos + m_player->normal + right * 3.2f;
+					newGO3->pos = m_player->pos + m_player->normal + right * 3.f;
 				else
-					newGO3->pos = m_player->pos - m_player->normal + right * 3.5f;
+					newGO3->pos = m_player->pos - m_player->normal + right * 3.3f;
 				newGO3->vel = Vector3(x - newGO->pos.x, y - newGO->pos.y, 0);
 				angle = atan2f(newGO3->vel.y, newGO3->vel.x) + Math::DegreeToRadian(3);
 				newGO3->vel = Vector3(cosf(angle), sin(angle), 0);
@@ -563,70 +573,17 @@ void SceneArchangel::SpawnBullet(double dt)
 				GameObject* newGO4 = FetchGO();
 				newGO4->active = true;
 				newGO4->type = GameObject::GO_BULLET;
-				newGO4->scale.Set(1, 0.5f, 0);
+				newGO4->scale.Set(0.6f, 0.1f, 0);
 				if (m_player->left)
-					newGO4->pos = m_player->pos + m_player->normal + right * 3.2f;
+					newGO4->pos = m_player->pos + m_player->normal + right * 3.f;
 				else
-					newGO4->pos = m_player->pos - m_player->normal + right * 3.5f;
+					newGO4->pos = m_player->pos - m_player->normal + right * 3.3f;
 				newGO4->vel = Vector3(x - newGO->pos.x, y - newGO->pos.y, 0);
 				angle = atan2f(newGO4->vel.y, newGO4->vel.x) - Math::DegreeToRadian(3);
 				newGO4->vel = Vector3(cosf(angle), sin(angle), 0);
 				newGO4->vel.Normalize() * 100;
 			}
 			m_player->bullet_delay = 0;
-		}
-	}
-}
-
-void SceneArchangel::throwGrenade(double dt)
-{
-	static bool bLButtonState = false;
-	if (Application::IsKeyPressed('L') && !bLButtonState && m_player->grenade_count > 0)
-	{
-		bLButtonState = true;
-		GameObject* newGO = FetchGO();
-		newGO->active = true;
-		newGO->type = GameObject::GO_GRENADE;
-		newGO->scale.Set(1.f, 1.f, 0);
-		newGO->pos = m_player->pos;
-		if (!m_player->left)
-		{
-			if (!time_change)
-				newGO->vel = Vector3(40, 60, 0);
-			else
-				newGO->vel = Vector3(60, 80, 0);
-			cout << "right true" << endl;
-		}
-		else
-		{
-			if (!time_change)
-				newGO->vel = Vector3(-40, 60, 0);
-			else
-				newGO->vel = Vector3(-60, 80, 0);
-			cout << "left true" << endl;
-		}
-		cout << newGO->vel.x << endl;
-		newGO->grenade_delay = 0;
-		m_player->grenade_count--;
-	}
-	else if (!Application::IsKeyPressed('L'))
-	{
-		bLButtonState = false;
-	}
-	for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
-	{
-		GameObject* go = (GameObject*)*it;
-		if (go->active)
-		{
-			if (go->type == GameObject::GO_GRENADE)
-			{
-				Boundary(go, 2);
-				go->grenade_delay += dt;
-				if (go->grenade_delay > 2)
-				{
-					ReturnGO(go);
-				}
-			}
 		}
 	}
 }
@@ -808,7 +765,6 @@ void SceneArchangel::itemLogic(double dt)
 	Gravity(GameObject::GO_POTION, 300, dt);
 	Gravity(GameObject::GO_MAXPOTION, 300, dt);
 	Gravity(GameObject::GO_MANAPOTION, 300, dt);
-	Gravity(GameObject::GO_GRENADE, 200, dt);
 	Gravity(GameObject::GO_GOLD, 300, dt);
 	Gravity(GameObject::GO_CHEST, 300, dt);
 	Gravity(GameObject::GO_BARREL, 300, dt);
@@ -822,7 +778,6 @@ void SceneArchangel::itemLogic(double dt)
 	enableCollision(dt, GameObject::GO_POTION);
 	enableCollision(dt, GameObject::GO_MAXPOTION);
 	enableCollision(dt, GameObject::GO_MANAPOTION);
-	enableCollision(dt, GameObject::GO_GRENADE);
 	enableCollision(dt, GameObject::GO_GOLD);
 	enableCollision(dt, GameObject::GO_CHEST);
 	enableCollision(dt, GameObject::GO_BARREL);
@@ -940,11 +895,12 @@ void SceneArchangel::setGun(float fire, int dmg)
 void SceneArchangel::pickWeapon(double dt)
 {
 	// Sword
-	if (weapon_choice >= 0 && weapon_choice <= 4)
-		Melee();
+	if (weapon_choice >= 0 && weapon_choice <= 1)
+		Melee(dt);
 	else
 		SpawnBullet(dt);
 
+	cout << weapon_dmg << endl;
 	for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
 	{
 		GameObject* go = (GameObject*)*it;
@@ -965,65 +921,44 @@ void SceneArchangel::pickWeapon(double dt)
 	}
 	else if (Application::IsKeyPressed('1'))
 	{
-		setGun(0.2f, 20);
+		setGun(0.2f, 30);
 		shotgun = false;
 		weapon_choice = 1;
 	}
-	// Knife
-	else if (Application::IsKeyPressed('2'))
-	{
-		setGun(0.1f, 15);
-		shotgun = false;
-		weapon_choice = 2;
-	}
-	// Spear
-	else if (Application::IsKeyPressed('3'))
-	{
-		setGun(0.25f, 20);
-		shotgun = false;
-		weapon_choice = 3;
-	}
-	// Scythe
-	else if (Application::IsKeyPressed('4'))
-	{
-		setGun(0.6f, 30);
-		shotgun = true;
-		weapon_choice = 4;
-	}
 	//AK
-	else if (Application::IsKeyPressed('5'))
+	else if (Application::IsKeyPressed('2'))
 	{
 		setGun(0.2f, 10);
 		shotgun = false;
-		weapon_choice = 5;
+		weapon_choice = 2;
 	}
 	// SMG
-	else if (Application::IsKeyPressed('6'))
+	else if (Application::IsKeyPressed('3'))
 	{
 		setGun(0.1f, 7);
 		shotgun = false;
-		weapon_choice = 6;
+		weapon_choice = 3;
 	}
 	// LMG
-	else if (Application::IsKeyPressed('7'))
+	else if (Application::IsKeyPressed('4'))
 	{
 		setGun(0.25f, 15);
 		shotgun = false;
-		weapon_choice = 7;
+		weapon_choice = 4;
 	}
 	// SHOTGUN
-	else if (Application::IsKeyPressed('8'))
+	else if (Application::IsKeyPressed('5'))
 	{
 		setGun(0.6f, 7);
 		shotgun = true;
-		weapon_choice = 8;
+		weapon_choice = 5;
 	}
 	// REVOLVER
-	else if (Application::IsKeyPressed('9'))
+	else if (Application::IsKeyPressed('6'))
 	{
 		setGun(0.4f, 20);
 		shotgun = false;
-		weapon_choice = 9;
+		weapon_choice = 6;
 	}
 
 }
@@ -1046,7 +981,7 @@ void SceneArchangel::takeDMG()
 	}
 }
 
-void SceneArchangel::Melee()
+void SceneArchangel::Melee(double dt)
 {
 	static bool bLButtonState3 = false;
 	if (Application::IsMousePressed(0) && !bLButtonState3)
@@ -1056,8 +991,9 @@ void SceneArchangel::Melee()
 			GameObject* go = (GameObject*)*it;
 			if (go->active)
 			{
-				if (go->type == GameObject::GO_DEMON || go->type == GameObject::GO_FALLENANGEL || go->type == GameObject::GO_TERMINATOR || go->type == GameObject::GO_SOLDIER)
+				if (go->type == GameObject::GO_DEMON || go->type == GameObject::GO_FALLENANGEL || go->type == GameObject::GO_TERMINATOR || go->type == GameObject::GO_SOLDIER || go->type == GameObject::GO_BARREL || go->type == GameObject::GO_DEMONLORD || go->type == GameObject::GO_METALGEAR)
 				{
+					
 					if (go->pos.y + 5 > m_player->pos.y && go->pos.y - 5 < m_player->pos.y)
 					{
 						if (m_player->left)
@@ -1067,6 +1003,7 @@ void SceneArchangel::Melee()
 								go->hp -= weapon_dmg;
 								go->vel.x -= 25;
 								m_player->attack = true;
+								
 							}
 						}
 						else if (!m_player->left)
@@ -1079,17 +1016,29 @@ void SceneArchangel::Melee()
 							}
 						}
 					}
+					if (go->type == GameObject::GO_BARREL)
+					{
+						if (go->hp <= 0)
+						{
+							openChest(go);
+							if (go->item_count >= 3)
+								ReturnGO(go);
+						}
+					}
 				}
 			}
 		}
+		m_player->attacking = true;
 		bLButtonState3 = true;
+
 	}
 	else if (!Application::IsMousePressed(0))
 	{
 		bLButtonState3 = false;
 		m_player->attack = false;
 	}
-	
+	if (m_player->attacking)
+		runAnimation(dt, GameObject::GO_CUBE, 1, 0.05f, 6);
 }
 
 void SceneArchangel::heal(bool max_potion)
@@ -1103,12 +1052,9 @@ void SceneArchangel::heal(bool max_potion)
 		for (int i = 1; i <= empty_heart; ++i)
 		{
 			hitpoints[heart_count - empty_heart + i] = 1;
-			//cout << "configured health" << endl;
 		}
 		m_player->max_hp += 4;
 		m_player->hp += 4;
-		/*cout << "heal max" << endl;
-		cout << "Hitpoints before: " << hitpoints[heart_count - empty_heart - 1] << endl;*/
 	}
 	else
 	{
@@ -1118,14 +1064,12 @@ void SceneArchangel::heal(bool max_potion)
 			empty_heart--;
 			m_player->hp++;
 			hitpoints[heart_count - empty_heart]++;
-			//cout << "heal over" << endl;
 		}
 		// Healing if heart is not full
 		else if (hitpoints[heart_count - empty_heart] < 4)
 		{
 			hitpoints[heart_count - empty_heart]++;
 			m_player->hp++;
-			//cout << "heal normal" << endl;
 		}
 	}
 	
@@ -1136,9 +1080,7 @@ void SceneArchangel::heal(bool max_potion)
 	{
 		empty_heart = 0;
 	}
-	/*cout << "Empty heart count: " << empty_heart << endl;
-	cout << "Current hitpoints: " << hitpoints[heart_count - empty_heart] << endl;
-	cout << "m_player->hp: " << m_player->hp << endl;*/
+
 }
 
 void SceneArchangel::mana(float interval, float amount,  bool restore)
@@ -1229,7 +1171,7 @@ void SceneArchangel::demonAI(double dt)
 		{
 			if (go->type == GameObject::GO_FIREBALL)
 			{
-				go->pos += go->vel * dt * 75 * time_manip;
+				go->pos += go->vel * dt * 25 * time_manip;
 				Boundary(go, 2);
 			}
 			
@@ -1382,7 +1324,7 @@ void SceneArchangel::fallenAngelAI(double dt)
 		{
 			if (go->type == GameObject::GO_FIREBALL)
 			{
-				go->pos += go->vel * dt * 75 * time_manip;
+				go->pos += go->vel * dt * 25 * time_manip;
 				Boundary(go, 2);
 			}
 
@@ -1497,6 +1439,7 @@ void SceneArchangel::fallenAngelAI(double dt)
 					{
 						if (go->pos.y <= m_player->pos.y + 20)
 						{
+							enableCollision(dt, GameObject::GO_FALLENANGEL);
 							go->vel.y += go->speed;
 						}
 						else
@@ -1673,7 +1616,7 @@ void SceneArchangel::terminatorAI(double dt)
 						GameObject* newGO = FetchGO();
 						newGO->active = true;
 						newGO->type = GameObject::GO_ENEMY_BULLET;
-						newGO->scale.Set(1.f, 0.5f, 0);
+						newGO->scale.Set(0.6f, 0.1f, 0);
 						newGO->pos = go->pos;
 						float angle = atan2f(m_player->pos.y - go->pos.y, m_player->pos.x - go->pos.x);
 						newGO->vel = Vector3(cosf(angle), sin(angle), 0);
@@ -1804,7 +1747,7 @@ void SceneArchangel::soldierAI(double dt)
 						GameObject* newGO = FetchGO();
 						newGO->active = true;
 						newGO->type = GameObject::GO_ENEMY_BULLET;
-						newGO->scale.Set(1.f, 0.5f, 0);
+						newGO->scale.Set(0.6f, 0.1f, 0);
 						newGO->pos = go->pos;
 						float angle = atan2f(m_player->pos.y - go->pos.y, m_player->pos.x - go->pos.x);
 						newGO->vel = Vector3(cosf(angle), sin(angle), 0);
@@ -1850,7 +1793,7 @@ void SceneArchangel::demonBossAI(double dt)
 		{
 			if (go->type == GameObject::GO_FIREBALL)
 			{
-				go->pos += go->vel * dt * 75 * time_manip;
+				go->pos += go->vel * dt * 25 * time_manip;
 				Boundary(go, 2);
 			}
 
@@ -2052,7 +1995,7 @@ void SceneArchangel::metalGearAI(double dt)
 						enableCollision(dt, GameObject::GO_METALGEAR);
 					}
 
-					if (go->FSMCounter > go->MaxFSMCounter * 4)
+					if (go->FSMCounter > go->MaxFSMCounter * 5)
 					{
 						go->state = go->STATE_IDLE;
 						go->FSMCounter = 0;
@@ -2063,10 +2006,22 @@ void SceneArchangel::metalGearAI(double dt)
 						newGO->active = true;
 						newGO->type = GameObject::GO_ENEMY_BULLET;
 						newGO->scale.Set(1.f, 0.5f, 0);
-						newGO->pos = go->pos;
+						Vector3 right = go->normal.Cross(Vector3(0, 0, -1));
+						newGO->pos = go->pos + go->normal + right * 2;
 						float angle = atan2f(m_player->pos.y - go->pos.y, m_player->pos.x - go->pos.x);
 						newGO->vel = Vector3(cosf(angle), sin(angle), 0);
-						newGO->vel.Normalize() * 100;
+						newGO->vel.Normalize() * 50;
+
+						GameObject* newGO2 = FetchGO();
+						newGO2->active = true;
+						newGO2->type = GameObject::GO_ENEMY_BULLET;
+						newGO2->scale.Set(1.f, 0.5f, 0);
+						Vector3 right2 = go->normal.Cross(Vector3(0, 0, -1));
+						newGO2->pos = go->pos - go->normal + right2 * 2;
+						float angle2 = atan2f(m_player->pos.y - go->pos.y, m_player->pos.x - go->pos.x);
+						newGO2->vel = Vector3(cosf(angle2), sin(angle2), 0);
+						newGO2->vel.Normalize() * 50;
+
 						go->bullet_delay = 0;
 					}
 					break;
@@ -2093,7 +2048,8 @@ void SceneArchangel::metalGearAI(double dt)
 						newGO->active = true;
 						newGO->type = GameObject::GO_MISSILE;
 						newGO->scale.Set(1.f, 0.5f, 0);
-						newGO->pos = go->pos;
+						int rng = Math::RandIntMinMax(-3, 3);
+						newGO->pos = go->pos + rng;
 						newGO->vel = Vector3(0, 1, 0);
 						newGO->vel.Normalize() * 100;
 						newGO->shoot_delay = 0;
@@ -2124,7 +2080,7 @@ void SceneArchangel::metalGearAI(double dt)
 	}
 }
 
-void SceneArchangel::runAnimation(double dt, GameObject::GAMEOBJECT_TYPE GO, double animation_max, int frame_max)
+void SceneArchangel::runAnimation(double dt, GameObject::GAMEOBJECT_TYPE GO, int i, double animation_max, int frame_max)
 {
 	for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
 	{
@@ -2136,12 +2092,13 @@ void SceneArchangel::runAnimation(double dt, GameObject::GAMEOBJECT_TYPE GO, dou
 				go->animation_delay += dt;
 				if (go->animation_delay > animation_max)
 				{
-					go->frame_count++;
+					go->frame_count[i]++;
 					go->animation_delay = 0;
 				}
-				if (go->frame_count >= frame_max)
+				if (go->frame_count[i] >= frame_max)
 				{
-					go->frame_count = 0;
+					go->frame_count[i] = 0;
+					m_player->attacking = false;
 				}
 			}
 		}
@@ -2496,9 +2453,8 @@ void SceneArchangel::Update(double dt)
 		pickWeapon(dt);
 		itemLogic(dt);
 		playerLogic(dt);
-		throwGrenade(dt);
 		manipTime(dt);
-		runAnimation(dt, GameObject::GO_CUBE, 0.25f, 16);
+		runAnimation(dt, GameObject::GO_CUBE, 0, 0.1f, 16);
 		demonAI(dt);
 		metalGearAI(dt);
 
@@ -2624,8 +2580,6 @@ void SceneArchangel::RenderGO(GameObject *go)
 		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
 
 		// Change colors depending on health
-		if (go->color == 0)
-			RenderMesh(meshList[GEO_BALL], false);
 		if (go->hp >= 1 && go->hp < 5)
 			RenderMesh(meshList[GEO_YELLOWBALL], false);
 		if (go->hp >= 5 && go->hp < 10)
@@ -2644,15 +2598,15 @@ void SceneArchangel::RenderGO(GameObject *go)
 
 		break;
 
-	case GameObject::GO_GHOSTBALL:
-		// Ball displayed at top
-		modelStack.PushMatrix();
-		modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
-		modelStack.Rotate(Math::RadianToDegree(atan2(go->dir.y, go->dir.x)), 0, 0, 1);
-		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
-		RenderMesh(meshList[GEO_BALL], false);
-		modelStack.PopMatrix();
-		break;
+	//case GameObject::GO_GHOSTBALL:
+	//	// Ball displayed at top
+	//	modelStack.PushMatrix();
+	//	modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
+	//	modelStack.Rotate(Math::RadianToDegree(atan2(go->dir.y, go->dir.x)), 0, 0, 1);
+	//	modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
+	//	RenderMesh(meshList[GEO_BALL], false);
+	//	modelStack.PopMatrix();
+	//	break;
 
 	case GameObject::GO_PILLAR:
 		// Pillars that attach to cube
@@ -2670,24 +2624,7 @@ void SceneArchangel::RenderGO(GameObject *go)
 	    angle = atan2f(go->normal.y, go->normal.x);
 		modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
 		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
-
-		// Change colors depending on health
-		if (go->color == 0)
-			RenderMesh(meshList[GEO_CUBE], false);
-		if (go->hp >= 1 && go->hp < 5)
-			RenderMesh(meshList[GEO_YELLOWCUBE], false);
-		if (go->hp >= 5 && go->hp < 10)
-			RenderMesh(meshList[GEO_ORANGECUBE], false);
-		if (go->hp >= 10 && go->hp < 15)
-			RenderMesh(meshList[GEO_REDCUBE], false);
-		if (go->hp >= 15 && go->hp < 20)
-			RenderMesh(meshList[GEO_GREENCUBE], false);
-		if (go->hp >= 20 && go->hp < 25)
-			RenderMesh(meshList[GEO_CYANCUBE], false);
-		if (go->hp >= 25 && go->hp < 30)
-			RenderMesh(meshList[GEO_BLUECUBE], false);
-		if (go->hp >= 30)
-			RenderMesh(meshList[GEO_PURPLECUBE], false);
+		RenderMesh(meshList[GEO_NETHERBRICK], false);
 		modelStack.PopMatrix();
 		break;	
 
@@ -2725,90 +2662,80 @@ void SceneArchangel::RenderGO(GameObject *go)
 		if (weapon_choice == 0)
 		{
 			modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
-			if (go->frame_count == 0)
+			if (go->frame_count[0] == 0)
 				RenderMesh(meshList[GEO_FRAME1], false);
-			else if (go->frame_count == 1)
+			else if (go->frame_count[0] == 1)
 				RenderMesh(meshList[GEO_FRAME2], false);
-			else if (go->frame_count == 2)
+			else if (go->frame_count[0] == 2)
 				RenderMesh(meshList[GEO_FRAME3], false);
-			else if (go->frame_count == 3)
+			else if (go->frame_count[0] == 3)
 				RenderMesh(meshList[GEO_FRAME4], false);
-			else if (go->frame_count == 4)
+			else if (go->frame_count[0] == 4)
 				RenderMesh(meshList[GEO_FRAME5], false);
-			else if (go->frame_count == 5)
+			else if (go->frame_count[0] == 5)
 				RenderMesh(meshList[GEO_FRAME6], false);
-			else if (go->frame_count == 6)
+			else if (go->frame_count[0] == 6)
 				RenderMesh(meshList[GEO_FRAME7], false);
-			else if (go->frame_count == 7)
+			else if (go->frame_count[0] == 7)
 				RenderMesh(meshList[GEO_FRAME8], false);
-			else if (go->frame_count == 8)
+			else if (go->frame_count[0] == 8)
 				RenderMesh(meshList[GEO_FRAME9], false);
-			else if (go->frame_count == 9)
+			else if (go->frame_count[0] == 9)
 				RenderMesh(meshList[GEO_FRAME10], false);
-			else if (go->frame_count == 10)
+			else if (go->frame_count[0] == 10)
 				RenderMesh(meshList[GEO_FRAME11], false);
-			else if (go->frame_count == 11)
+			else if (go->frame_count[0] == 11)
 				RenderMesh(meshList[GEO_FRAME12], false);
-			else if (go->frame_count == 12)
+			else if (go->frame_count[0] == 12)
 				RenderMesh(meshList[GEO_FRAME13], false);
-			else if (go->frame_count == 13)
+			else if (go->frame_count[0] == 13)
 				RenderMesh(meshList[GEO_FRAME14], false);
-			else if (go->frame_count == 14)
+			else if (go->frame_count[0] == 14)
 				RenderMesh(meshList[GEO_FRAME15], false);
-			else if (go->frame_count == 15)
+			else if (go->frame_count[0] == 15)
 				RenderMesh(meshList[GEO_FRAME16], false);
-			else if (go->frame_count == 16)
+			else if (go->frame_count[0] == 16)
 				RenderMesh(meshList[GEO_FRAME17], false);
 		}
 		else
 		{
 			modelStack.Scale(go->scale.x - 0.7f, go->scale.y, go->scale.z);
-			if (go->frame_count == 0)
+			if (go->frame_count[0] == 0)
 				RenderMesh(meshList[GEO_1FRAME1], false);
-			else if (go->frame_count == 1)
+			else if (go->frame_count[0] == 1)
 				RenderMesh(meshList[GEO_1FRAME2], false);
-			else if (go->frame_count == 2)
+			else if (go->frame_count[0] == 2)
 				RenderMesh(meshList[GEO_1FRAME3], false);
-			else if (go->frame_count == 3)
+			else if (go->frame_count[0] == 3)
 				RenderMesh(meshList[GEO_1FRAME4], false);
-			else if (go->frame_count == 4)
+			else if (go->frame_count[0] == 4)
 				RenderMesh(meshList[GEO_1FRAME5], false);
-			else if (go->frame_count == 5)
+			else if (go->frame_count[0] == 5)
 				RenderMesh(meshList[GEO_1FRAME6], false);
-			else if (go->frame_count == 6)
+			else if (go->frame_count[0] == 6)
 				RenderMesh(meshList[GEO_1FRAME7], false);
-			else if (go->frame_count == 7)
+			else if (go->frame_count[0] == 7)
 				RenderMesh(meshList[GEO_1FRAME8], false);
-			else if (go->frame_count == 8)
+			else if (go->frame_count[0] == 8)
 				RenderMesh(meshList[GEO_1FRAME9], false);
-			else if (go->frame_count == 9)
+			else if (go->frame_count[0] == 9)
 				RenderMesh(meshList[GEO_1FRAME10], false);
-			else if (go->frame_count == 10)
+			else if (go->frame_count[0] == 10)
 				RenderMesh(meshList[GEO_1FRAME11], false);
-			else if (go->frame_count == 11)
+			else if (go->frame_count[0] == 11)
 				RenderMesh(meshList[GEO_1FRAME12], false);
-			else if (go->frame_count == 12)
+			else if (go->frame_count[0] == 12)
 				RenderMesh(meshList[GEO_1FRAME13], false);
-			else if (go->frame_count == 13)
+			else if (go->frame_count[0] == 13)
 				RenderMesh(meshList[GEO_1FRAME14], false);
-			else if (go->frame_count == 14)
+			else if (go->frame_count[0] == 14)
 				RenderMesh(meshList[GEO_1FRAME15], false);
-			else if (go->frame_count == 15)
+			else if (go->frame_count[0] == 15)
 				RenderMesh(meshList[GEO_1FRAME16], false);
-			else if (go->frame_count == 16)
+			else if (go->frame_count[0] == 16)
 				RenderMesh(meshList[GEO_1FRAME17], false);
 		}
-		modelStack.PopMatrix();
-		break;
-
-	case GameObject::GO_POWERUP:
-		// Powerup as ball
-		modelStack.PushMatrix();
-		modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
-		angle = atan2f(go->normal.y, go->normal.x);
-		modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
-		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
-		RenderMesh(meshList[GEO_BALLUP], false);
+		
 		modelStack.PopMatrix();
 		break;
 
@@ -2826,7 +2753,7 @@ void SceneArchangel::RenderGO(GameObject *go)
 		modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
 		modelStack.Rotate(Math::RadianToDegree(atan2(go->vel.y, go->vel.x)), 0, 0, 1);
 		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
-		RenderMesh(meshList[GEO_ENEMY_BULLET], false);
+		RenderMesh(meshList[GEO_BULLET], false);
 		modelStack.PopMatrix();
 		break;
 
@@ -2855,7 +2782,7 @@ void SceneArchangel::RenderGO(GameObject *go)
 		modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
 		modelStack.Rotate(Math::RadianToDegree(atan2(go->dir.y, go->dir.x)), 0, 0, 1);
 		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
-		RenderMesh(meshList[GEO_REDBALL], false);
+		RenderMesh(meshList[GEO_HEALTHPOTION], false);
 		modelStack.PopMatrix();
 		break;
 
@@ -2864,7 +2791,7 @@ void SceneArchangel::RenderGO(GameObject *go)
 		modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
 		modelStack.Rotate(Math::RadianToDegree(atan2(go->dir.y, go->dir.x)), 0, 0, 1);
 		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
-		RenderMesh(meshList[GEO_ORANGEBALL], false);
+		RenderMesh(meshList[GEO_MAXPOTION], false);
 		modelStack.PopMatrix();
 		break;
 
@@ -2873,16 +2800,7 @@ void SceneArchangel::RenderGO(GameObject *go)
 		modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
 		modelStack.Rotate(Math::RadianToDegree(atan2(go->dir.y, go->dir.x)), 0, 0, 1);
 		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
-		RenderMesh(meshList[GEO_BLUEBALL], false);
-		modelStack.PopMatrix();
-		break;
-
-	case GameObject::GO_GRENADE:
-		modelStack.PushMatrix();
-		modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
-		modelStack.Rotate(Math::RadianToDegree(atan2(go->dir.y, go->dir.x)), 0, 0, 1);
-		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
-		RenderMesh(meshList[GEO_GREENBALL], false);
+		RenderMesh(meshList[GEO_MANAPOTION], false);
 		modelStack.PopMatrix();
 		break;
 
@@ -2891,7 +2809,7 @@ void SceneArchangel::RenderGO(GameObject *go)
 		modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
 		modelStack.Rotate(Math::RadianToDegree(atan2(go->dir.y, go->dir.x)), 0, 0, 1);
 		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
-		RenderMesh(meshList[GEO_YELLOWBALL], false);
+		RenderMesh(meshList[GEO_COIN], false);
 		modelStack.PopMatrix();
 		break;
 
@@ -2900,7 +2818,10 @@ void SceneArchangel::RenderGO(GameObject *go)
 		modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
 		modelStack.Rotate(Math::RadianToDegree(atan2(go->dir.y, go->dir.x)), 0, 0, 1);
 		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
-		RenderMesh(meshList[GEO_YELLOWCUBE], false);
+		if (go->open)
+			RenderMesh(meshList[GEO_CHESTOPENED], false);
+		else
+			RenderMesh(meshList[GEO_CHESTCLOSED], false);
 		modelStack.PopMatrix();
 		break;
 
@@ -2909,7 +2830,7 @@ void SceneArchangel::RenderGO(GameObject *go)
 		modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
 		modelStack.Rotate(Math::RadianToDegree(atan2(go->dir.y, go->dir.x)), 0, 0, 1);
 		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
-		RenderMesh(meshList[GEO_ORANGECUBE], false);
+		RenderMesh(meshList[GEO_BARREL], false);
 		modelStack.PopMatrix();
 		break;
 
@@ -3026,7 +2947,7 @@ void SceneArchangel::Render()
 		modelStack.PushMatrix();
 		modelStack.Translate(m_worldWidth * .5f, m_worldHeight * .5f, 1);
 		modelStack.Scale(m_worldWidth * .5f, m_worldHeight * .5f, 1);
-		RenderMesh(meshList[GEO_MENU2], false);
+		RenderMesh(meshList[GEO_MENU], false);
 		modelStack.PopMatrix();
 		for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
 		{
@@ -3056,42 +2977,74 @@ void SceneArchangel::Render()
 
 		RenderMeshOnScreen(meshList[GEO_CHARGE], -9.f + (m_player->mana) * 0.36f, 53, 18, 2.f);
 
-		RenderMeshOnScreen(meshList[GEO_GREENBALL], 9, 2.5f, 1, 1.2f);
-		ss2 << "x" << m_player->grenade_count;
-		RenderTextOnScreen(meshList[GEO_TEXT], ss2.str(), Color(1, 1, 1), 2.5f, 10.5f, 1);
 
-		RenderMeshOnScreen(meshList[GEO_YELLOWBALL], 15, 2.5f, 1, 1.2f);
+		RenderMeshOnScreen(meshList[GEO_COIN], 10, 2.5f, 1, 1.2f);
 		ss3 << "x" << m_player->gold_count;
-		RenderTextOnScreen(meshList[GEO_TEXT], ss3.str(), Color(1, 1, 1), 2.5f, 16.5f, 1);
+		RenderTextOnScreen(meshList[GEO_TEXT], ss3.str(), Color(1, 1, 1), 2.5f, 11.5f, 1);
 
 		float angle;
 		double x, y;
 		Application::GetCursorPos(&x, &y);
 		ScreenSpaceToWorldSpace(x, y);
 
-		if (x < m_player->pos.x)
-			m_player->left = true;
-		else if (x > m_player->pos.x)
-			m_player->left = false;
 		glDisable(GL_CULL_FACE);
 
 		if (weapon_choice == 1)
 		{
 			RenderMeshOnScreen(meshList[GEO_SWORD], 4.2f, 5, 4.f, 3);
+			modelStack.PushMatrix();
+			if (m_player->left)
+			{
+				if (m_player->frame_count[1] == 0)
+					modelStack.Translate(m_player->pos.x - 0.3f, m_player->pos.y + 2.f, m_player->pos.z);
+				else if (m_player->frame_count[1] == 1)
+					modelStack.Translate(m_player->pos.x - 0.3f, m_player->pos.y + 3.5f, m_player->pos.z);
+				else if (m_player->frame_count[1] == 2)
+					modelStack.Translate(m_player->pos.x + 1.f, m_player->pos.y + 3.3f, m_player->pos.z);
+				else if (m_player->frame_count[1] == 3)
+					modelStack.Translate(m_player->pos.x - 0.3f, m_player->pos.y + 3.5f, m_player->pos.z);
+				else if (m_player->frame_count[1] == 4)
+					modelStack.Translate(m_player->pos.x - 0.3f, m_player->pos.y + 2.f, m_player->pos.z);
+				if (m_player->frame_count[1] == 5)
+					modelStack.Translate(m_player->pos.x - 0.3f, m_player->pos.y + 2.f, m_player->pos.z);
+
+				modelStack.Rotate(180, 0, 1, 0);
+			}
+			else
+			{
+				if (m_player->frame_count[1] == 0)
+					modelStack.Translate(m_player->pos.x + 0.3f, m_player->pos.y + 2.f, m_player->pos.z);
+				else if (m_player->frame_count[1] == 1)
+					modelStack.Translate(m_player->pos.x + 0.3f, m_player->pos.y + 3.5f, m_player->pos.z);
+				else if (m_player->frame_count[1] == 2)
+					modelStack.Translate(m_player->pos.x - 1.f, m_player->pos.y + 3.3f, m_player->pos.z);
+				else if (m_player->frame_count[1] == 3)
+					modelStack.Translate(m_player->pos.x + 0.3f, m_player->pos.y + 3.5f, m_player->pos.z);
+				else if (m_player->frame_count[1] == 4)
+					modelStack.Translate(m_player->pos.x + 0.3f, m_player->pos.y + 2.f, m_player->pos.z);
+				if (m_player->frame_count[1] == 5)
+					modelStack.Translate(m_player->pos.x + 0.3f, m_player->pos.y + 2.f, m_player->pos.z);
+				modelStack.Rotate(0, 0, 1, 0);
+			}
+			modelStack.Scale(1.5f, 2, 1);
+
+			if (m_player->frame_count[1] == 0)
+				RenderMesh(meshList[GEO_SWORD1], false);
+			else if (m_player->frame_count[1] == 1)
+				RenderMesh(meshList[GEO_SWORD2], false);
+			else if (m_player->frame_count[1] == 2)
+				RenderMesh(meshList[GEO_SWORD3], false);
+			else if (m_player->frame_count[1] == 3)
+				RenderMesh(meshList[GEO_SWORD4], false);
+			else if (m_player->frame_count[1] == 4)
+				RenderMesh(meshList[GEO_SWORD5], false);
+			else if (m_player->frame_count[1] == 5)
+				RenderMesh(meshList[GEO_SWORD6], false);
+
+
+			modelStack.PopMatrix();
 		}
 		else if (weapon_choice == 2)
-		{
-			RenderMeshOnScreen(meshList[GEO_KNIFE], 4.2f, 5, 2.f, 1);
-		}
-		else if (weapon_choice == 3)
-		{
-			RenderMeshOnScreen(meshList[GEO_SPEAR], 4.2f, 5, 4.f, 3);
-		}
-		else if (weapon_choice == 4)
-		{
-			RenderMeshOnScreen(meshList[GEO_SCYTHE], 4.2f, 5, 4.f, 3);
-		}
-		else if (weapon_choice == 5)
 		{
 			RenderMeshOnScreen(meshList[GEO_AK47], 4.2f, 5, 4.f, 3);
 			modelStack.PushMatrix();
@@ -3113,7 +3066,7 @@ void SceneArchangel::Render()
 			RenderMesh(meshList[GEO_AKARM], false);
 			modelStack.PopMatrix();
 		}
-		else if (weapon_choice == 6)
+		else if (weapon_choice == 3)
 		{
 			RenderMeshOnScreen(meshList[GEO_SMG], 4.2f, 5, 4.f, 3);
 			modelStack.PushMatrix();
@@ -3135,7 +3088,7 @@ void SceneArchangel::Render()
 			RenderMesh(meshList[GEO_SMGARM], false);
 			modelStack.PopMatrix();
 		}
-		else if (weapon_choice == 7)
+		else if (weapon_choice == 4)
 		{
 			RenderMeshOnScreen(meshList[GEO_LMG], 4.2f, 5, 4.f, 3);
 			modelStack.PushMatrix();
@@ -3157,7 +3110,7 @@ void SceneArchangel::Render()
 			RenderMesh(meshList[GEO_LMGARM], false);
 			modelStack.PopMatrix();
 		}
-		else if (weapon_choice == 8)
+		else if (weapon_choice == 5)
 		{
 			RenderMeshOnScreen(meshList[GEO_SHOTGUN], 4.2f, 5, 4.f, 3);
 			modelStack.PushMatrix();
@@ -3179,7 +3132,7 @@ void SceneArchangel::Render()
 			RenderMesh(meshList[GEO_SHOTGUNARM], false);
 			modelStack.PopMatrix();
 		}
-		else if (weapon_choice == 9)
+		else if (weapon_choice == 6)
 		{
 			RenderMeshOnScreen(meshList[GEO_REVOLVER], 4.2f, 5, 4.f, 3);
 			modelStack.PushMatrix();
@@ -3201,6 +3154,12 @@ void SceneArchangel::Render()
 			RenderMesh(meshList[GEO_REVOLVERARM], false);
 			modelStack.PopMatrix();
 		}
+
+		if (x < m_player->pos.x)
+			m_player->left = true;
+		else if (x > m_player->pos.x)
+			m_player->left = false;
+
 		for (int i = 0; i <= heart_count; ++i)
 		{
 			if (i >= (heart_count - empty_heart))
@@ -3277,7 +3236,7 @@ void SceneArchangel::Render()
 		modelStack.PushMatrix();
 		modelStack.Translate(80, 50, 1);
 		modelStack.Scale(80, 50, 1);
-		RenderMesh(meshList[GEO_LOSE2], false);
+		RenderMesh(meshList[GEO_LOSE], false);
 		modelStack.PopMatrix();
 	}
 }

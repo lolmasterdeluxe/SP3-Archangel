@@ -15,34 +15,8 @@ struct GameObject
 		GO_CUBE,
 		GO_ASTEROID, //asteroid
 		GO_SHIP, //player ship
-		GO_GRENADE, //grenade
 		GO_ALLY_BULLET,
-		GO_ENEMY_SHIP, //enemy ship
-		GO_YWING,
-		GO_AWING,
-		GO_ALLY_SHIP,
-		GO_INTERCEPTOR, //ally ship 2
-		GO_TIE_BOMBER,
-		GO_ALLY_MISSILE,
-		GO_ENEMY_MISSILE, //player missile
 		GO_MISSILE,
-		GO_POWERUP, //powerup item
-		GO_DEATHSTAR,
-		GO_SCRAPMETAL,
-		GO_TANTIVE,
-		GO_IMPERIAL,
-		GO_TURRETSINGLE,
-		GO_TURRETDOUBLE,
-		GO_SINGLEBARREL,
-		GO_DOUBLEBARREL,
-		GO_MINITURRET,
-		GO_FALCON,
-		GO_FALCONTURRET,
-		GO_CANNON,
-		GO_RIFLE,
-		GO_LASERGUN,
-		GO_BLUELASER,
-		GO_LASERBEAM,
 
 		//UI MENU
 		GO_BUTTON,
@@ -92,21 +66,16 @@ struct GameObject
 	Vector3 vel;
 	Vector3 scale;
 	Vector3 force;
-	Vector3 torque;
 	Vector3 normal;
-	GameObject* pillar1;
-	GameObject* pillar2;
-	GameObject* pillar3;
-	GameObject* pillar4;
 	GameObject* under_box;
 	GameObject* left_box;
 	GameObject* right_box;
 
 	// Conditions and variables for GO
-	bool active, turn, shoot, aim, idle, missile, reset, cannon, laser, rifle, bounce, initPos, left, right, attack, rage;
+	bool active, reset, initPos, open, left, right, attack, rage, attacking;
 	float mass, pause, shoot_period, prevpos, mana, speed;
-	int hp, max_hp, shield, movement_phase, bullet_count, fire_style, color, grenade_count, gold_count, item_count, frame_count;
-	double bullet_delay, grenade_delay, portal_delay, movement_delay, fire_rate, shoot_delay, shield_delay, shield_recharge, animation_delay, FSMCounter, MaxFSMCounter;
+	int hp, max_hp, shield, movement_phase, gold_count, item_count, frame_count[2];
+	double bullet_delay, portal_delay, movement_delay, fire_rate, shoot_delay, shield_delay, shield_recharge, animation_delay, FSMCounter, MaxFSMCounter;
 	float movement_change;
 	std::ostringstream hp_display;
 

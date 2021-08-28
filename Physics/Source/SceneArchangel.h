@@ -39,7 +39,7 @@ public:
 	void setGun(float fire_rate, int dmg);
 	void pickWeapon(double dt);
 	void takeDMG();
-	void Melee();
+	void Melee(double dt);
 	void heal(bool max_potion);
 	void mana(float interval, float amount, bool restore);
 	void openChest(GameObject* go);
@@ -51,7 +51,7 @@ public:
 	void soldierAI(double dt);
 	void demonBossAI(double dt);
 	void metalGearAI(double dt);
-	void runAnimation(double dt, GameObject::GAMEOBJECT_TYPE GO, double animation_max, int frame_max);
+	void runAnimation(double dt, GameObject::GAMEOBJECT_TYPE GO, int i, double animation_max, int frame_max);
 
 	// mouse stuff
 	void ScreenSpaceToWorldSpace(double& x, double& y);
