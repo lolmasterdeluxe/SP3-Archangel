@@ -3034,256 +3034,257 @@ void SceneArchangel::Render()
 			RenderMeshOnScreen(meshList[GEO_CHARGE], -9.f + (m_player->mana) * 0.36f, 53, 18, 2.f);
 
 
-		RenderMeshOnScreen(meshList[GEO_COIN], 10, 2.5f, 1, 1.2f);
-		ss3 << "x" << m_player->gold_count;
-		RenderTextOnScreen(meshList[GEO_TEXT], ss3.str(), Color(1, 1, 1), 2.5f, 11.5f, 1);
+			RenderMeshOnScreen(meshList[GEO_COIN], 10, 2.5f, 1, 1.2f);
+			ss3 << "x" << m_player->gold_count;
+			RenderTextOnScreen(meshList[GEO_TEXT], ss3.str(), Color(1, 1, 1), 2.5f, 11.5f, 1);
 
 			float angle;
 			double x, y;
 			Application::GetCursorPos(&x, &y);
 			ScreenSpaceToWorldSpace(x, y);
 
-		glDisable(GL_CULL_FACE);
+			glDisable(GL_CULL_FACE);
 
-		if (weapon_choice == 1)
-		{
-			RenderMeshOnScreen(meshList[GEO_SWORD], 4.2f, 5, 4.f, 3);
-			modelStack.PushMatrix();
-			if (m_player->left)
+			if (weapon_choice == 1)
 			{
+				RenderMeshOnScreen(meshList[GEO_SWORD], 4.2f, 5, 4.f, 3);
+				modelStack.PushMatrix();
+				if (m_player->left)
+				{
+					if (m_player->frame_count[1] == 0)
+						modelStack.Translate(m_player->pos.x - 0.3f, m_player->pos.y + 2.f, m_player->pos.z);
+					else if (m_player->frame_count[1] == 1)
+						modelStack.Translate(m_player->pos.x - 0.3f, m_player->pos.y + 3.5f, m_player->pos.z);
+					else if (m_player->frame_count[1] == 2)
+						modelStack.Translate(m_player->pos.x + 1.f, m_player->pos.y + 3.3f, m_player->pos.z);
+					else if (m_player->frame_count[1] == 3)
+						modelStack.Translate(m_player->pos.x - 0.3f, m_player->pos.y + 3.5f, m_player->pos.z);
+					else if (m_player->frame_count[1] == 4)
+						modelStack.Translate(m_player->pos.x - 0.3f, m_player->pos.y + 2.f, m_player->pos.z);
+					if (m_player->frame_count[1] == 5)
+						modelStack.Translate(m_player->pos.x - 0.3f, m_player->pos.y + 2.f, m_player->pos.z);
+
+					modelStack.Rotate(180, 0, 1, 0);
+				}
+				else
+				{
+					if (m_player->frame_count[1] == 0)
+						modelStack.Translate(m_player->pos.x + 0.3f, m_player->pos.y + 2.f, m_player->pos.z);
+					else if (m_player->frame_count[1] == 1)
+						modelStack.Translate(m_player->pos.x + 0.3f, m_player->pos.y + 3.5f, m_player->pos.z);
+					else if (m_player->frame_count[1] == 2)
+						modelStack.Translate(m_player->pos.x - 1.f, m_player->pos.y + 3.3f, m_player->pos.z);
+					else if (m_player->frame_count[1] == 3)
+						modelStack.Translate(m_player->pos.x + 0.3f, m_player->pos.y + 3.5f, m_player->pos.z);
+					else if (m_player->frame_count[1] == 4)
+						modelStack.Translate(m_player->pos.x + 0.3f, m_player->pos.y + 2.f, m_player->pos.z);
+					if (m_player->frame_count[1] == 5)
+						modelStack.Translate(m_player->pos.x + 0.3f, m_player->pos.y + 2.f, m_player->pos.z);
+					modelStack.Rotate(0, 0, 1, 0);
+				}
+				modelStack.Scale(1.5f, 2, 1);
+
 				if (m_player->frame_count[1] == 0)
-					modelStack.Translate(m_player->pos.x - 0.3f, m_player->pos.y + 2.f, m_player->pos.z);
+					RenderMesh(meshList[GEO_SWORD1], false);
 				else if (m_player->frame_count[1] == 1)
-					modelStack.Translate(m_player->pos.x - 0.3f, m_player->pos.y + 3.5f, m_player->pos.z);
+					RenderMesh(meshList[GEO_SWORD2], false);
 				else if (m_player->frame_count[1] == 2)
-					modelStack.Translate(m_player->pos.x + 1.f, m_player->pos.y + 3.3f, m_player->pos.z);
+					RenderMesh(meshList[GEO_SWORD3], false);
 				else if (m_player->frame_count[1] == 3)
-					modelStack.Translate(m_player->pos.x - 0.3f, m_player->pos.y + 3.5f, m_player->pos.z);
+					RenderMesh(meshList[GEO_SWORD4], false);
 				else if (m_player->frame_count[1] == 4)
-					modelStack.Translate(m_player->pos.x - 0.3f, m_player->pos.y + 2.f, m_player->pos.z);
-				if (m_player->frame_count[1] == 5)
-					modelStack.Translate(m_player->pos.x - 0.3f, m_player->pos.y + 2.f, m_player->pos.z);
-
-				modelStack.Rotate(180, 0, 1, 0);
-			}
-			else
-			{
-				if (m_player->frame_count[1] == 0)
-					modelStack.Translate(m_player->pos.x + 0.3f, m_player->pos.y + 2.f, m_player->pos.z);
-				else if (m_player->frame_count[1] == 1)
-					modelStack.Translate(m_player->pos.x + 0.3f, m_player->pos.y + 3.5f, m_player->pos.z);
-				else if (m_player->frame_count[1] == 2)
-					modelStack.Translate(m_player->pos.x - 1.f, m_player->pos.y + 3.3f, m_player->pos.z);
-				else if (m_player->frame_count[1] == 3)
-					modelStack.Translate(m_player->pos.x + 0.3f, m_player->pos.y + 3.5f, m_player->pos.z);
-				else if (m_player->frame_count[1] == 4)
-					modelStack.Translate(m_player->pos.x + 0.3f, m_player->pos.y + 2.f, m_player->pos.z);
-				if (m_player->frame_count[1] == 5)
-					modelStack.Translate(m_player->pos.x + 0.3f, m_player->pos.y + 2.f, m_player->pos.z);
-				modelStack.Rotate(0, 0, 1, 0);
-			}
-			modelStack.Scale(1.5f, 2, 1);
-
-			if (m_player->frame_count[1] == 0)
-				RenderMesh(meshList[GEO_SWORD1], false);
-			else if (m_player->frame_count[1] == 1)
-				RenderMesh(meshList[GEO_SWORD2], false);
-			else if (m_player->frame_count[1] == 2)
-				RenderMesh(meshList[GEO_SWORD3], false);
-			else if (m_player->frame_count[1] == 3)
-				RenderMesh(meshList[GEO_SWORD4], false);
-			else if (m_player->frame_count[1] == 4)
-				RenderMesh(meshList[GEO_SWORD5], false);
-			else if (m_player->frame_count[1] == 5)
-				RenderMesh(meshList[GEO_SWORD6], false);
+					RenderMesh(meshList[GEO_SWORD5], false);
+				else if (m_player->frame_count[1] == 5)
+					RenderMesh(meshList[GEO_SWORD6], false);
 
 
-			modelStack.PopMatrix();
-		}
-		else if (weapon_choice == 2)
-		{
-			RenderMeshOnScreen(meshList[GEO_AK47], 4.2f, 5, 4.f, 3);
-			modelStack.PushMatrix();
-			if (m_player->left)
-			{
-				modelStack.Translate(m_player->pos.x + 0.85f, m_player->pos.y + 3.1f, m_player->pos.z);
-				angle = atan2f(y - 4 - m_player->pos.y, x - m_player->pos.x);
-				modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
-				modelStack.Rotate(180, 1, 0, 0);
+				modelStack.PopMatrix();
 			}
-			else
+			else if (weapon_choice == 2)
 			{
-				modelStack.Translate(m_player->pos.x - 0.85f, m_player->pos.y + 3.1f, m_player->pos.z);
-				angle = atan2f(y - 4 - m_player->pos.y, x - m_player->pos.x);
-				modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
-				modelStack.Rotate(0, 1, 0, 0);
+				RenderMeshOnScreen(meshList[GEO_AK47], 4.2f, 5, 4.f, 3);
+				modelStack.PushMatrix();
+				if (m_player->left)
+				{
+					modelStack.Translate(m_player->pos.x + 0.85f, m_player->pos.y + 3.1f, m_player->pos.z);
+					angle = atan2f(y - 4 - m_player->pos.y, x - m_player->pos.x);
+					modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
+					modelStack.Rotate(180, 1, 0, 0);
+				}
+				else
+				{
+					modelStack.Translate(m_player->pos.x - 0.85f, m_player->pos.y + 3.1f, m_player->pos.z);
+					angle = atan2f(y - 4 - m_player->pos.y, x - m_player->pos.x);
+					modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
+					modelStack.Rotate(0, 1, 0, 0);
+				}
+				modelStack.Scale(4, 1, 1);
+				RenderMesh(meshList[GEO_AKARM], false);
+				modelStack.PopMatrix();
 			}
-			modelStack.Scale(4, 1, 1);
-			RenderMesh(meshList[GEO_AKARM], false);
-			modelStack.PopMatrix();
-		}
-		else if (weapon_choice == 3)
-		{
-			RenderMeshOnScreen(meshList[GEO_SMG], 4.2f, 5, 4.f, 3);
-			modelStack.PushMatrix();
-			if (m_player->left)
+			else if (weapon_choice == 3)
 			{
-				modelStack.Translate(m_player->pos.x + 0.9f, m_player->pos.y + 3.1f, m_player->pos.z);
-				angle = atan2f(y - 4 - m_player->pos.y, x - m_player->pos.x);
-				modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
-				modelStack.Rotate(180, 1, 0, 0);
+				RenderMeshOnScreen(meshList[GEO_SMG], 4.2f, 5, 4.f, 3);
+				modelStack.PushMatrix();
+				if (m_player->left)
+				{
+					modelStack.Translate(m_player->pos.x + 0.9f, m_player->pos.y + 3.1f, m_player->pos.z);
+					angle = atan2f(y - 4 - m_player->pos.y, x - m_player->pos.x);
+					modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
+					modelStack.Rotate(180, 1, 0, 0);
+				}
+				else
+				{
+					modelStack.Translate(m_player->pos.x - 0.9f, m_player->pos.y + 3.1f, m_player->pos.z);
+					angle = atan2f(y - 4 - m_player->pos.y, x - m_player->pos.x);
+					modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
+					modelStack.Rotate(0, 1, 0, 0);
+				}
+				modelStack.Scale(3.8f, 0.8f, 1);
+				RenderMesh(meshList[GEO_SMGARM], false);
+				modelStack.PopMatrix();
 			}
-			else
+			else if (weapon_choice == 4)
 			{
-				modelStack.Translate(m_player->pos.x - 0.9f, m_player->pos.y + 3.1f, m_player->pos.z);
-				angle = atan2f(y - 4 - m_player->pos.y, x - m_player->pos.x);
-				modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
-				modelStack.Rotate(0, 1, 0, 0);
+				RenderMeshOnScreen(meshList[GEO_LMG], 4.2f, 5, 4.f, 3);
+				modelStack.PushMatrix();
+				if (m_player->left)
+				{
+					modelStack.Translate(m_player->pos.x + 0.85f, m_player->pos.y + 3.1f, m_player->pos.z);
+					angle = atan2f(y - 4 - m_player->pos.y, x - m_player->pos.x);
+					modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
+					modelStack.Rotate(180, 1, 0, 0);
+				}
+				else
+				{
+					modelStack.Translate(m_player->pos.x - 0.85f, m_player->pos.y + 3.1f, m_player->pos.z);
+					angle = atan2f(y - 4 - m_player->pos.y, x - m_player->pos.x);
+					modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
+					modelStack.Rotate(0, 1, 0, 0);
+				}
+				modelStack.Scale(4, 1, 1);
+				RenderMesh(meshList[GEO_LMGARM], false);
+				modelStack.PopMatrix();
 			}
-			modelStack.Scale(3.8f, 0.8f, 1);
-			RenderMesh(meshList[GEO_SMGARM], false);
-			modelStack.PopMatrix();
-		}
-		else if (weapon_choice == 4)
-		{
-			RenderMeshOnScreen(meshList[GEO_LMG], 4.2f, 5, 4.f, 3);
-			modelStack.PushMatrix();
-			if (m_player->left)
+			else if (weapon_choice == 5)
 			{
-				modelStack.Translate(m_player->pos.x + 0.85f, m_player->pos.y + 3.1f, m_player->pos.z);
-				angle = atan2f(y - 4 - m_player->pos.y, x - m_player->pos.x);
-				modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
-				modelStack.Rotate(180, 1, 0, 0);
+				RenderMeshOnScreen(meshList[GEO_SHOTGUN], 4.2f, 5, 4.f, 3);
+				modelStack.PushMatrix();
+				if (m_player->left)
+				{
+					modelStack.Translate(m_player->pos.x + 0.85f, m_player->pos.y + 3.1f, m_player->pos.z);
+					angle = atan2f(y - 4 - m_player->pos.y, x - m_player->pos.x);
+					modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
+					modelStack.Rotate(180, 1, 0, 0);
+				}
+				else
+				{
+					modelStack.Translate(m_player->pos.x - 0.85f, m_player->pos.y + 3.1f, m_player->pos.z);
+					angle = atan2f(y - 4 - m_player->pos.y, x - m_player->pos.x);
+					modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
+					modelStack.Rotate(0, 1, 0, 0);
+				}
+				modelStack.Scale(4, 1, 1);
+				RenderMesh(meshList[GEO_SHOTGUNARM], false);
+				modelStack.PopMatrix();
 			}
-			else
+			else if (weapon_choice == 6)
 			{
-				modelStack.Translate(m_player->pos.x - 0.85f, m_player->pos.y + 3.1f, m_player->pos.z);
-				angle = atan2f(y - 4 - m_player->pos.y, x - m_player->pos.x);
-				modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
-				modelStack.Rotate(0, 1, 0, 0);
+				RenderMeshOnScreen(meshList[GEO_REVOLVER], 4.2f, 5, 4.f, 3);
+				modelStack.PushMatrix();
+				if (m_player->left)
+				{
+					modelStack.Translate(m_player->pos.x + 0.85f, m_player->pos.y + 3.1f, m_player->pos.z);
+					angle = atan2f(y - 4 - m_player->pos.y, x - m_player->pos.x);
+					modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
+					modelStack.Rotate(180, 1, 0, 0);
+				}
+				else
+				{
+					modelStack.Translate(m_player->pos.x - 0.85f, m_player->pos.y + 3.1f, m_player->pos.z);
+					angle = atan2f(y - 4 - m_player->pos.y, x - m_player->pos.x);
+					modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
+					modelStack.Rotate(0, 1, 0, 0);
+				}
+				modelStack.Scale(3.8f, 0.8f, 1);
+				RenderMesh(meshList[GEO_REVOLVERARM], false);
+				modelStack.PopMatrix();
 			}
-			modelStack.Scale(4, 1, 1);
-			RenderMesh(meshList[GEO_LMGARM], false);
-			modelStack.PopMatrix();
-		}
-		else if (weapon_choice == 5)
-		{
-			RenderMeshOnScreen(meshList[GEO_SHOTGUN], 4.2f, 5, 4.f, 3);
-			modelStack.PushMatrix();
-			if (m_player->left)
-			{
-				modelStack.Translate(m_player->pos.x + 0.85f, m_player->pos.y + 3.1f, m_player->pos.z);
-				angle = atan2f(y - 4 - m_player->pos.y, x - m_player->pos.x);
-				modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
-				modelStack.Rotate(180, 1, 0, 0);
-			}
-			else
-			{
-				modelStack.Translate(m_player->pos.x - 0.85f, m_player->pos.y + 3.1f, m_player->pos.z);
-				angle = atan2f(y - 4 - m_player->pos.y, x - m_player->pos.x);
-				modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
-				modelStack.Rotate(0, 1, 0, 0);
-			}
-			modelStack.Scale(4, 1, 1);
-			RenderMesh(meshList[GEO_SHOTGUNARM], false);
-			modelStack.PopMatrix();
-		}
-		else if (weapon_choice == 6)
-		{
-			RenderMeshOnScreen(meshList[GEO_REVOLVER], 4.2f, 5, 4.f, 3);
-			modelStack.PushMatrix();
-			if (m_player->left)
-			{
-				modelStack.Translate(m_player->pos.x + 0.85f, m_player->pos.y + 3.1f, m_player->pos.z);
-				angle = atan2f(y - 4 - m_player->pos.y, x - m_player->pos.x);
-				modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
-				modelStack.Rotate(180, 1, 0, 0);
-			}
-			else
-			{
-				modelStack.Translate(m_player->pos.x - 0.85f, m_player->pos.y + 3.1f, m_player->pos.z);
-				angle = atan2f(y - 4 - m_player->pos.y, x - m_player->pos.x);
-				modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
-				modelStack.Rotate(0, 1, 0, 0);
-			}
-			modelStack.Scale(3.8f, 0.8f, 1);
-			RenderMesh(meshList[GEO_REVOLVERARM], false);
-			modelStack.PopMatrix();
-		}
 
-		if (x < m_player->pos.x)
-			m_player->left = true;
-		else if (x > m_player->pos.x)
-			m_player->left = false;
+			if (x < m_player->pos.x)
+				m_player->left = true;
+			else if (x > m_player->pos.x)
+				m_player->left = false;
 
-		for (int i = 0; i <= heart_count; ++i)
-		{
-			if (i >= (heart_count - empty_heart))
+			for (int i = 0; i <= heart_count; ++i)
 			{
-				if (hitpoints[i] == 4)
+				if (i >= (heart_count - empty_heart))
+				{
+					if (hitpoints[i] == 4)
+					{
+						RenderMeshOnScreen(meshList[GEO_FULLHEART], 2 + i * 4, 57, 1.7f, 1.7f);
+					}
+					else if (hitpoints[i] == 3)
+					{
+						RenderMeshOnScreen(meshList[GEO_80HEART], 2 + i * 4, 57, 1.7f, 1.7f);
+					}
+					else if (hitpoints[i] == 2)
+					{
+						RenderMeshOnScreen(meshList[GEO_20HEART], 2 + i * 4, 57, 1.7f, 1.7f);
+					}
+					else if (hitpoints[i] <= 1)
+					{
+						RenderMeshOnScreen(meshList[GEO_EMPTYHEART], 2 + i * 4, 57, 1.7f, 1.7f);
+					}
+				}
+				else
 				{
 					RenderMeshOnScreen(meshList[GEO_FULLHEART], 2 + i * 4, 57, 1.7f, 1.7f);
 				}
-				else if (hitpoints[i] == 3)
-				{
-					RenderMeshOnScreen(meshList[GEO_80HEART], 2 + i * 4, 57, 1.7f, 1.7f);
-				}
-				else if (hitpoints[i] == 2)
-				{
-					RenderMeshOnScreen(meshList[GEO_20HEART], 2 + i * 4, 57, 1.7f, 1.7f);
-				}
-				else if (hitpoints[i] <= 1)
-				{
-					RenderMeshOnScreen(meshList[GEO_EMPTYHEART], 2 + i * 4, 57, 1.7f, 1.7f);
-				}
-			}
-			else
-			{
-				RenderMeshOnScreen(meshList[GEO_FULLHEART], 2 + i * 4, 57, 1.7f, 1.7f);
-			}
-		}
-
-		if (m_toggleDebugScreen)
-		{
-			// Display FPS
-			int ylvl = 58 / 2;
-			std::ostringstream ss;
-			ss << "FPS: " << fps;
-			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 0, 2 * ylvl--); // fps
-			RenderTextOnScreen(meshList[GEO_TEXT], "Object Count: " + std::to_string(m_objectCount), Color(1, 1, 1), 2, 0, 2 * ylvl--); // object Count
-			ss.str("");
-			ss << "player position: " << m_player->pos;
-			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 0, 2 * ylvl--); // player pos
-			double x, y;
-			Application::GetCursorPos(&x, &y);
-			ss.str("");
-			ss << "Mouse position (screen space): " << x << ", " << y;
-			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 0, 2 * ylvl--); // cursor pos in screen space
-			ScreenSpaceToWorldSpace(x, y);
-			ss.str("");
-			ss << "Mouse position (world space): " << x << ", " << y;
-			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 0, 2 * ylvl--); // cursor pos in screen space
-			
-			GameObject* goOnCursor = ObjectOnCursor();
-			if (goOnCursor != nullptr)
-			{
-				ss.str("");
-				ss << "Object On Cursor{ type: " << goOnCursor->type;
-				RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 0, 2 * ylvl--); // object on cursor's type
-				ss.str("");
-				ss << "pos: " << goOnCursor->pos;
-				RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 0, 2 * ylvl--); // object on cursor's pos
-				ss.str("");
-				ss << "scale: " << goOnCursor->scale;
-				RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 0, 2 * ylvl--); // object on cursor's scale
-				ss.str("");
-				ss << "hp: " << goOnCursor->hp << " }";
-				RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 0, 2 * ylvl--); // object on cursor's hp
 			}
 
-			ss.str("");
-			ss << "Gameplay State: " << playState;
-			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 0, 2 * ylvl--); // gameplay state
+			if (m_toggleDebugScreen)
+			{
+				// Display FPS
+				int ylvl = 58 / 2;
+				std::ostringstream ss;
+				ss << "FPS: " << fps;
+				RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 0, 2 * ylvl--); // fps
+				RenderTextOnScreen(meshList[GEO_TEXT], "Object Count: " + std::to_string(m_objectCount), Color(1, 1, 1), 2, 0, 2 * ylvl--); // object Count
+				ss.str("");
+				ss << "player position: " << m_player->pos;
+				RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 0, 2 * ylvl--); // player pos
+				double x, y;
+				Application::GetCursorPos(&x, &y);
+				ss.str("");
+				ss << "Mouse position (screen space): " << x << ", " << y;
+				RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 0, 2 * ylvl--); // cursor pos in screen space
+				ScreenSpaceToWorldSpace(x, y);
+				ss.str("");
+				ss << "Mouse position (world space): " << x << ", " << y;
+				RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 0, 2 * ylvl--); // cursor pos in screen space
+
+				GameObject* goOnCursor = ObjectOnCursor();
+				if (goOnCursor != nullptr)
+				{
+					ss.str("");
+					ss << "Object On Cursor{ type: " << goOnCursor->type;
+					RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 0, 2 * ylvl--); // object on cursor's type
+					ss.str("");
+					ss << "pos: " << goOnCursor->pos;
+					RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 0, 2 * ylvl--); // object on cursor's pos
+					ss.str("");
+					ss << "scale: " << goOnCursor->scale;
+					RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 0, 2 * ylvl--); // object on cursor's scale
+					ss.str("");
+					ss << "hp: " << goOnCursor->hp << " }";
+					RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 0, 2 * ylvl--); // object on cursor's hp
+				}
+
+				ss.str("");
+				ss << "Gameplay State: " << playState;
+				RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 0, 2 * ylvl--); // gameplay state
+			}
 		}
 	}
 	// Lose state bg
@@ -3295,6 +3296,7 @@ void SceneArchangel::Render()
 		RenderMesh(meshList[GEO_LOSE], false);
 		modelStack.PopMatrix();
 	}
+	
 }
 
 void SceneArchangel::Exit()
