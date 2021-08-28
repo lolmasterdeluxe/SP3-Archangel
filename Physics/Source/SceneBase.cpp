@@ -172,6 +172,9 @@ void SceneBase::Init()
 	meshList[GEO_EMPTYHEART] = MeshBuilder::GenerateQuad("Full heart", Color(1, 1, 1), 2.f);
 	meshList[GEO_EMPTYHEART]->textureID = LoadTGA("Image//emptyheart.tga");
 
+	meshList[GEO_DEMON] = MeshBuilder::GenerateQuad("Demon", Color(1, 1, 1), 2.f);
+	meshList[GEO_DEMON]->textureID = LoadTGA("Image//demon.tga");
+
 	meshList[GEO_FIREBALL] = MeshBuilder::GenerateQuad("Fireball", Color(1, 1, 1), 2.f);
 	meshList[GEO_FIREBALL]->textureID = LoadTGA("Image//fireball.tga");
 

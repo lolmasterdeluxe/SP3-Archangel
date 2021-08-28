@@ -170,6 +170,11 @@ CMapStorage::CMapStorage()
 					info->type = GameObject::GO_METALGEAR;
 					entityInfo.push_back(info);
 				}
+				else if (values[i].first == "rambo")
+				{
+					info->type = GameObject::GO_RAMBO;
+					entityInfo.push_back(info);
+				}
 			}
 
 			mapInfo->wallDataList = wallInfo;

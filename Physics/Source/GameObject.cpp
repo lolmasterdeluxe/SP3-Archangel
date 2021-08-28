@@ -41,6 +41,7 @@ GameObject::GameObject(GAMEOBJECT_TYPE typeValue)
 	FSMCounter(0),
 	MaxFSMCounter(1),
 	speed(0),
+	weapon_type(0),
 	state(STATE_IDLE)
 {
 

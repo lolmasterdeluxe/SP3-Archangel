@@ -28,6 +28,7 @@ struct GameObject
 		GO_SOLDIER,
 		GO_DEMONLORD,
 		GO_METALGEAR,
+		GO_RAMBO,
 
 		// Bullet GO
 		GO_BULLET, //player bullet
@@ -58,6 +59,7 @@ struct GameObject
 		STATE_FAR_ATTACK,
 		STATE_RAGE,
 		STATE_RELOAD,
+		STATE_RETREAT,
 		STATE_TOTAL
 	};
 	GAMEOBJECT_TYPE type;
@@ -72,9 +74,9 @@ struct GameObject
 	GameObject* right_box;
 
 	// Conditions and variables for GO
-	bool active, reset, initPos, open, left, right, attack, rage, attacking;
+	bool active, reset, initPos, open, left, right, attack, rage, attacking, retreat;
 	float mass, pause, shoot_period, prevpos, mana, speed;
-	int hp, max_hp, shield, movement_phase, gold_count, item_count, frame_count[2];
+	int hp, max_hp, shield, movement_phase, gold_count, item_count, frame_count[2], weapon_type;
 	double bullet_delay, portal_delay, movement_delay, fire_rate, shoot_delay, shield_delay, shield_recharge, animation_delay, FSMCounter, MaxFSMCounter;
 	float movement_change;
 	std::ostringstream hp_display;
