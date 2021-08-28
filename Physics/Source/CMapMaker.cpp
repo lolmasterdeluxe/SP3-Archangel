@@ -45,6 +45,28 @@ void CMapMaker::CreateRight(CMapStorage::MAP_CATEGORY category)
 	current = newNode;
 }
 
+void CMapMaker::DeleteMapNodes()
+{
+	if (start)
+	{
+		current = newNode = start->GetLeft();
+		while (newNode != nullptr)
+		{
+			current = newNode;
+			newNode = newNode->GetLeft();
+			delete current;
+		}
+		current = newNode = start->GetRight();
+		while (newNode != nullptr)
+		{
+			current = newNode;
+			newNode = newNode->GetRight();
+			delete current;
+		}
+		delete start;
+	}
+}
+
 CMapMaker::CMapMaker() :
 	current(nullptr),
 	start(nullptr),
@@ -54,26 +76,13 @@ CMapMaker::CMapMaker() :
 
 CMapMaker::~CMapMaker()
 {
-	if (start)
-	{
-		current = newNode = start->GetLeft();
-		while (newNode != nullptr)
-		{
-			current = newNode->GetLeft();
-			delete current;
-		}
-		current = newNode = start->GetRight();
-		while (newNode != nullptr)
-		{
-			current = newNode->GetRight();
-			delete current;
-		}
-		delete start;
-	}
+	DeleteMapNodes();
 }
 
-void CMapMaker::GenerateMap()
+
+void CMapMaker::GenerateMap(int lvl)
 {
+	DeleteMapNodes();
 	bool spawnedBossRoom = false;
 	start = new CMapNode();
 	//start->SetMapData(CMapStorage::GetInstance()->GetMapInfo(CMapStorage::CAT_SPAWN, 0));

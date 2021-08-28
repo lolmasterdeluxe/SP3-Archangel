@@ -23,6 +23,8 @@ void SceneArchangel::Init()
 
 
 	// Initialize variables
+	escapeButtonState = false;
+
 	m_objectCount = 0;
 	jump = false;
 	portal_in = false;
@@ -125,6 +127,7 @@ void SceneArchangel::ReturnGO(GameObject* go)
 		go->vel.SetZero();
 		go->scale.Set(1, 1, 1);
 		go->normal.Set(1, 0);
+		go->item_count = 0;
 	}
 }
 
@@ -299,7 +302,7 @@ Collision SceneArchangel::CheckCollision(GameObject* go1, GameObject* go2)
 		}
 	}
 	return Collision();
-}
+ }
 
 void SceneArchangel::PhysicsResponse(GameObject* go1, Collision collision)
 {
@@ -1104,6 +1107,7 @@ void SceneArchangel::openChest(GameObject* go)
 	{
 		if (go->item_count < 3)
 		{
+			cout << go->normal;
 			GameObject* newGO = FetchGO();
 			int item_type = Math::RandIntMinMax(1, 3);
 			int dir = Math::RandIntMinMax(1, 2);
@@ -1160,6 +1164,7 @@ void SceneArchangel::openChest(GameObject* go)
 			cout << "dir: " << dir << endl;
 		}
 	}
+	go->normal.Set(0, 1);
 }
 
 void SceneArchangel::demonAI(double dt)
@@ -2271,12 +2276,20 @@ void SceneArchangel::InitMap()
 			go->pos = mapInfo->entityDataList[i]->pos;
 			cout << go->pos << ", ";
 			go->scale = mapInfo->entityDataList[i]->scale;
-			cout << go->scale << ", ";
+			cout << go->scale << ", "; 
 			go->normal = mapInfo->entityDataList[i]->rot;
 			cout << go->normal << endl;
 			if (mapInfo->entityDataList[i]->type == GameObject::GO_BARREL)
+			{
 				go->hp = 15;
-			
+				go->item_count = 0;
+			}
+			else if (mapInfo->entityDataList[i]->type == GameObject::GO_CHEST)
+			{
+				if (go->normal == Vector3(0, 1, 0))
+					go->item_count = 4;
+				else go->item_count = 0;
+			}
 		}
 		else // have enemies in this level
 		{
@@ -2414,11 +2427,11 @@ void SceneArchangel::Update(double dt)
 	
 	SceneBase::Update(dt);
 
-	cameraPos.Set(m_screenWidth * .5f, m_screenHeight * .5f);
-
 	// Menu / Lose state
 	if (state == STATE_INITMENU)
 	{
+		cameraPos.Set(m_screenWidth * .5f, m_screenHeight * .5f);
+
 		GameObject* button1 = FetchGO();
 		button1->active = true;
 		button1->type = GameObject::GO_WALL;
@@ -2430,19 +2443,56 @@ void SceneArchangel::Update(double dt)
 	} 
 	else if (state == STATE_MENU || state == STATE_LOSE)
 	{
+		if (Application::IsKeyPressed(VK_ESCAPE))
+		{ // leave this if condition here even if not needed this function is kinda bugged
+			EndGame();
+		}
+
 		// Space to continue
 		if (Application::IsKeyPressed(VK_SPACE))
 		{
-			mapMaker.GenerateMap();
+			mapMaker.GenerateMap(0);
 			InitMap();
-
 			state = STATE_PLAY;
 		}
-		
+	}
+	else if (state == STATE_PAUSE)
+	{
+		if (Application::IsKeyPressed(VK_SPACE))
+		{ // leave this if condition here even if not needed this function is kinda bugged
+		}
+
+		if (Application::IsKeyPressed(VK_ESCAPE) && !escapeButtonState)
+		{
+			escapeButtonState = true;
+		}
+		else if (!Application::IsKeyPressed(VK_ESCAPE) && escapeButtonState)
+		{
+			escapeButtonState = false;
+			state = STATE_PLAY;
+		}
+		if (Application::IsKeyPressed('Q'))
+		{
+			EndGame();
+		}
 	}
 	// Play state
 	else if (state == STATE_PLAY)
 	{
+		if (Application::IsKeyPressed('Q'))
+		{ // leave this if condition here even if not needed this function is kinda bugged
+		}
+
+		if (Application::IsKeyPressed(VK_ESCAPE) && !escapeButtonState)
+		{
+			escapeButtonState = true;
+		}
+		else if (!Application::IsKeyPressed(VK_ESCAPE) && escapeButtonState)
+		{
+			escapeButtonState = false;
+			state = STATE_PAUSE;
+		}
+
 		//Camera Position Setting
 		// Clamp screen space if reached end of world space
 		float clamp_pos_x = Math::Clamp((m_player->pos.x), m_screenWidth * .5f, m_worldWidth - m_screenWidth * .5f);
@@ -2919,13 +2969,13 @@ void SceneArchangel::Render()
 
 	// Projection matrix : Orthographic Projection
 	Mtx44 projection;
-	if (state == STATE_PLAY)
+	if (state == STATE_MENU)
 	{
-		projection.SetToOrtho(cameraPos.x - m_screenWidth * .5f, cameraPos.x + m_screenWidth * .5f, cameraPos.y - m_screenHeight * .5f, cameraPos.y + m_screenHeight * .5f, -10, 10);
+		projection.SetToOrtho(0, m_worldWidth, 0, m_worldHeight, -10, 10);
 	}
 	else
 	{
-		projection.SetToOrtho(0, m_worldWidth, 0, m_worldHeight, -10, 10);
+		projection.SetToOrtho(cameraPos.x - m_screenWidth * .5f, cameraPos.x + m_screenWidth * .5f, cameraPos.y - m_screenHeight * .5f, cameraPos.y + m_screenHeight * .5f, -10, 10);
 	}
 	projectionStack.LoadMatrix(projection);
 	
@@ -2959,7 +3009,7 @@ void SceneArchangel::Render()
 		}
 	}
 	// Play state background
-	else if (state == STATE_PLAY)
+	else if (state == STATE_PLAY || state == STATE_PAUSE)
 	{
 		for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
 		{
@@ -2969,23 +3019,29 @@ void SceneArchangel::Render()
 				RenderGO(go);
 			}
 		}
-		//On screen in - game text
+		if (state == STATE_PAUSE)
+		{
+			RenderTextOnScreen(meshList[GEO_TEXT], "temporary controls", Color(1, 1, 1), 4, 0, 8); // object Count
+			RenderTextOnScreen(meshList[GEO_TEXT], "esc: resume", Color(1, 1, 1), 4, 0, 4); // object Count
+			RenderTextOnScreen(meshList[GEO_TEXT], "Q: quit game ", Color(1, 1, 1), 4, 0, 0); // object Count
+		}
+		if (state == STATE_PLAY)
+		{ // render HUD when not paused
+			std::ostringstream ss;
+			std::ostringstream ss2;
+			std::ostringstream ss3;
 
-		std::ostringstream ss;
-		std::ostringstream ss2;
-		std::ostringstream ss3;
-
-		RenderMeshOnScreen(meshList[GEO_CHARGE], -9.f + (m_player->mana) * 0.36f, 53, 18, 2.f);
+			RenderMeshOnScreen(meshList[GEO_CHARGE], -9.f + (m_player->mana) * 0.36f, 53, 18, 2.f);
 
 
 		RenderMeshOnScreen(meshList[GEO_COIN], 10, 2.5f, 1, 1.2f);
 		ss3 << "x" << m_player->gold_count;
 		RenderTextOnScreen(meshList[GEO_TEXT], ss3.str(), Color(1, 1, 1), 2.5f, 11.5f, 1);
 
-		float angle;
-		double x, y;
-		Application::GetCursorPos(&x, &y);
-		ScreenSpaceToWorldSpace(x, y);
+			float angle;
+			double x, y;
+			Application::GetCursorPos(&x, &y);
+			ScreenSpaceToWorldSpace(x, y);
 
 		glDisable(GL_CULL_FACE);
 

@@ -18,16 +18,27 @@ class CMapMaker
 
 	void CreateLeft(CMapStorage::MAP_CATEGORY category);
 	void CreateRight(CMapStorage::MAP_CATEGORY category);
+
+	void DeleteMapNodes();
 public:
 	CMapMaker();
 	~CMapMaker();
 	
-	// generate a map layout
-	void GenerateMap();
+	/**
+	@brief generates a (new) map layout and store it in map nodes
+	@param lvl: To determine which boss to spawn at the end (0: demonlord, 1: metalgear, 2: 3rd realm boss)
+	*/
+	void GenerateMap(int lvl);
 
-	// try to go to the next room on the left
+	/**
+	@brief attempt to move to the next lvl on the left
+	@return A bool True = moved to the next lvl on the left, False = remained on the same level (no lvl to the left)
+	*/
 	bool GoLeft();
-	// try to go to the next room on the right
+	/**
+	@brief attempt to move to the next lvl on the right
+	@return A bool True = moved to the next lvl on the right, False = remained on the same level (no lvl to the right)
+	*/
 	bool GoRight();
 
 	// get struct that stores list of wall and entity data

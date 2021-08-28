@@ -95,6 +95,9 @@ protected:
 	// Camera
 	Vector3 cameraPos;
 
+	// button toggling
+	bool escapeButtonState;
+
 	// Gameplay variables
 	std::vector<GameObject *> m_goList;
 	float m_speed, max_vel, fire_rate, time_manip;
