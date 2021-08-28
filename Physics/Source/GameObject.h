@@ -48,6 +48,7 @@ struct GameObject
 		GO_FIREBALL,
 		GO_PLATFORM,
 		GO_BOUNCEPLATFORM,
+		GO_REALMCHANGER,
 
 		GO_TOTAL, //must be last
 	};

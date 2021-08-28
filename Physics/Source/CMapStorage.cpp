@@ -36,8 +36,8 @@ CMapStorage::CMapStorage()
 		},
 		{
 			"Maps/LeftBoss/Map_Level_Left_Boss_1.csv",
-			"Maps/LeftBoss/Map_Level_Left_Boss_1.csv",
-			"Maps/LeftBoss/Map_Level_Left_Boss_1.csv",
+			"Maps/LeftBoss/Map_Level_Left_Boss_2.csv",
+			"Maps/LeftBoss/Map_Level_Left_Boss_3.csv",
 		},
 		{
 			"Maps/RightDungeon/Map_Level_Right_Dungeon_1.csv",
@@ -57,7 +57,7 @@ CMapStorage::CMapStorage()
 		{
 			"Maps/RightBoss/Map_Level_Right_Boss_1.csv",
 			"Maps/RightBoss/Map_Level_Right_Boss_2.csv",
-			"Maps/RightBoss/Map_Level_Right_Boss_2.csv",
+			"Maps/RightBoss/Map_Level_Right_Boss_3.csv",
 		}
 	};
 

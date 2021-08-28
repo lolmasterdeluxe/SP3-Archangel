@@ -1,5 +1,6 @@
 #ifndef SCENE_ARCHANGEL_H
 #define SCENE_ARCHANGEL_H
+#define SCREEN_HEIGHT 60
 
 #include "GameObject.h"
 #include <vector>
@@ -75,18 +76,29 @@ protected:
 		STATE_INITPLAY,
 		STATE_PLAY,
 		STATE_PAUSE,
-		STATE_LOSE
+		STATE_LOSE_ANIM,
+		STATE_WIN_ANIM,
+		STATE_LOSE,
+		STATE_WIN,
 	};
 	enum PLAY_STATE
 	{
 		PLAY_PREBATTLE,
 		PLAY_BATTLE,
-		PLAY_POSTBATTLE
+		PLAY_POSTBATTLE,
+	};
+	enum PLAY_REALM
+	{
+		REALM_HELL,
+		REALM_FUTURE,
+		REALM_MODERN,
 	};
 
 	GAME_STATE state;
 
 	PLAY_STATE playState; // state of the gameplay
+
+	PLAY_REALM realm;
 
 	// maps and levels
 	CMapMaker mapMaker;
