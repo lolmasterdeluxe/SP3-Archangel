@@ -126,6 +126,7 @@ void SceneArchangel::ReturnGO(GameObject* go)
 		go->vel.SetZero();
 		go->scale.Set(1, 1, 1);
 		go->normal.Set(1, 0);
+		go->item_count = 0;
 	}
 }
 
@@ -300,7 +301,7 @@ Collision SceneArchangel::CheckCollision(GameObject* go1, GameObject* go2)
 		}
 	}
 	return Collision();
-}
+ }
 
 void SceneArchangel::PhysicsResponse(GameObject* go1, Collision collision)
 {
@@ -1154,6 +1155,7 @@ void SceneArchangel::openChest(GameObject* go)
 	{
 		if (go->item_count < 3)
 		{
+			cout << go->normal;
 			GameObject* newGO = FetchGO();
 			int item_type = Math::RandIntMinMax(1, 3);
 			int dir = Math::RandIntMinMax(1, 2);
@@ -1210,6 +1212,7 @@ void SceneArchangel::openChest(GameObject* go)
 			cout << "dir: " << dir << endl;
 		}
 	}
+	go->normal.Set(0, 1);
 }
 
 void SceneArchangel::demonAI(double dt)
@@ -2022,12 +2025,20 @@ void SceneArchangel::InitMap()
 			go->pos = mapInfo->entityDataList[i]->pos;
 			cout << go->pos << ", ";
 			go->scale = mapInfo->entityDataList[i]->scale;
-			cout << go->scale << ", ";
+			cout << go->scale << ", "; 
 			go->normal = mapInfo->entityDataList[i]->rot;
 			cout << go->normal << endl;
 			if (mapInfo->entityDataList[i]->type == GameObject::GO_BARREL)
+			{
 				go->hp = 15;
-			
+				go->item_count = 0;
+			}
+			else if (mapInfo->entityDataList[i]->type == GameObject::GO_CHEST)
+			{
+				if (go->normal == Vector3(0, 1, 0))
+					go->item_count = 4;
+				else go->item_count = 0;
+			}
 		}
 		else // have enemies in this level
 		{
