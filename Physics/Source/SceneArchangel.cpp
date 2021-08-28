@@ -2461,8 +2461,6 @@ void SceneArchangel::Update(double dt)
 		//reset values here
 		m_player->hp = 12;
 		m_player->mana = 50;
-		m_player->gold_count = 50;
-		m_player->grenade_count = 50;
 		m_player->max_hp = 12;
 
 		//start the game
