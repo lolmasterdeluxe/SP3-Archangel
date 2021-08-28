@@ -22,6 +22,7 @@ struct GOData
 	GOData() :
 		type(GameObject::GO_WALL)
 	{}
+	~GOData () {}
 };
 
 struct MapData
@@ -30,16 +31,37 @@ struct MapData
 	vector<GOData*> entityDataList;
 	~MapData()
 	{
-		for (vector<GOData*>::iterator it = wallDataList.begin(); it < wallDataList.end(); it++)
-		{
-			delete (*it);
-			wallDataList.erase(it);
-		}
-		for (vector<GOData*>::iterator it = entityDataList.begin(); it < entityDataList.end(); it++)
-		{
-			delete (*it);
-			entityDataList.erase(it);
-		}
+		///*for (vector<GOData*>::iterator it = wallDataList.begin(); it < wallDataList.end(); it++)
+		//{
+		//	delete (*it);
+		//	wallDataList.erase(it);
+		//}
+		//for (vector<GOData*>::iterator it = entityDataList.begin(); it < entityDataList.end(); it++)
+		//{
+		//	delete (*it);
+		//	entityDataList.erase(it);
+		//}*/
+		//while (wallDataList.size() > 0)
+		//{
+		//	GOData* go = wallDataList.back();
+		//	try {
+		//		delete go;
+		//	}
+		//	catch (...)
+		//	{}
+		//	wallDataList.pop_back();
+		//}
+		//while (entityDataList.size() > 0)
+		//{
+		//	GOData* go = entityDataList.back();
+		//	try {
+		//		delete go;
+		//	}
+		//	catch (...)
+		//	{
+		//	}
+		//	entityDataList.pop_back();
+		//}
 	}
 };
 

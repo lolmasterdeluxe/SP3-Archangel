@@ -15,6 +15,7 @@ CMapNode::CMapNode() :
 
 CMapNode::~CMapNode()
 {
+	left = right = nullptr;
 }
 
 CMapNode* CMapNode::GetLeft()

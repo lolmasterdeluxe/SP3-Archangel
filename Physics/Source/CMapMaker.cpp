@@ -54,17 +54,26 @@ void CMapMaker::DeleteMapNodes()
 		{
 			current = newNode;
 			newNode = newNode->GetLeft();
-			delete current;
+			cout << "deleting node\n";
+			if (current != NULL) delete current;
+			current = nullptr;
+			cout << "deleted node\n";
 		}
+
 		current = newNode = start->GetRight();
 		while (newNode != nullptr)
 		{
 			current = newNode;
 			newNode = newNode->GetRight();
-			delete current;
+			cout << "deleting node\n";
+			if (current != NULL) delete current;
+			current = nullptr;
+			cout << "deleted node\n";
 		}
+		
 		delete start;
 	}
+	start = current = newNode = nullptr;
 }
 
 CMapMaker::CMapMaker() :

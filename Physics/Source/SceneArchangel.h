@@ -71,6 +71,7 @@ protected:
 		STATE_NONE = 0,
 		STATE_INITMENU,
 		STATE_MENU,
+		STATE_INITPLAY,
 		STATE_PLAY,
 		STATE_PAUSE,
 		STATE_LOSE
@@ -96,7 +97,7 @@ protected:
 	Vector3 cameraPos;
 
 	// button toggling
-	bool escapeButtonState;
+	bool escapeButtonState, rButtonState;
 
 	// Gameplay variables
 	std::vector<GameObject *> m_goList;

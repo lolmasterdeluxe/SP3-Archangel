@@ -23,7 +23,7 @@ void SceneArchangel::Init()
 
 
 	// Initialize variables
-	escapeButtonState = false;
+	escapeButtonState = rButtonState = false;
 
 	m_objectCount = 0;
 	jump = false;
@@ -2494,10 +2494,22 @@ void SceneArchangel::Update(double dt)
 		// Space to continue
 		if (Application::IsKeyPressed(VK_SPACE))
 		{
-			mapMaker.GenerateMap(0);
-			InitMap();
-			state = STATE_PLAY;
+			state = STATE_INITPLAY;
 		}
+	}
+	else if (state == STATE_INITPLAY)
+	{ // to create/restart the entire game. 
+		mapMaker.GenerateMap(0);
+		InitMap();
+		//reset values here
+		m_player->hp = 12;
+		m_player->mana = 50;
+		m_player->gold_count = 50;
+		m_player->grenade_count = 50;
+		m_player->max_hp = 12;
+
+		//start the game
+		state = STATE_PLAY;
 	}
 	else if (state == STATE_PAUSE)
 	{
@@ -2514,15 +2526,28 @@ void SceneArchangel::Update(double dt)
 			escapeButtonState = false;
 			state = STATE_PLAY;
 		}
+
+		if (Application::IsKeyPressed('R') && !rButtonState)
+		{
+			rButtonState = true;
+		}
+		else if (!Application::IsKeyPressed('R') && rButtonState)
+		{
+			rButtonState = false;
+			state = STATE_INITPLAY;
+		}
+
 		if (Application::IsKeyPressed('Q'))
 		{
 			EndGame();
 		}
 	}
-	// Play state
 	else if (state == STATE_PLAY)
 	{
 		if (Application::IsKeyPressed('Q'))
+		{ // leave this if condition here even if not needed this function is kinda bugged
+		}
+		if (Application::IsKeyPressed('R'))
 		{ // leave this if condition here even if not needed this function is kinda bugged
 		}
 
@@ -3048,13 +3073,14 @@ void SceneArchangel::Render()
 
 	// Projection matrix : Orthographic Projection
 	Mtx44 projection;
-	if (state == STATE_MENU)
+
+	if (state == STATE_PLAY || state == STATE_PAUSE)
 	{
-		projection.SetToOrtho(0, m_worldWidth, 0, m_worldHeight, -10, 10);
+		projection.SetToOrtho(cameraPos.x - m_screenWidth * .5f, cameraPos.x + m_screenWidth * .5f, cameraPos.y - m_screenHeight * .5f, cameraPos.y + m_screenHeight * .5f, -10, 10);
 	}
 	else
 	{
-		projection.SetToOrtho(cameraPos.x - m_screenWidth * .5f, cameraPos.x + m_screenWidth * .5f, cameraPos.y - m_screenHeight * .5f, cameraPos.y + m_screenHeight * .5f, -10, 10);
+		projection.SetToOrtho(0, m_worldWidth, 0, m_worldHeight, -10, 10);
 	}
 	projectionStack.LoadMatrix(projection);
 	
@@ -3087,7 +3113,10 @@ void SceneArchangel::Render()
 			}
 		}
 	}
-	// Play state background
+	else if (state == STATE_INITPLAY)
+	{
+
+	}
 	else if (state == STATE_PLAY || state == STATE_PAUSE)
 	{
 		for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
@@ -3100,8 +3129,9 @@ void SceneArchangel::Render()
 		}
 		if (state == STATE_PAUSE)
 		{
-			RenderTextOnScreen(meshList[GEO_TEXT], "temporary controls", Color(1, 1, 1), 4, 0, 8); // object Count
-			RenderTextOnScreen(meshList[GEO_TEXT], "esc: resume", Color(1, 1, 1), 4, 0, 4); // object Count
+			RenderTextOnScreen(meshList[GEO_TEXT], "temporary controls", Color(1, 1, 1), 4, 0, 12); // object Count
+			RenderTextOnScreen(meshList[GEO_TEXT], "esc: resume", Color(1, 1, 1), 4, 0, 8); // object Count
+			RenderTextOnScreen(meshList[GEO_TEXT], "R: restart game", Color(1, 1, 1), 4, 0, 4); // object Count
 			RenderTextOnScreen(meshList[GEO_TEXT], "Q: quit game ", Color(1, 1, 1), 4, 0, 0); // object Count
 		}
 		if (state == STATE_PLAY)
