@@ -2287,8 +2287,15 @@ void SceneArchangel::InitMap()
 			else if (mapInfo->entityDataList[i]->type == GameObject::GO_CHEST)
 			{
 				if (go->normal == Vector3(0, 1, 0))
+				{
 					go->item_count = 4;
-				else go->item_count = 0;
+					go->open = true;
+				}
+				else
+				{
+					go->open = false;
+					go->item_count = 0;
+				}
 			}
 		}
 		else // have enemies in this level
@@ -2692,13 +2699,27 @@ void SceneArchangel::RenderGO(GameObject *go)
 		
 	case GameObject::GO_WALL:
 		// Cube obstacle
-		modelStack.PushMatrix();
+	{
+		Vector3 tempScale = go->scale;
+		if (go->normal == Vector3(0, 1, 0))
+			tempScale.Set(go->scale.y, go->scale.x, go->scale.z);
+		for (int x = 0; x < tempScale.x; x++)
+		{
+			for (int y = 0; y < tempScale.y; y++)
+			{
+				modelStack.PushMatrix();
+				modelStack.Translate(go->pos.x + 2 * x - tempScale.x + ((tempScale.x - x < 1) ? .5f : 1), go->pos.y + 2 * y - tempScale.y + ((tempScale.y - y < 1) ? .5f : 1), go->pos.z);
+				modelStack.Scale((tempScale.x - x < 1) ? .5f : 1, (tempScale.y - y < 1) ? .5f : 1, 1);
+				RenderMesh(meshList[GEO_NETHERBRICK], false);
+				modelStack.PopMatrix();
+			}
+		}
+		/*modelStack.PushMatrix();
 		modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
-	    angle = atan2f(go->normal.y, go->normal.x);
-		modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
-		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
+		modelStack.Scale(tempScale.x, tempScale.y, tempScale.z);
 		RenderMesh(meshList[GEO_NETHERBRICK], false);
-		modelStack.PopMatrix();
+		modelStack.PopMatrix();*/
+	}
 		break;	
 
 	case GameObject::GO_PLATFORM:
