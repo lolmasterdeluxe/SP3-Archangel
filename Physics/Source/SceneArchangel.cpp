@@ -1056,8 +1056,8 @@ void SceneArchangel::heal(bool max_potion)
 		{
 			hitpoints[heart_count - empty_heart + i] = 1;
 		}
-		m_player->max_hp += 4;
-		m_player->hp += 4;
+		m_player->max_hp += 3;
+		m_player->hp += 3;
 	}
 	else
 	{
@@ -2809,6 +2809,14 @@ void SceneArchangel::Update(double dt)
 		m_player->hp = 12;
 		m_player->mana = 50;
 		m_player->max_hp = 12;
+		heart_count = 3;
+		empty_heart = 0;
+		weapon_choice = 1;
+		time_manip = 1;
+		for (int i = 0; i < 20; ++i)
+		{
+			hitpoints[i] = 4;
+		}
 
 		// create new map
 		mapMaker.GenerateMap(realm);
