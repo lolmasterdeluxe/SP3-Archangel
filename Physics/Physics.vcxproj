@@ -168,8 +168,6 @@
     <ClCompile Include="Source\SceneArchangel.cpp" />
     <ClCompile Include="Source\SceneBase.cpp" />
     <ClCompile Include="Source\shader.cpp" />
-    <ClCompile Include="Source\SoundController\SoundController.cpp" />
-    <ClCompile Include="Source\SoundController\SoundInfo.cpp" />
     <ClCompile Include="Source\Utility.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -192,8 +190,6 @@
     <ClInclude Include="Source\SceneArchangel.h" />
     <ClInclude Include="Source\SceneBase.h" />
     <ClInclude Include="Source\shader.hpp" />
-    <ClInclude Include="Source\SoundController\SoundController.h" />
-    <ClInclude Include="Source\SoundController\SoundInfo.h" />
     <ClInclude Include="Source\Utility.h" />
     <ClInclude Include="Source\Vertex.h" />
   </ItemGroup>

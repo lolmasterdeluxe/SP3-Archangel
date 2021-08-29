@@ -13,8 +13,8 @@
 
 #include "SceneArchangel.h"
 
-//Include SoundController
-#include "SoundController/SoundController.h"
+////Include SoundController
+//#include "SoundController/SoundController.h"
 
 GLFWwindow* m_window;
 const unsigned char FPS = 60; // FPS of this game
@@ -76,6 +76,9 @@ void Application::Init()
 {
 	//Set the error callback
 	glfwSetErrorCallback(error_callback);
+
+	//// Initialise the CSoundController singleton
+	//CSoundController::GetInstance()->Init();
 
 	//Initialize GLFW
 	if (!glfwInit())
