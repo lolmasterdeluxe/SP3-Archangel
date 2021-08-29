@@ -52,6 +52,7 @@ public:
 	void demonBossAI(double dt);
 	void metalGearAI(double dt);
 	void ramboAI(double dt);
+	void linearVel(double dt, GameObject::GAMEOBJECT_TYPE GO, float speed);
 	void runAnimation(double dt, GameObject::GAMEOBJECT_TYPE GO, int i, double animation_max, int frame_max);
 
 	// mouse stuff
