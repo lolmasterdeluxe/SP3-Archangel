@@ -333,6 +333,11 @@ void SceneBase::Init()
 	meshList[GEO_SWORD6] = MeshBuilder::GenerateQuad("Sword", Color(1, 1, 1), 2.f);
 	meshList[GEO_SWORD6]->textureID = LoadTGA("Image//sword04.tga");
 
+	meshList[GEO_BUTTONSTART] = MeshBuilder::GenerateQuad("buttonStart", Color(1, 1, 1), 2.f);
+	meshList[GEO_BUTTONSTART]->textureID = LoadTGA("Image//startButton.tga");
+	meshList[GEO_BUTTONQUIT] = MeshBuilder::GenerateQuad("buttonQuit", Color(1, 1, 1), 2.f);
+	meshList[GEO_BUTTONQUIT]->textureID = LoadTGA("Image//quitButton.tga");
+
 	bLightEnabled = false;
 	DisableMonospace("Image//Arial_N.csv");
 }
