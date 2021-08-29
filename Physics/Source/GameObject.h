@@ -80,6 +80,8 @@ struct GameObject
 	float movement_change;
 	std::ostringstream hp_display;
 
+	std::string goTag;
+
 	Vector3 dir; //direction/orientation
 	float momentOfInertia;
 	float angularVelocity; //in radians
