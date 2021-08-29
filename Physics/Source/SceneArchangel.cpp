@@ -2693,16 +2693,14 @@ void SceneArchangel::Update(double dt)
 			button2->goTag = "Quit";
 		}
 	}
-	else if (state == STATE_MENU || state == STATE_LOSE)
+	else if (state == STATE_MENU)
 	{
 		if (Application::IsKeyPressed(VK_ESCAPE))
 		{ // leave this if condition here even if not needed this function is kinda bugged
-			//EndGame();
 		}
 		// Space to continue
 		if (Application::IsKeyPressed(VK_SPACE))
 		{
-			//state = STATE_INITPLAY;
 		}
 
 		if (Application::IsMousePressed(0))
@@ -2715,6 +2713,25 @@ void SceneArchangel::Update(double dt)
 			}
 		}
 
+	}
+	else if (state == STATE_LOSE)
+	{
+		if (Application::IsKeyPressed(VK_ESCAPE))
+		{ // leave this if condition here even if not needed this function is kinda bugged
+		}
+		// Space to continue
+		if (Application::IsKeyPressed(VK_SPACE))
+		{
+		}
+		if (Application::IsMousePressed(0))
+		{
+			GameObject* pointed = ObjectOnCursor();
+			if (pointed != nullptr)
+			{
+				if (pointed->goTag == "Restart") state = STATE_INITPLAY;
+				else if (pointed->goTag == "Quit") EndGame();
+			}
+		}
 	}
 	else if (state == STATE_WIN)
 	{
@@ -2761,6 +2778,18 @@ void SceneArchangel::Update(double dt)
 		{
 			state = STATE_LOSE;
 			m_screenHeight = SCREEN_HEIGHT;
+			GameObject* button2 = FetchGO();
+			button2->active = true;
+			button2->type = GameObject::GO_BUTTON;
+			button2->pos.Set(cameraPos.x, cameraPos.y + 8);
+			button2->scale.Set(15, 7, 1);
+			button2->goTag = "Restart";
+			GameObject* button3 = FetchGO();
+			button3->active = true;
+			button3->type = GameObject::GO_BUTTON;
+			button3->pos.Set(cameraPos.x, cameraPos.y - 8);
+			button3->scale.Set(15, 7, 1);
+			button3->goTag = "Quit";
 		}
 	}
 	else if (state == STATE_PAUSE)
@@ -2776,23 +2805,7 @@ void SceneArchangel::Update(double dt)
 		else if (!Application::IsKeyPressed(VK_ESCAPE) && escapeButtonState)
 		{
 			escapeButtonState = false;
-			//state = STATE_PLAY;
 		}
-
-		/*if (Application::IsKeyPressed('R') && !rButtonState)
-		{
-			rButtonState = true;
-		}
-		else if (!Application::IsKeyPressed('R') && rButtonState)
-		{
-			rButtonState = false;
-			state = STATE_INITPLAY;
-		}
-
-		if (Application::IsKeyPressed('Q'))
-		{
-			EndGame();
-		}*/
 
 		if (Application::IsMousePressed(0))
 		{
@@ -2836,13 +2849,6 @@ void SceneArchangel::Update(double dt)
 	}
 	else if (state == STATE_PLAY)
 	{
-		if (Application::IsKeyPressed('Q'))
-		{ // leave this if condition here even if not needed this function is kinda bugged
-		}
-		if (Application::IsKeyPressed('R'))
-		{ // leave this if condition here even if not needed this function is kinda bugged
-		}
-
 		if (Application::IsKeyPressed(VK_ESCAPE) && !escapeButtonState)
 		{
 			escapeButtonState = true;
@@ -3849,10 +3855,16 @@ void SceneArchangel::Render()
 		modelStack.Translate(m_worldWidth * .5f, m_worldHeight * .5f, 1);
 		modelStack.Scale(m_worldWidth * .5f, m_worldHeight * .5f, 1);
 		RenderMesh(meshList[GEO_LOSE], false);
-		RenderTextOnScreen(meshList[GEO_TEXT], "YOU DIED", Color(1, 0, 0), 5, 33, 30);
-		RenderTextOnScreen(meshList[GEO_TEXT], "Press [SPACE] to restart", Color(1, 0, 0), 3, 30, 25);
-		RenderTextOnScreen(meshList[GEO_TEXT], "Press [ESC] to quit", Color(1, 0, 0), 3, 32.5f, 20);
+		RenderTextOnScreen(meshList[GEO_TEXT], "YOU DIED", Color(1, 0, 0), 5, 33, 50);
 		modelStack.PopMatrix();
+		for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
+		{
+			GameObject* go = (GameObject*)*it;
+			if (go->active && go->type == GameObject::GO_BUTTON)
+			{
+				RenderGO(go);
+			}
+		}
 	}
 	else if (state == STATE_WIN)
 	{
