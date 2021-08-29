@@ -2557,60 +2557,38 @@ void SceneArchangel::SpawnEnemies()
 			cout << "spawned entity, ";
 			GameObject* go = FetchGO();
 			go->active = true;
-			if (
-				mapInfo->entityDataList[i]->type == GameObject::GO_TERMINATOR ||
-				mapInfo->entityDataList[i]->type == GameObject::GO_SOLDIER ||
-				mapInfo->entityDataList[i]->type == GameObject::GO_DEMON
-				)
-			{
-				switch (realm)
-				{
-				case SceneArchangel::REALM_HELL:
-					go->type = GameObject::GO_DEMON;
-					break;
-				case SceneArchangel::REALM_FUTURE:
-					go->type = GameObject::GO_TERMINATOR;
-					break;
-				case SceneArchangel::REALM_MODERN:
-					go->type = GameObject::GO_SOLDIER;
-					break;
-				default:
-					go->type = mapInfo->entityDataList[i]->type;
-					break;
-				}
-			}
-			else go->type = mapInfo->entityDataList[i]->type;
+			go->type = mapInfo->entityDataList[i]->type;
 			go->pos = mapInfo->entityDataList[i]->pos;
 			cout << go->pos << ", ";
 			go->scale = mapInfo->entityDataList[i]->scale;
 			cout << go->scale << ", ";
 			go->normal = mapInfo->entityDataList[i]->rot;
 			cout << go->normal << endl;
-			if (go->type == GameObject::GO_DEMON)
+			if (mapInfo->entityDataList[i]->type == GameObject::GO_DEMON)
 			{
 				go->hp = 30;
 				go->scale.Set(2, 2, 1);
 				setCollisionBox(go);
 			}
-			else if (go->type == GameObject::GO_FALLENANGEL)
+			else if (mapInfo->entityDataList[i]->type == GameObject::GO_FALLENANGEL)
 			{
 				go->hp = 50;
 				go->scale.Set(5, 3.5f, 1);
 				setCollisionBox(go);
 			}
-			else if (go->type == GameObject::GO_TERMINATOR)
+			else if (mapInfo->entityDataList[i]->type == GameObject::GO_TERMINATOR)
 			{
 				go->hp = 60;
 				go->scale.Set(2.5f, 3, 1);
 				setCollisionBox(go);
 			}
-			else if (go->type == GameObject::GO_SOLDIER)
+			else if (mapInfo->entityDataList[i]->type == GameObject::GO_SOLDIER)
 			{
 				go->hp = 45;
 				go->scale.Set(2.5, 3, 1);
 				setCollisionBox(go);
 			}
-			else if (go->type == GameObject::GO_DEMONLORD)
+			else if (mapInfo->entityDataList[i]->type == GameObject::GO_DEMONLORD)
 			{
 				go->hp = 450;
 				go->scale.Set(6, 6, 1);
@@ -2619,7 +2597,7 @@ void SceneArchangel::SpawnEnemies()
 				newGO->type = GameObject::GO_REALMCHANGER;
 				newGO->pos.Set(1000, 1000);
 			}
-			else if (go->type == GameObject::GO_METALGEAR)
+			else if (mapInfo->entityDataList[i]->type == GameObject::GO_METALGEAR)
 			{
 				go->hp = 600;
 				go->scale.Set(8, 8, 1);
@@ -2628,7 +2606,7 @@ void SceneArchangel::SpawnEnemies()
 				newGO->type = GameObject::GO_REALMCHANGER;
 				newGO->pos.Set(1000, 1000);
 			}
-			else if (go->type == GameObject::GO_RAMBO)
+			else if (mapInfo->entityDataList[i]->type == GameObject::GO_RAMBO)
 			{
 				go->hp = 500;
 				go->scale.Set(2.5f, 3, 1);
