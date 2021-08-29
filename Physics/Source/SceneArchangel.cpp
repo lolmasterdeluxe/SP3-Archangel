@@ -2314,9 +2314,9 @@ GameObject* SceneArchangel::ObjectOnCursor()
 	Application::GetCursorPos(&x, &y);
 	ScreenSpaceToWorldSpace(x, y);
 	
-	for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
+	for (int i = m_goList.size() - 1; i >= 0; --i)
 	{
-		GameObject* go = (GameObject*)*it;
+		GameObject* go = m_goList[i];
 		if (go->active)
 		{
 			Vector3 tempScale = go->scale;
@@ -2779,10 +2779,10 @@ void SceneArchangel::Update(double dt)
 		else if (!Application::IsKeyPressed(VK_ESCAPE) && escapeButtonState)
 		{
 			escapeButtonState = false;
-			state = STATE_PLAY;
+			//state = STATE_PLAY;
 		}
 
-		if (Application::IsKeyPressed('R') && !rButtonState)
+		/*if (Application::IsKeyPressed('R') && !rButtonState)
 		{
 			rButtonState = true;
 		}
@@ -2795,6 +2795,24 @@ void SceneArchangel::Update(double dt)
 		if (Application::IsKeyPressed('Q'))
 		{
 			EndGame();
+		}*/
+
+		if (Application::IsMousePressed(0))
+		{
+			GameObject* pointed = ObjectOnCursor();
+			if (pointed != nullptr)
+			{
+				if (pointed->goTag == "Resume")
+				{
+					while (FindGameObjectWithType(GameObject::GO_BUTTON) != nullptr)
+					{
+						ReturnGO(FindGameObjectWithType(GameObject::GO_BUTTON));
+					}
+					state = STATE_PLAY;
+				}
+				else if (pointed->goTag == "Restart") state = STATE_INITPLAY;
+				else if (pointed->goTag == "Quit") EndGame();
+			}
 		}
 	}
 	else if (state == STATE_INITPLAY)
@@ -2836,6 +2854,24 @@ void SceneArchangel::Update(double dt)
 		{
 			escapeButtonState = false;
 			state = STATE_PAUSE;
+			GameObject* button1 = FetchGO();
+			button1->active = true;
+			button1->type = GameObject::GO_BUTTON;
+			button1->pos.Set(cameraPos.x, cameraPos.y + 15);
+			button1->scale.Set(15, 7, 1);
+			button1->goTag = "Resume";
+			GameObject* button2 = FetchGO();
+			button2->active = true;
+			button2->type = GameObject::GO_BUTTON;
+			button2->pos.Set(cameraPos.x, cameraPos.y);
+			button2->scale.Set(15, 7, 1);
+			button2->goTag = "Restart";
+			GameObject* button3 = FetchGO();
+			button3->active = true;
+			button3->type = GameObject::GO_BUTTON;
+			button3->pos.Set(cameraPos.x, cameraPos.y - 15);
+			button3->scale.Set(15, 7, 1);
+			button3->goTag = "Quit";
 		}
 
 		//Camera Position Setting
@@ -3030,6 +3066,10 @@ void SceneArchangel::RenderGO(GameObject *go)
 		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
 		if (go->goTag == "Start")
 			RenderMesh(meshList[GEO_BUTTONSTART], true);
+		if (go->goTag == "Resume")
+			RenderMesh(meshList[GEO_BUTTONRESUME], true);
+		if (go->goTag == "Restart")
+			RenderMesh(meshList[GEO_BUTTONRESTART], true);
 		if (go->goTag == "Quit")
 			RenderMesh(meshList[GEO_BUTTONQUIT], true);
 		modelStack.PopMatrix();
@@ -3483,7 +3523,24 @@ void SceneArchangel::Render()
 			}
 		}
 	}
-	else if (state == STATE_PLAY || state == STATE_PAUSE || state == STATE_WIN_ANIM || state == STATE_LOSE_ANIM)
+	else if (state == STATE_PAUSE)
+	{
+		modelStack.PushMatrix();
+		modelStack.Translate(cameraPos.x, cameraPos.y, 0);
+		modelStack.Scale(m_screenWidth * .5f, m_screenHeight * .5f, 1);
+		RenderMesh(meshList[GEO_PAUSEBACKGROUND], false);
+		modelStack.PopMatrix();
+		RenderTextOnScreen(meshList[GEO_TEXT], "Pause", Color(1, 1, 0), 10, 30, 50);
+		for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
+		{
+			GameObject* go = (GameObject*)*it;
+			if (go->active && go->type == GameObject::GO_BUTTON)
+			{
+				RenderGO(go);
+			}
+		}
+	}
+	else if (state == STATE_PLAY || state == STATE_WIN_ANIM || state == STATE_LOSE_ANIM)
 	{
 
 		modelStack.PushMatrix();
@@ -3523,18 +3580,7 @@ void SceneArchangel::Render()
 				RenderGO(go);
 			}
 		}
-		if (state == STATE_PAUSE)
-		{
-			modelStack.PushMatrix();
-			modelStack.Translate(m_worldWidth * .5f, m_worldHeight * .5f, 1);
-			modelStack.Scale(m_worldWidth * .1f, m_worldHeight * .5f, 1);
-			RenderMesh(meshList[GEO_BLUECUBE], false);
-			modelStack.PopMatrix();
-			RenderTextOnScreen(meshList[GEO_TEXT], "Pause", Color(1, 1, 0), 4, 35, 55);
-			RenderTextOnScreen(meshList[GEO_TEXT], "ESC: Resume", Color(1, 1, 1), 4, 30, 45);
-			RenderTextOnScreen(meshList[GEO_TEXT], "R: Restart game", Color(1, 1, 1), 4, 30, 35);
-			RenderTextOnScreen(meshList[GEO_TEXT], "Q: Quit game ", Color(1, 1, 1), 4, 30, 25);
-		}
+
 		if (state == STATE_PLAY)
 		{ // render HUD when not paused
 			std::ostringstream ss;
