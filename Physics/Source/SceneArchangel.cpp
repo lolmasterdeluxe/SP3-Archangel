@@ -1300,7 +1300,6 @@ void SceneArchangel::demonAI(double dt)
 						newGO->scale.Set(2.f, 1.f, 0);
 						newGO->pos = go->pos;
 						float angle = atan2f(m_player->pos.y - go->pos.y, m_player->pos.x - go->pos.x);
-						soundcontroller->play2D("Sounds/fireball.mp3", false);
 						newGO->vel = Vector3(cosf(angle), sin(angle), 0);
 						newGO->vel.Normalize() * 100;
 						go->bullet_delay = 0;
@@ -2674,7 +2673,6 @@ void SceneArchangel::Update(double dt)
 		if (Application::IsKeyPressed(VK_ESCAPE))
 		{ // leave this if condition here even if not needed this function is kinda bugged
 			EndGame();
-			
 		}
 
 		// Space to continue
@@ -2712,11 +2710,7 @@ void SceneArchangel::Update(double dt)
 			GameObject* pointed = ObjectOnCursor();
 			if (pointed != nullptr)
 			{
-				if (pointed->goTag == "Start")
-				{
-					state = STATE_INITPLAY;
-					soundcontroller->play2D("Sounds/hell.mp3", false);
-				}
+				if (pointed->goTag == "Start") state = STATE_INITPLAY;
 				else if (pointed->goTag == "Quit") EndGame();
 			}
 		}
@@ -2747,7 +2741,6 @@ void SceneArchangel::Update(double dt)
 				break;
 			default:
 				EndGame();
-				soundcontroller->play2D("Sounds/hell.mp3", false);
 				break;
 			}
 		}
