@@ -2782,7 +2782,7 @@ void SceneArchangel::Update(double dt)
 				if (pointed->goTag == "Start")
 				{
 					state = STATE_INITPLAY;
-					soundcontroller->play2D("Sounds/hell.mp3", false);
+					soundcontroller->play2D("Sounds/hell.mp3", true);
 				}
 				else if (pointed->goTag == "Quit") EndGame();
 			}
@@ -2804,6 +2804,7 @@ void SceneArchangel::Update(double dt)
 			case SceneArchangel::REALM_HELL:
 				state = STATE_INITPLAY;
 				realm = REALM_FUTURE;
+				soundcontroller->play2D("Sounds/futuristic.mp3", true);
 				break;
 			case SceneArchangel::REALM_FUTURE:
 				state = STATE_INITPLAY;
