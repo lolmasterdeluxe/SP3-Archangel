@@ -13,10 +13,6 @@ struct GameObject
 		GO_CIRCLE,
 		GO_GHOSTBALL,
 		GO_CUBE,
-		GO_ASTEROID, //asteroid
-		GO_SHIP, //player ship
-		GO_ALLY_BULLET,
-		GO_MISSILE,
 
 		//UI MENU
 		GO_BUTTON,
@@ -31,8 +27,10 @@ struct GameObject
 		GO_RAMBO,
 
 		// Bullet GO
-		GO_BULLET, //player bullet
+		GO_BULLET,		 //player bullet
 		GO_ENEMY_BULLET, //enemy bullet
+		GO_MISSILE,      //enemy missile
+		GO_MG_MISSILE,   //metal gear's missile
 
 		// Wall / Interactable Objects GO
 		GO_WALL,
