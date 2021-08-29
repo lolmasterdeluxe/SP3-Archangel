@@ -330,7 +330,7 @@ void SceneArchangel::PhysicsResponse(GameObject* go1, Collision collision)
 			go1->vel = u - (2 * u.Dot(N)) * N;
 			go1->vel.y *= 0;
 		}
-		else if (collision.go->type == GameObject::GO_WALL && (go1->type == GameObject::GO_BULLET || go1->type == GameObject::GO_FIREBALL || go1->type == GameObject::GO_ENEMY_BULLET || collision.go->type == GameObject::GO_MISSILE))
+		else if (collision.go->type == GameObject::GO_WALL && (go1->type == GameObject::GO_BULLET || go1->type == GameObject::GO_FIREBALL || go1->type == GameObject::GO_ENEMY_BULLET || go1->type == GameObject::GO_MISSILE || go1->type == GameObject::GO_MG_MISSILE))
 		{
 			ReturnGO(go1);
 		}
@@ -404,7 +404,7 @@ void SceneArchangel::PhysicsResponse(GameObject* go1, Collision collision)
 	}
 	if (go1->type == GameObject::GO_BULLET)
 	{
-		if (collision.go->type == GameObject::GO_BARREL || collision.go->type == GameObject::GO_DEMON || collision.go->type == GameObject::GO_FALLENANGEL || collision.go->type == GameObject::GO_TERMINATOR || collision.go->type == GameObject::GO_SOLDIER || collision.go->type == GameObject::GO_DEMONLORD || collision.go->type == GameObject::GO_METALGEAR || go1->type == GameObject::GO_RAMBO)
+		if (collision.go->type == GameObject::GO_BARREL || collision.go->type == GameObject::GO_DEMON || collision.go->type == GameObject::GO_FALLENANGEL || collision.go->type == GameObject::GO_TERMINATOR || collision.go->type == GameObject::GO_SOLDIER || collision.go->type == GameObject::GO_DEMONLORD || collision.go->type == GameObject::GO_METALGEAR || collision.go->type == GameObject::GO_RAMBO)
 		{
 			collision.go->hp -= weapon_dmg;
 			ReturnGO(go1);
@@ -767,7 +767,7 @@ void SceneArchangel::itemLogic(double dt)
 	linearVel(dt, GameObject::GO_BULLET, 100);
 	linearVel(dt, GameObject::GO_ENEMY_BULLET, 100);
 	linearVel(dt, GameObject::GO_FIREBALL, 50);
-	linearVel(dt, GameObject::GO_MISSILE, 50);
+	linearVel(dt, GameObject::GO_MISSILE, 75);
 	linearVel(dt, GameObject::GO_MG_MISSILE, 50);
 	Gravity(GameObject::GO_POTION, 300, dt);
 	Gravity(GameObject::GO_MAXPOTION, 300, dt);
@@ -791,6 +791,8 @@ void SceneArchangel::itemLogic(double dt)
 	enableCollision(dt, GameObject::GO_BARREL);
 	enableCollision(dt, GameObject::GO_FIREBALL);
 	enableCollision(dt, GameObject::GO_ENEMY_BULLET);
+	enableCollision(dt, GameObject::GO_MISSILE);
+	enableCollision(dt, GameObject::GO_MG_MISSILE);
 	enableCollision(dt, GameObject::GO_DEMON);
 	enableCollision(dt, GameObject::GO_FALLENANGEL);
 	enableCollision(dt, GameObject::GO_TERMINATOR);
@@ -1988,7 +1990,7 @@ void SceneArchangel::metalGearAI(double dt)
 						GameObject* newGO = FetchGO();
 						newGO->active = true;
 						newGO->type = GameObject::GO_ENEMY_BULLET;
-						newGO->scale.Set(1.f, 0.5f, 0);
+						newGO->scale.Set(0.7f, 0.2f, 0);
 						Vector3 right = go->normal.Cross(Vector3(0, 0, -1));
 						newGO->pos = go->pos + go->normal + right * 2;
 						float angle = atan2f(m_player->pos.y - go->pos.y, m_player->pos.x - go->pos.x);
@@ -1998,7 +2000,7 @@ void SceneArchangel::metalGearAI(double dt)
 						GameObject* newGO2 = FetchGO();
 						newGO2->active = true;
 						newGO2->type = GameObject::GO_ENEMY_BULLET;
-						newGO2->scale.Set(1.f, 0.5f, 0);
+						newGO2->scale.Set(0.7f, 0.2f, 0);
 						Vector3 right2 = go->normal.Cross(Vector3(0, 0, -1));
 						newGO2->pos = go->pos - go->normal + right2 * 2;
 						float angle2 = atan2f(m_player->pos.y - go->pos.y, m_player->pos.x - go->pos.x);
@@ -2188,7 +2190,7 @@ void SceneArchangel::ramboAI(double dt)
 							GameObject* newGO = FetchGO();
 							newGO->active = true;
 							newGO->type = GameObject::GO_MISSILE;
-							newGO->scale.Set(1.5f, 1.0f, 0);
+							newGO->scale.Set(1.2f, 0.7f, 0);
 							newGO->pos = go->pos;
 							float angle = atan2f(m_player->pos.y - go->pos.y, m_player->pos.x - go->pos.x);
 							newGO->vel = Vector3(cosf(angle), sin(angle), 0);
@@ -2212,9 +2214,11 @@ void SceneArchangel::ramboAI(double dt)
 						enableCollision(dt, GameObject::GO_RAMBO);
 					}
 
-					if (go->FSMCounter > go->MaxFSMCounter * 3)
+					if (go->FSMCounter > go->MaxFSMCounter * 2)
 					{
 						go->state = go->STATE_FAR_ATTACK;
+						int wep_rng = Math::RandIntMinMax(1, 2);
+						go->weapon_type = wep_rng;
 						go->FSMCounter = 0;
 					}
 					break;
@@ -2947,7 +2951,7 @@ void SceneArchangel::RenderGO(GameObject *go)
 	    angle = atan2f(go->normal.y, go->normal.x);
 		modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
 		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
-		RenderMesh(meshList[GEO_GREENCUBE], false);
+		RenderMesh(meshList[GEO_NETHERPLATFORM], false);
 		modelStack.PopMatrix();
 		break;
 		
@@ -2957,7 +2961,7 @@ void SceneArchangel::RenderGO(GameObject *go)
 	    angle = atan2f(go->normal.y, go->normal.x);
 		modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
 		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
-		RenderMesh(meshList[GEO_BLUECUBE], false);
+		RenderMesh(meshList[GEO_JUMPBLOCK], false);
 		modelStack.PopMatrix();
 		break;
 
@@ -3076,7 +3080,7 @@ void SceneArchangel::RenderGO(GameObject *go)
 		angle = atan2f(go->normal.y, go->normal.x);
 		modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
 		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
-		RenderMesh(meshList[GEO_BLUEBALL], false);
+		RenderMesh(meshList[GEO_BLUEPORTAL], false);
 		modelStack.PopMatrix();
 		break;
 
@@ -3086,7 +3090,7 @@ void SceneArchangel::RenderGO(GameObject *go)
 		angle = atan2f(go->normal.y, go->normal.x);
 		modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
 		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
-		RenderMesh(meshList[GEO_ORANGEBALL], false);
+		RenderMesh(meshList[GEO_ORANGEPORTAL], false);
 		modelStack.PopMatrix();
 		break;
 
@@ -3173,13 +3177,13 @@ void SceneArchangel::RenderGO(GameObject *go)
 			modelStack.Rotate(0, 0, 1, 0);
 
 		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
-		RenderMesh(meshList[GEO_BLUECUBE], false);
+		RenderMesh(meshList[GEO_FALLENANGEL], false);
 		modelStack.PopMatrix();
 		break;
 
 	case GameObject::GO_TERMINATOR:
 		modelStack.PushMatrix();
-		modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
+		modelStack.Translate(go->pos.x, go->pos.y + 0.5f, go->pos.z);
 		modelStack.Rotate(Math::RadianToDegree(atan2(go->normal.y, go->normal.x)), 0, 0, 1);
 
 		if (go->left)
@@ -3188,13 +3192,16 @@ void SceneArchangel::RenderGO(GameObject *go)
 			modelStack.Rotate(0, 0, 1, 0);
 
 		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
-		RenderMesh(meshList[GEO_CUBE], false);
+		if (!go->rage)
+			RenderMesh(meshList[GEO_TERMINATOR_NEUTRAL], false);
+		else
+			RenderMesh(meshList[GEO_TERMINATOR_RAGE], false);
 		modelStack.PopMatrix();
 		break;
 
 	case GameObject::GO_SOLDIER:
 		modelStack.PushMatrix();
-		modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
+		modelStack.Translate(go->pos.x, go->pos.y + 0.7f, go->pos.z);
 		modelStack.Rotate(Math::RadianToDegree(atan2(go->normal.y, go->normal.x)), 0, 0, 1);
 
 		if (go->left)
@@ -3203,7 +3210,7 @@ void SceneArchangel::RenderGO(GameObject *go)
 			modelStack.Rotate(0, 0, 1, 0);
 
 		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
-		RenderMesh(meshList[GEO_GREENCUBE], false);
+		RenderMesh(meshList[GEO_SOLDIER], false);
 		modelStack.PopMatrix();
 		break;
 
@@ -3216,7 +3223,7 @@ void SceneArchangel::RenderGO(GameObject *go)
 		else
 			modelStack.Rotate(0, 0, 1, 0);
 		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
-		RenderMesh(meshList[GEO_REDCUBE], false);
+		RenderMesh(meshList[GEO_DEMONLORD], false);
 		modelStack.PopMatrix();
 		break;
 
@@ -3239,7 +3246,7 @@ void SceneArchangel::RenderGO(GameObject *go)
 		else
 			modelStack.Rotate(0, 0, 1, 0);
 		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
-		RenderMesh(meshList[GEO_CUBE], false);
+		RenderMesh(meshList[GEO_METALGEAR], false);
 		modelStack.PopMatrix();
 		break;
 
@@ -3263,10 +3270,14 @@ void SceneArchangel::RenderGO(GameObject *go)
 
 	case GameObject::GO_RAMBO:
 		modelStack.PushMatrix();
-		modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
+		modelStack.Translate(go->pos.x, go->pos.y + 0.4f, go->pos.z);
 		modelStack.Rotate(Math::RadianToDegree(atan2(go->normal.y, go->normal.x)), 0, 0, 1);
+		if (go->left)
+			modelStack.Rotate(180, 0, 1, 0);
+		else
+			modelStack.Rotate(0, 0, 1, 0);
 		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
-		RenderMesh(meshList[GEO_ORANGECUBE], false);
+		RenderMesh(meshList[GEO_RAMBO], false);
 		modelStack.PopMatrix();
 		break;
 	}
