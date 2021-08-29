@@ -1300,6 +1300,7 @@ void SceneArchangel::demonAI(double dt)
 						newGO->scale.Set(2.f, 1.f, 0);
 						newGO->pos = go->pos;
 						float angle = atan2f(m_player->pos.y - go->pos.y, m_player->pos.x - go->pos.x);
+						soundcontroller->play2D("Sounds/fireball.mp3", false);
 						newGO->vel = Vector3(cosf(angle), sin(angle), 0);
 						newGO->vel.Normalize() * 100;
 						go->bullet_delay = 0;
@@ -1475,6 +1476,7 @@ void SceneArchangel::fallenAngelAI(double dt)
 						newGO->scale.Set(2.f, 1.f, 0);
 						newGO->pos = go->pos;
 						float angle = atan2f(m_player->pos.y - go->pos.y, m_player->pos.x - go->pos.x);
+						soundcontroller->play2D("Sounds/fireball.mp3", false);
 						newGO->vel = Vector3(cosf(angle), sin(angle), 0);
 						newGO->vel.Normalize() * 100;
 						go->bullet_delay = 0;
@@ -1895,6 +1897,7 @@ void SceneArchangel::demonBossAI(double dt)
 						Vector3 right = go->normal.Cross(Vector3(0, 0, -1));
 						newGO->pos = go->pos + go->normal + right * rng;
 						float angle = atan2f(m_player->pos.y - go->pos.y, m_player->pos.x - go->pos.x);
+						soundcontroller->play2D("Sounds/fireball.mp3", false);
 						newGO->vel = Vector3(cosf(angle), sin(angle), 0);
 						newGO->vel.Normalize() * 100;
 						go->bullet_delay = 0;
@@ -2710,7 +2713,11 @@ void SceneArchangel::Update(double dt)
 			GameObject* pointed = ObjectOnCursor();
 			if (pointed != nullptr)
 			{
-				if (pointed->goTag == "Start") state = STATE_INITPLAY;
+				if (pointed->goTag == "Start")
+				{
+					state = STATE_INITPLAY;
+					soundcontroller->play2D("Sounds/hell.mp3", false);
+				}
 				else if (pointed->goTag == "Quit") EndGame();
 			}
 		}
