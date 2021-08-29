@@ -693,6 +693,7 @@ void SceneArchangel::portalLogic(double dt)
 	static bool bLButtonState = false;
 	if (Application::IsMousePressed(1) && !portal_shot)
 	{
+		soundcontroller->play2D("Sounds/portal.mp3", false);
 		portal_shot = true;
 		if (m_player->portal_delay > 1)
 		{
