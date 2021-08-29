@@ -2659,13 +2659,6 @@ void SceneArchangel::Update(double dt)
 		cameraPos.Set(m_screenWidth * .5f, m_screenHeight * .5f);
 		m_screenHeight = SCREEN_HEIGHT;
 
-		GameObject* button1 = FetchGO();
-		button1->active = true;
-		button1->type = GameObject::GO_WALL;
-		button1->pos.Set(m_worldWidth * .5f, m_worldHeight * .5f);
-		button1->scale.Set(10, 5, 1);
-		button1->hp = 20;
-
 		state = STATE_INTRO;
 	} 
 	else if (state == STATE_INTRO)
@@ -2679,41 +2672,41 @@ void SceneArchangel::Update(double dt)
 		if (Application::IsKeyPressed(VK_SPACE))
 		{
 			state = STATE_MENU;
-			/*GameObject* button1 = FetchGO();
+			GameObject* button1 = FetchGO();
 			button1->active = true;
 			button1->type = GameObject::GO_BUTTON;
-			button1->pos.Set(m_worldWidth * .5f, m_worldHeight * .7f);
-			button1->scale.Set(25, 10, 1);
+			button1->pos.Set(m_screenWidth * .5f, m_screenHeight * .65f);
+			button1->scale.Set(15, 7, 1);
 			button1->goTag = "Start";
 			GameObject* button2 = FetchGO();
 			button2->active = true;
 			button2->type = GameObject::GO_BUTTON;
-			button2->pos.Set(m_worldWidth * .5f, m_worldHeight * .3f);
-			button2->scale.Set(25, 10, 1);
-			button2->goTag = "Quit";*/
+			button2->pos.Set(m_screenWidth * .5f, m_screenHeight * .35f);
+			button2->scale.Set(15, 7, 1);
+			button2->goTag = "Quit";
 		}
 	}
 	else if (state == STATE_MENU || state == STATE_LOSE)
 	{
 		if (Application::IsKeyPressed(VK_ESCAPE))
 		{ // leave this if condition here even if not needed this function is kinda bugged
-			EndGame();
+			//EndGame();
 		}
 		// Space to continue
 		if (Application::IsKeyPressed(VK_SPACE))
 		{
-			state = STATE_INITPLAY;
+			//state = STATE_INITPLAY;
 		}
 
-		//if (Application::IsMousePressed(0))
-		//{
-		//	GameObject* pointed = ObjectOnCursor();
-		//	if (pointed != nullptr)
-		//	{
-		//		if (pointed->goTag == "Start") state = STATE_INITPLAY;
-		//		else if (pointed->goTag == "Quit") EndGame();
-		//	}
-		//}
+		if (Application::IsMousePressed(0))
+		{
+			GameObject* pointed = ObjectOnCursor();
+			if (pointed != nullptr)
+			{
+				if (pointed->goTag == "Start") state = STATE_INITPLAY;
+				else if (pointed->goTag == "Quit") EndGame();
+			}
+		}
 
 	}
 	else if (state == STATE_WIN)
@@ -3015,9 +3008,12 @@ void SceneArchangel::RenderGO(GameObject *go)
 		// Pillars that attach to cube
 		modelStack.PushMatrix();
 		modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
+		modelStack.Rotate(180, 1, 0, 0);
 		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
-		RenderMesh(meshList[GEO_CUBE], true);
-		RenderText(meshList[GEO_TEXT], go->goTag, Color());
+		if (go->goTag == "Start")
+			RenderMesh(meshList[GEO_BUTTONSTART], true);
+		if (go->goTag == "Quit")
+			RenderMesh(meshList[GEO_BUTTONQUIT], true);
 		modelStack.PopMatrix();
 		break;
 		
@@ -3424,7 +3420,8 @@ void SceneArchangel::Render()
 	}
 	else
 	{
-		projection.SetToOrtho(0, m_worldWidth, 0, m_worldHeight, -10, 10);
+		//projection.SetToOrtho(0, m_worldWidth, 0, m_worldHeight, -10, 10);
+		projection.SetToOrtho(cameraPos.x - m_screenWidth * .5f, cameraPos.x + m_screenWidth * .5f, cameraPos.y - m_screenHeight * .5f, cameraPos.y + m_screenHeight * .5f, -10, 10);
 	}
 	projectionStack.LoadMatrix(projection);
 	
@@ -3444,8 +3441,8 @@ void SceneArchangel::Render()
 	if (state == STATE_INTRO)
 	{
 		modelStack.PushMatrix();
-		modelStack.Translate(m_worldWidth * .5f, m_worldHeight * .5f, 1);
-		modelStack.Scale(m_worldWidth * .5f, m_worldHeight * .5f, 1);
+		modelStack.Translate(cameraPos.x, cameraPos.y, 1);
+		modelStack.Scale(m_screenWidth * .5f, m_screenHeight * .5f, 1);
 		RenderMesh(meshList[GEO_MENU], false);
 		RenderTextOnScreen(meshList[GEO_TEXT], "THE ARCHANGEL", Color(0, 0, 1), 5, 26, 30);
 		RenderTextOnScreen(meshList[GEO_TEXT], "Press [SPACE] to start", Color(0, 0, 1), 3, 30, 25);
@@ -3454,8 +3451,8 @@ void SceneArchangel::Render()
 	else if (state == STATE_MENU)
 	{
 		modelStack.PushMatrix();
-		modelStack.Translate(m_worldWidth * .5f, m_worldHeight * .5f, 1);
-		modelStack.Scale(m_worldWidth * .5f, m_worldHeight * .5f, 1);
+		modelStack.Translate(cameraPos.x, cameraPos.y, 1);
+		modelStack.Scale(m_screenWidth * .5f, m_screenHeight * .5f, 1);
 		RenderMesh(meshList[GEO_MENU], false);
 		RenderTextOnScreen(meshList[GEO_TEXT], "THE ARCHANGEL", Color(0, 0, 1), 5, 26, 53);
 		modelStack.PopMatrix();
