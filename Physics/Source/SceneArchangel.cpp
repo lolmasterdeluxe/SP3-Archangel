@@ -125,6 +125,7 @@ GameObject* SceneArchangel::FetchGO()
 
 void SceneArchangel::ReturnGO(GameObject* go)
 {
+	// Remove object from list
 	if (go->active)
 	{
 		m_objectCount--;
@@ -140,6 +141,7 @@ void SceneArchangel::ReturnGO(GameObject* go)
 
 void SceneArchangel::ReturnGO(GameObject::GAMEOBJECT_TYPE GO)
 {
+	// Remove object from list
 	for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
 	{
 		GameObject* go = (GameObject*)*it;
@@ -155,6 +157,7 @@ void SceneArchangel::ReturnGO(GameObject::GAMEOBJECT_TYPE GO)
 
 GameObject* SceneArchangel::FindGameObjectWithType(GameObject::GAMEOBJECT_TYPE type)
 {
+	// Find and return GO
 	for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
 	{
 		GameObject* go = (GameObject*)*it;
@@ -185,6 +188,7 @@ Collision SceneArchangel::CheckCollision(GameObject* go1, GameObject* go2)
 			return collision;
 		}
 	}
+	// Handle collision for bounce platform
 	else if (go2->type == GameObject::GO_BOUNCEPLATFORM)
 	{
 		if (go1->vel.y > 0) return Collision();
@@ -213,6 +217,7 @@ Collision SceneArchangel::CheckCollision(GameObject* go1, GameObject* go2)
 			return collision;
 		}
 	}
+	// Handle collision for normal platform
 	else if (go2->type == GameObject::GO_PLATFORM)
 	{
 		if (go1 == m_player && (Application::IsKeyPressed('S') || go1->vel.y > 0))
@@ -242,6 +247,7 @@ Collision SceneArchangel::CheckCollision(GameObject* go1, GameObject* go2)
 			return collision;
 		}
 	}
+	// Handle collision for wall
 	else if (go2->type == GameObject::GO_WALL)
 	{
 		Vector3 N = go2->normal; // go2 normal
@@ -313,23 +319,11 @@ Collision SceneArchangel::CheckCollision(GameObject* go1, GameObject* go2)
 
 void SceneArchangel::PhysicsResponse(GameObject* go1, Collision collision)
 {
-	if (collision.go->type == GameObject::GO_BALL)
+	// Responses from collison
+	// Wall / Platform collision response
+	if (collision.go->type == GameObject::GO_WALL || collision.go->type == GameObject::GO_PLATFORM)
 	{
-		u1 = go1->vel;
-		m1 = go1->mass;
-		u2 = collision.go->vel;
-		m2 = collision.go->mass;
-		pi = go1->mass * u1 + collision.go->mass * u2;
-		go1->vel = u1 * ((m1 - m2) / (m1 + m2)) + u2 * ((2 * m2) / (m1 + m2));
-		collision.go->vel = u1 * ((2 * m1) / (m1 + m2)) + u2 * ((m2 - m1) / (m1 + m2));
-		v1 = go1->vel;
-		v2 = collision.go->vel;
-		go1->vel = u1 - (2 * m2 / (m1 + m2)) * (((u1 - u2).Dot(go1->pos - collision.go->pos)) / (go1->pos - collision.go->pos).LengthSquared()) * (go1->pos - collision.go->pos);
-		collision.go->vel = u2 - (2 * m1 / (m1 + m2)) * (((u2 - u1).Dot(collision.go->pos - go1->pos)) / (collision.go->pos - go1->pos).LengthSquared()) * (collision.go->pos - go1->pos);
-		go1->vel.y *= 0.4;
-	}
-	else if (collision.go->type == GameObject::GO_WALL || collision.go->type == GameObject::GO_PLATFORM)
-	{
+		// Inelastic collision for player
 		if (go1 == m_player && !phase)
 		{
 			Vector3 N = collision.normal;
@@ -337,14 +331,17 @@ void SceneArchangel::PhysicsResponse(GameObject* go1, Collision collision)
 			go1->vel = u - (2 * u.Dot(N)) * N;
 			go1->vel.y *= 0;
 		}
+		// Delete projectile objects
 		else if (collision.go->type == GameObject::GO_WALL && (go1->type == GameObject::GO_BULLET || go1->type == GameObject::GO_FIREBALL || go1->type == GameObject::GO_ENEMY_BULLET || go1->type == GameObject::GO_MISSILE || go1->type == GameObject::GO_MG_MISSILE))
 		{
 			ReturnGO(go1);
 		}
+		// Enable fallen angel to pass through platforms
 		else if (collision.go->type == GameObject::GO_PLATFORM && go1->type == GameObject::GO_FALLENANGEL)
 		{
 			// Do nothing
 		}
+		// Rebound non - projectile objects
 		else if (go1->type != GameObject::GO_BULLET && go1->type != GameObject::GO_FIREBALL && go1->type != GameObject::GO_ENEMY_BULLET && go1->type != GameObject::GO_MISSILE && go1->type != GameObject::GO_MG_MISSILE)
 		{
 			Vector3 N = collision.normal;
@@ -354,6 +351,7 @@ void SceneArchangel::PhysicsResponse(GameObject* go1, Collision collision)
 			go1->vel.x *= 0.7f;
 		}
 	}
+	// Enable collision on bounce platform for specific entities
 	else if (collision.go->type == GameObject::GO_BOUNCEPLATFORM)
 	{
 		if ((go1 == m_player && !phase) || go1->type == GameObject::GO_DEMON || go1->type == GameObject::GO_TERMINATOR || go1->type == GameObject::GO_SOLDIER)
@@ -362,52 +360,63 @@ void SceneArchangel::PhysicsResponse(GameObject* go1, Collision collision)
 				go1->vel.y = 130;
 		}
 	}
+	// Handle object collision with Player
 	if (go1 == m_player && !phase)
 	{
 		if (collision.go->vel.x >= -0.1f && collision.go->vel.x <= 0.1f)
 		{
+			// Potion heals normally
 			if (collision.go->type == GameObject::GO_POTION && m_player->hp < m_player->max_hp)
 			{
 				heal(false);
 				ReturnGO(collision.go);
 			}
+			// Max potion increases max player health
 			if (collision.go->type == GameObject::GO_MAXPOTION)
 			{
 				heal(true);
 				ReturnGO(collision.go);
 			}
+			// Mana potion restores mana
 			if (collision.go->type == GameObject::GO_MANAPOTION && go1->mana < 50)
 			{
 				mana(0, 5, true);
 				ReturnGO(collision.go);
 			}
+			// Gold as novelty
 			if (collision.go->type == GameObject::GO_GOLD)
 			{
 				m_player->gold_count++;
 				ReturnGO(collision.go);
 			}
 		}
+		// Open chest when collide with player
 		if (collision.go->type == GameObject::GO_CHEST)
 		{
 			collision.go->open = true;
 			openChest(collision.go);
 		}
+		// Player take dmg upon collision with enemy
 		if (collision.go->type == GameObject::GO_DEMON || collision.go->type == GameObject::GO_FALLENANGEL || collision.go->type == GameObject::GO_TERMINATOR || go1->type == GameObject::GO_SOLDIER || collision.go->type == GameObject::GO_DEMONLORD || collision.go->type == GameObject::GO_METALGEAR || go1->type == GameObject::GO_RAMBO)
 		{
 			takeDMG();
 		}
+		// Player take dmg upon collision with enemy projectile
 		if (collision.go->type == GameObject::GO_FIREBALL || collision.go->type == GameObject::GO_ENEMY_BULLET || collision.go->type == GameObject::GO_MISSILE || collision.go->type == GameObject::GO_MG_MISSILE)
 		{
 			takeDMG();
 			ReturnGO(collision.go);
 		}
 	}
+	// Player bullet collision with enemies
 	if (go1->type == GameObject::GO_BULLET)
 	{
 		if (collision.go->type == GameObject::GO_BARREL || collision.go->type == GameObject::GO_DEMON || collision.go->type == GameObject::GO_FALLENANGEL || collision.go->type == GameObject::GO_TERMINATOR || collision.go->type == GameObject::GO_SOLDIER || collision.go->type == GameObject::GO_DEMONLORD || collision.go->type == GameObject::GO_METALGEAR || collision.go->type == GameObject::GO_RAMBO)
 		{
+			// Take dmg equivalent to weapon
 			collision.go->hp -= weapon_dmg;
 			ReturnGO(go1);
+			// Break barrels open
 			if (collision.go->hp <= 0)
 			{
 				if (collision.go->type == GameObject::GO_BARREL)
@@ -418,6 +427,7 @@ void SceneArchangel::PhysicsResponse(GameObject* go1, Collision collision)
 		}
 
 	}
+	// Entity collision with portal (teleports to other portal)
 	if (!portal_shot)
 	{
 		if (go1->type != GameObject::GO_WALL && go1->type != GameObject::GO_PLATFORM && go1->type != GameObject::GO_BOUNCEPLATFORM)
@@ -455,12 +465,13 @@ void SceneArchangel::PhysicsResponse(GameObject* go1, Collision collision)
 	}
 }
 
-
+// To prevent internal collision
 void SceneArchangel::CollisionBound(GameObject* go1, Collision collision)
 {
 	go1->pos += collision.axis * collision.dist;
 }
 
+// Gravity pulls down entity
 void SceneArchangel::Gravity(GameObject::GAMEOBJECT_TYPE GO, float elasticity, double dt)
 {
 	for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
@@ -500,17 +511,20 @@ void SceneArchangel::SpawnBullet(double dt)
 	float angle;
 	if (Application::IsMousePressed(0))
 	{
+		// Check fire rate
 		if (m_player->bullet_delay > m_player->fire_rate / time_manip)
 		{
+			// Standard guns
 			if (!shotgun)
 			{
-				//m_player->pos.x - 0.85f, m_player->pos.y + 3.1f
 				GameObject* newGO = FetchGO();
 				newGO->active = true;
 				newGO->type = GameObject::GO_BULLET;
 				newGO->scale.Set(0.6f, 0.1f, 0);
 
 				Vector3 right = m_player->normal.Cross(Vector3(0, 0, -1));
+
+				// Repositioning bullet to gun
 				if (m_player->left)
 				{
 					if (weapon_choice == 3)
@@ -525,9 +539,11 @@ void SceneArchangel::SpawnBullet(double dt)
 					else
 						newGO->pos = m_player->pos - m_player->normal + right * 3.4f;
 				}
+
 				newGO->vel = Vector3(x - newGO->pos.x, y - newGO->pos.y, 0);
 				newGO->vel.Normalize() * 100;
 			}
+			// Shotgun bullets
 			else
 			{
 				Vector3 right = m_player->normal.Cross(Vector3(0, 0, -1));
@@ -592,8 +608,8 @@ void SceneArchangel::SpawnBullet(double dt)
 
 void SceneArchangel::playerLogic(double dt)
 {
+	// Enable gravity for player
 	Gravity(GameObject::GO_CUBE, 300, dt);
-
 
 	// Setting speed limiters
 	if (m_player->vel.x >= max_vel)
@@ -649,7 +665,7 @@ void SceneArchangel::playerLogic(double dt)
 	}
 	Boundary(m_player, 1);
 	
-	
+	// Set player's collision boxes
 	m_player->under_box->pos.x = m_player->pos.x;
 	m_player->under_box->pos.y = (m_player->pos.y - 1);
 	if (m_player->vel.y <= 0)
@@ -681,12 +697,16 @@ void SceneArchangel::portalLogic(double dt)
 	Application::GetCursorPos(&x, &y);
 	//Mouse Section
 	static bool bLButtonState = false;
+	// Shooting of portal
+	// Checks if portal has been shot
 	if (Application::IsMousePressed(1) && !portal_shot)
 	{
 		soundcontroller->play2D("Sounds/portal.mp3", false);
+
 		portal_shot = true;
 		if (m_player->portal_delay > 1)
 		{
+			// trigger blue portal
 			if (!portal_in)
 			{
 				ReturnGO(GameObject::GO_PORTAL_IN);
@@ -700,6 +720,7 @@ void SceneArchangel::portalLogic(double dt)
 				newGO->vel.Normalize() * 50;
 				move_portal_in = false;
 			}
+			// trigger orange portal
 			else
 			{
 				ReturnGO(GameObject::GO_PORTAL_OUT);
@@ -716,6 +737,7 @@ void SceneArchangel::portalLogic(double dt)
 		}
 	}
 
+	// Check portal's collision with wall and perform response
 	for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
 	{
 		GameObject* go = (GameObject*)*it;
@@ -744,6 +766,7 @@ void SceneArchangel::portalLogic(double dt)
 		}
 	}
 	
+	// Move portal after shot
 	for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
 	{
 		GameObject* go = (GameObject*)*it;
@@ -761,13 +784,17 @@ void SceneArchangel::portalLogic(double dt)
 	}
 }
 
+// Logic for objects and entities
 void SceneArchangel::itemLogic(double dt)
 {
+	// Enables projecties to move at a constant rate
 	linearVel(dt, GameObject::GO_BULLET, 100);
 	linearVel(dt, GameObject::GO_ENEMY_BULLET, 100);
 	linearVel(dt, GameObject::GO_FIREBALL, 50);
 	linearVel(dt, GameObject::GO_MISSILE, 75);
 	linearVel(dt, GameObject::GO_MG_MISSILE, 50);
+
+	// Enables gravity for objects
 	Gravity(GameObject::GO_POTION, 300, dt);
 	Gravity(GameObject::GO_MAXPOTION, 300, dt);
 	Gravity(GameObject::GO_MANAPOTION, 300, dt);
@@ -780,6 +807,8 @@ void SceneArchangel::itemLogic(double dt)
 	Gravity(GameObject::GO_DEMONLORD, 300, dt);
 	Gravity(GameObject::GO_METALGEAR, 300, dt);
 	Gravity(GameObject::GO_RAMBO, 300, dt);
+
+	// Enable collision for entities
 	enableCollision(dt, GameObject::GO_CUBE);
 	enableCollision(dt, GameObject::GO_BULLET);
 	enableCollision(dt, GameObject::GO_POTION);
@@ -805,6 +834,7 @@ void SceneArchangel::activatePortal(GameObject* go)
 {
 	if (go->active)
 	{
+		// Activate blue portal
 		if (go->type == GameObject::GO_PORTAL_IN)
 		{
 			go->vel = 0;
@@ -812,6 +842,7 @@ void SceneArchangel::activatePortal(GameObject* go)
 			move_portal_in = true;
 			go->scale.Set(2, 3.f, 1);
 		}
+		// Activate orange portal
 		else if (go->type == GameObject::GO_PORTAL_OUT)
 		{
 			go->vel = 0;
@@ -819,6 +850,7 @@ void SceneArchangel::activatePortal(GameObject* go)
 			move_portal_out = true;
 			go->scale.Set(2, 3.f, 1);
 		}
+		// Reset portal shot
 		portal_shot = false;
 	}
 }
@@ -835,6 +867,7 @@ void SceneArchangel::enableCollision(double dt, GameObject::GAMEOBJECT_TYPE GO)
 				GameObject* go2 = (GameObject*)*it2;
 				if (go2->active)
 				{
+					// Checks and compares gos that are colliding
 					GameObject* first = go;
 					GameObject* other = go2;
 					if (first->type != GO)
@@ -847,10 +880,12 @@ void SceneArchangel::enableCollision(double dt, GameObject::GAMEOBJECT_TYPE GO)
 					Collision collision = CheckCollision(first, other);
 					if (collision.dist > 0)
 					{
+						// Prevent internal collision if Wall or Platform
 						if (go2->type == GameObject::GO_WALL || go2->type == GameObject::GO_PLATFORM)
 						{
 							CollisionBound(first, collision);
 						}
+						// Call collision response
 						PhysicsResponse(first, collision);
 						continue;
 					}
@@ -860,7 +895,7 @@ void SceneArchangel::enableCollision(double dt, GameObject::GAMEOBJECT_TYPE GO)
 	}
 }
 
-
+// Set boundary for entities
 void SceneArchangel::Boundary(GameObject* go, int choice)
 {
 	// Wrap around for GO
@@ -872,6 +907,7 @@ void SceneArchangel::Boundary(GameObject* go, int choice)
 		{
 			if (go == m_player)
 			{
+				// Transport player to next level checking
 				if (go->pos.x + go->scale.x > m_worldWidth) // if player outside on the right side
 					m_AttemptRight = true;
 				else m_AttemptLeft = true;
@@ -886,6 +922,7 @@ void SceneArchangel::Boundary(GameObject* go, int choice)
 		}
 					
 	}
+	// Delete entity upon hitting boundary
 	if (choice == 2)
 	{
 		if ((go->pos.x > m_worldWidth + go->scale.x || go->pos.x < 0 - go->scale.x) ||
@@ -898,24 +935,27 @@ void SceneArchangel::Boundary(GameObject* go, int choice)
 
 void SceneArchangel::setGun(float fire, int dmg)
 {
+	// Set weapon dmg and fire rate
 	m_player->fire_rate = fire;
 	weapon_dmg = dmg;
 }
 
 void SceneArchangel::pickWeapon(double dt)
 {
-	// Sword
+	// Check whether melee or ranged
 	if (weapon_choice >= 0 && weapon_choice <= 1)
 		Melee(dt);
 	else
 		SpawnBullet(dt);
 
+	// Normal
 	if (Application::IsKeyPressed('0'))
 	{
 		setGun(0.2f, 10);
 		shotgun = false;
 		weapon_choice = 0;
 	}
+	// Sword
 	else if (Application::IsKeyPressed('1'))
 	{
 		setGun(0.2f, 30);
@@ -962,6 +1002,7 @@ void SceneArchangel::pickWeapon(double dt)
 
 void SceneArchangel::takeDMG()
 {
+	// Player take damage over 1 second
 	if (dmg_delay > 1 && m_player->hp > 0)
 	{
 		m_player->hp--;
@@ -977,6 +1018,7 @@ void SceneArchangel::takeDMG()
 
 void SceneArchangel::Melee(double dt)
 {
+	// Player melee attack
 	static bool bLButtonState3 = false;
 	if (Application::IsMousePressed(0) && !bLButtonState3)
 	{
@@ -988,7 +1030,7 @@ void SceneArchangel::Melee(double dt)
 				soundcontroller->play2D("Sounds/slash grunt.mp3", false);
 				if (go->type == GameObject::GO_DEMON || go->type == GameObject::GO_FALLENANGEL || go->type == GameObject::GO_TERMINATOR || go->type == GameObject::GO_SOLDIER || go->type == GameObject::GO_BARREL || go->type == GameObject::GO_DEMONLORD || go->type == GameObject::GO_METALGEAR)
 				{
-					
+					// Check if enemy is infront of player
 					if (go->pos.y + 5 > m_player->pos.y && go->pos.y - 5 < m_player->pos.y)
 					{
 						if (m_player->left)
@@ -1011,6 +1053,7 @@ void SceneArchangel::Melee(double dt)
 							}
 						}
 					}
+					// Break barrel with melee
 					if (go->type == GameObject::GO_BARREL)
 					{
 						if (go->hp <= 0)
@@ -1032,12 +1075,14 @@ void SceneArchangel::Melee(double dt)
 		bLButtonState3 = false;
 		m_player->attack = false;
 	}
+	// Run attack animation
 	if (m_player->attacking)
 		runAnimation(dt, GameObject::GO_CUBE, 1, 0.05f, 6);
 }
 
 void SceneArchangel::heal(bool max_potion)
 {
+	// Max potion increases maximum player health
 	if (max_potion)
 	{
 		heart_count++;
@@ -1067,9 +1112,11 @@ void SceneArchangel::heal(bool max_potion)
 		}
 	}
 	
+	// Prevents HP from exceeding max
 	if (m_player->hp >= m_player->max_hp)
 		m_player->hp = m_player->max_hp;
 
+	// Prevents HP from descending below 0
 	if (empty_heart < 0)
 	{
 		empty_heart = 0;
@@ -1079,6 +1126,7 @@ void SceneArchangel::heal(bool max_potion)
 
 void SceneArchangel::mana(float interval, float amount,  bool restore)
 {
+	// Restoring mana or deducting mana
 	if (mana_delay > interval && m_player->mana <= 50)
 	{
 		if (restore)
@@ -1088,21 +1136,30 @@ void SceneArchangel::mana(float interval, float amount,  bool restore)
 
 		mana_delay = 0;
 	}
+
+	// Prevent mana from exceeding max
 	if (m_player->mana > 50)
 		m_player->mana = 50;
 }
 
 void SceneArchangel::openChest(GameObject* go)
 {
+	// Enables all objects to be spawned at once
 	for (int i = 0; i < 3; ++i)
 	{
+		// Check how many items spawned
 		if (go->item_count < 3)
 		{
 			GameObject* newGO = FetchGO();
+			// RNG for item type
 			int item_type = Math::RandIntMinMax(1, 3);
+			// RNG for direction flinged towards upon opening
 			int dir = Math::RandIntMinMax(1, 2);
+			// RNG for velocity when flinged
 			int positive_vel = Math::RandIntMinMax(10, 40);
 			int negative_vel = Math::RandIntMinMax(-40, -10);
+
+			// Health Potion
 			if (item_type == 1)
 			{
 				newGO->active = true;
@@ -1118,6 +1175,7 @@ void SceneArchangel::openChest(GameObject* go)
 				}
 				newGO->pos = go->pos;
 			}
+			// Mana Potion
 			else if (item_type == 2)
 			{
 				newGO->active = true;
@@ -1133,6 +1191,7 @@ void SceneArchangel::openChest(GameObject* go)
 				}
 				newGO->pos = go->pos;
 			}
+			// Coin
 			else if (item_type == 3)
 			{
 				newGO->active = true;
@@ -1156,6 +1215,7 @@ void SceneArchangel::openChest(GameObject* go)
 
 void SceneArchangel::demonAI(double dt)
 {
+	// Demon enemy behaviour
 	for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
 	{
 		GameObject* go = (GameObject*)*it;
@@ -1311,6 +1371,7 @@ void SceneArchangel::demonAI(double dt)
 
 void SceneArchangel::fallenAngelAI(double dt)
 {
+	// Fallen angel enemy behaviour
 	for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
 	{
 		GameObject* go = (GameObject*)*it;
@@ -1335,7 +1396,6 @@ void SceneArchangel::fallenAngelAI(double dt)
 					ReturnGO(go->left_box);
 					ReturnGO(go->right_box);
 				}
-
 
 				// Setting speed limiters
 				if (go->vel.x >= 25)
@@ -1487,6 +1547,7 @@ void SceneArchangel::fallenAngelAI(double dt)
 
 void SceneArchangel::terminatorAI(double dt)
 {
+	// Terminator enemy behaviour
 	for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
 	{
 		GameObject* go = (GameObject*)*it;
@@ -1646,6 +1707,7 @@ void SceneArchangel::terminatorAI(double dt)
 
 void SceneArchangel::soldierAI(double dt)
 {
+	// Soldier enemy behaviour
 	for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
 	{
 		GameObject* go = (GameObject*)*it;
@@ -1788,6 +1850,7 @@ void SceneArchangel::soldierAI(double dt)
 
 void SceneArchangel::demonBossAI(double dt)
 {
+	// Demon boss behaviour
 	for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
 	{
 		GameObject* go = (GameObject*)*it;
@@ -1908,6 +1971,7 @@ void SceneArchangel::demonBossAI(double dt)
 
 void SceneArchangel::metalGearAI(double dt)
 {
+	// Metal gear boss behaviour
 	for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
 	{
 		GameObject* go = (GameObject*)*it;
@@ -2086,6 +2150,7 @@ void SceneArchangel::metalGearAI(double dt)
 
 void SceneArchangel::ramboAI(double dt)
 {
+	// Rambo boss behaviour
 	for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
 	{
 		GameObject* go = (GameObject*)*it;
@@ -2217,13 +2282,11 @@ void SceneArchangel::ramboAI(double dt)
 					if (go->pos.x > m_player->pos.x - 40 && go->pos.x < m_player->pos.x)
 					{
 						go->vel.x -= go->speed * 30;
-						go->left = true;
 						enableCollision(dt, GameObject::GO_RAMBO);
 					}
 					else if (go->pos.x < m_player->pos.x + 40 && go->pos.x > m_player->pos.x)
 					{
 						go->vel.x += go->speed * 30;
-						go->left = false;
 						enableCollision(dt, GameObject::GO_RAMBO);
 					}
 
@@ -2247,6 +2310,7 @@ void SceneArchangel::ramboAI(double dt)
 
 void SceneArchangel::linearVel(double dt, GameObject::GAMEOBJECT_TYPE GO, float speed)
 {
+	// Set linear velocity for object
 	for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
 	{
 		GameObject* go = (GameObject*)*it;
@@ -2267,6 +2331,7 @@ void SceneArchangel::linearVel(double dt, GameObject::GAMEOBJECT_TYPE GO, float 
 
 void SceneArchangel::runAnimation(double dt, GameObject::GAMEOBJECT_TYPE GO, int i, double animation_max, int frame_max)
 {
+	// Set animation frames and speed
 	for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
 	{
 		GameObject* go = (GameObject*)*it;
@@ -2330,8 +2395,11 @@ GameObject* SceneArchangel::ObjectOnCursor()
 
 void SceneArchangel::manipTime(double dt)
 {
+	// Time manipulation
 	static bool bLButtonState3 = false;
 	static bool bLButtonState4 = false;
+
+	// Time slow
 	if (Application::IsKeyPressed('P') && !bLButtonState3)
 	{
 		bLButtonState3 = true;
@@ -2351,6 +2419,7 @@ void SceneArchangel::manipTime(double dt)
 		bLButtonState3 = false;
 	}
 	
+	// Time stop
 	if (Application::IsKeyPressed('O') && !bLButtonState4)
 	{
 		bLButtonState4 = true;
@@ -2369,11 +2438,14 @@ void SceneArchangel::manipTime(double dt)
 	{
 		bLButtonState4 = false;
 	}
+
+	// Deducting mana in a constant rate while running abilities
 	if (time_change)
 		mana(0.25f, 0.75f, false);
 	else if (phase)
 		mana(0.25f, 1.f, false);
 
+	// Reset abilities when no more mana
 	if (m_player->mana <= 0)
 	{
 		time_change = false;
@@ -2384,6 +2456,7 @@ void SceneArchangel::manipTime(double dt)
 
 void SceneArchangel::setCollisionBox(GameObject* go)
 {
+	// Set collision box for entities
 	go->left_box = FetchGO();
 	go->left_box->active = true;
 	go->left_box->type = GameObject::GO_GHOSTBALL;
@@ -2662,7 +2735,7 @@ void SceneArchangel::Update(double dt)
 		cameraPos.Set(m_screenWidth * .5f, m_screenHeight * .5f);
 		m_screenHeight = SCREEN_HEIGHT;
 
-		state = STATE_WIN;
+		state = STATE_INTRO;
 	} 
 	else if (state == STATE_INTRO)
 	{
