@@ -641,8 +641,6 @@ void SceneArchangel::playerLogic(double dt)
 			m_player->vel.x -= 3;
 		else
 			m_player->vel.x -= 1;
-
-		m_player->left = true;
 	}
 	else if (Application::IsKeyPressed('D') || Application::IsKeyPressed(VK_RIGHT))
 	{
@@ -651,7 +649,6 @@ void SceneArchangel::playerLogic(double dt)
 		else
 			m_player->vel.x += 1;
 
-		m_player->left = false;
 	}
 	else
 	{
@@ -1923,7 +1920,7 @@ void SceneArchangel::metalGearAI(double dt)
 			if (go->type == GameObject::GO_MG_MISSILE)
 			{
 				go->shoot_delay += dt;
-				if (go->shoot_delay > 3 && go->shoot_delay < 5)
+				if (go->shoot_delay > 3 && go->shoot_delay < 4)
 				{
 					float angle = atan2f(m_player->pos.y - go->pos.y, m_player->pos.x - go->pos.x);
 					go->vel = Vector3(cosf(angle), sin(angle), 0);
