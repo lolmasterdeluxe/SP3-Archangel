@@ -2554,26 +2554,31 @@ void SceneArchangel::SpawnEnemies()
 			if (mapInfo->entityDataList[i]->type == GameObject::GO_DEMON)
 			{
 				go->hp = 30;
+				go->scale.Set(2, 2, 1);
 				setCollisionBox(go);
 			}
 			else if (mapInfo->entityDataList[i]->type == GameObject::GO_FALLENANGEL)
 			{
 				go->hp = 50;
+				go->scale.Set(5, 3.5f, 1);
 				setCollisionBox(go);
 			}
 			else if (mapInfo->entityDataList[i]->type == GameObject::GO_TERMINATOR)
 			{
 				go->hp = 60;
+				go->scale.Set(2.5f, 3, 1);
 				setCollisionBox(go);
 			}
 			else if (mapInfo->entityDataList[i]->type == GameObject::GO_SOLDIER)
 			{
 				go->hp = 45;
+				go->scale.Set(2.5, 3, 1);
 				setCollisionBox(go);
 			}
 			else if (mapInfo->entityDataList[i]->type == GameObject::GO_DEMONLORD)
 			{
 				go->hp = 450;
+				go->scale.Set(6, 6, 1);
 				setCollisionBox(go);
 				GameObject* newGO = FetchGO();
 				newGO->type = GameObject::GO_REALMCHANGER;
@@ -2582,6 +2587,7 @@ void SceneArchangel::SpawnEnemies()
 			else if (mapInfo->entityDataList[i]->type == GameObject::GO_METALGEAR)
 			{
 				go->hp = 600;
+				go->scale.Set(8, 8, 1);
 				setCollisionBox(go);
 				GameObject* newGO = FetchGO();
 				newGO->type = GameObject::GO_REALMCHANGER;
@@ -2590,6 +2596,7 @@ void SceneArchangel::SpawnEnemies()
 			else if (mapInfo->entityDataList[i]->type == GameObject::GO_RAMBO)
 			{
 				go->hp = 500;
+				go->scale.Set(2.5f, 3, 1);
 				setCollisionBox(go);
 				GameObject* newGO = FetchGO();
 				newGO->type = GameObject::GO_REALMCHANGER;
