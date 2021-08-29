@@ -2,7 +2,13 @@
 #include "GL\glew.h"
 #include "Application.h"
 #include <sstream>
+#include "includes/irrKlang.h"
 using namespace std;
+using namespace irrklang;
+
+#pragma comment(lib, "irrklang.lib")
+
+ISoundEngine* soundcontroller = createIrrKlangDevice();
 
 SceneArchangel::SceneArchangel()
 {
@@ -128,6 +134,7 @@ void SceneArchangel::ReturnGO(GameObject* go)
 		go->scale.Set(1, 1, 1);
 		go->normal.Set(1, 0);
 		go->item_count = 0;
+		go->goTag = "";
 	}
 }
 
@@ -585,6 +592,7 @@ void SceneArchangel::SpawnBullet(double dt)
 				newGO4->vel.Normalize() * 100;
 			}
 			m_player->bullet_delay = 0;
+			soundcontroller->play2D("Sounds/fire.mp3", false);
 		}
 	}
 }
@@ -612,6 +620,7 @@ void SceneArchangel::playerLogic(double dt)
 		else
 			m_player->vel.y += 140;
 		jump = true;
+		soundcontroller->play2D("Sounds/jump grunt.mp3", false);
 	}
 
 	// Movement
@@ -985,6 +994,7 @@ void SceneArchangel::Melee(double dt)
 			GameObject* go = (GameObject*)*it;
 			if (go->active)
 			{
+				soundcontroller->play2D("Sounds/slash grunt.mp3", false);
 				if (go->type == GameObject::GO_DEMON || go->type == GameObject::GO_FALLENANGEL || go->type == GameObject::GO_TERMINATOR || go->type == GameObject::GO_SOLDIER || go->type == GameObject::GO_BARREL || go->type == GameObject::GO_DEMONLORD || go->type == GameObject::GO_METALGEAR)
 				{
 					
@@ -2314,7 +2324,7 @@ GameObject* SceneArchangel::ObjectOnCursor()
 				go->pos.x + tempScale.x >= x &&
 				go->pos.x - tempScale.x <= x &&
 				go->pos.y + tempScale.y >= y &&
-				go->pos.y - tempScale.y >= y
+				go->pos.y - tempScale.y <= y
 				)
 			{
 				return go;
@@ -2678,6 +2688,18 @@ void SceneArchangel::Update(double dt)
 		if (Application::IsKeyPressed(VK_SPACE))
 		{
 			state = STATE_MENU;
+			/*GameObject* button1 = FetchGO();
+			button1->active = true;
+			button1->type = GameObject::GO_BUTTON;
+			button1->pos.Set(m_worldWidth * .5f, m_worldHeight * .7f);
+			button1->scale.Set(25, 10, 1);
+			button1->goTag = "Start";
+			GameObject* button2 = FetchGO();
+			button2->active = true;
+			button2->type = GameObject::GO_BUTTON;
+			button2->pos.Set(m_worldWidth * .5f, m_worldHeight * .3f);
+			button2->scale.Set(25, 10, 1);
+			button2->goTag = "Quit";*/
 		}
 	}
 	else if (state == STATE_MENU || state == STATE_LOSE)
@@ -2686,12 +2708,22 @@ void SceneArchangel::Update(double dt)
 		{ // leave this if condition here even if not needed this function is kinda bugged
 			EndGame();
 		}
-
 		// Space to continue
 		if (Application::IsKeyPressed(VK_SPACE))
 		{
 			state = STATE_INITPLAY;
 		}
+
+		//if (Application::IsMousePressed(0))
+		//{
+		//	GameObject* pointed = ObjectOnCursor();
+		//	if (pointed != nullptr)
+		//	{
+		//		if (pointed->goTag == "Start") state = STATE_INITPLAY;
+		//		else if (pointed->goTag == "Quit") EndGame();
+		//	}
+		//}
+
 	}
 	else if (state == STATE_WIN)
 	{
@@ -2985,6 +3017,16 @@ void SceneArchangel::RenderGO(GameObject *go)
 		modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
 		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
 		RenderMesh(meshList[GEO_BALL], true);
+		modelStack.PopMatrix();
+		break;
+	
+	case GameObject::GO_BUTTON:
+		// Pillars that attach to cube
+		modelStack.PushMatrix();
+		modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
+		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
+		RenderMesh(meshList[GEO_CUBE], true);
+		RenderText(meshList[GEO_TEXT], go->goTag, Color());
 		modelStack.PopMatrix();
 		break;
 		
@@ -3425,6 +3467,15 @@ void SceneArchangel::Render()
 		RenderMesh(meshList[GEO_MENU], false);
 		RenderTextOnScreen(meshList[GEO_TEXT], "THE ARCHANGEL", Color(0, 0, 1), 5, 26, 53);
 		modelStack.PopMatrix();
+
+		for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
+		{
+			GameObject* go = (GameObject*)*it;
+			if (go->active && go != m_player)
+			{
+				RenderGO(go);
+			}
+		}
 	}
 	else if (state == STATE_PLAY || state == STATE_PAUSE || state == STATE_WIN_ANIM || state == STATE_LOSE_ANIM)
 	{
@@ -3432,13 +3483,13 @@ void SceneArchangel::Render()
 		modelStack.PushMatrix();
 		if (state == STATE_WIN_ANIM || state == STATE_LOSE_ANIM)
 		{
-			modelStack.Translate(cameraPos.x, cameraPos.y, 1);
+			modelStack.Translate(cameraPos.x, cameraPos.y, -1);
 			modelStack.Rotate(180, 0, 0, 1);
 			modelStack.Scale(m_screenWidth, m_screenHeight, 1);
 		}
 		else
 		{
-			modelStack.Translate(m_worldWidth * .5f, m_worldHeight * .5f, 1);
+			modelStack.Translate(m_worldWidth * .5f, m_worldHeight * .5f, -1);
 			modelStack.Rotate(180, 0, 0, 1);
 			modelStack.Scale(100, 65, 1);
 		}
