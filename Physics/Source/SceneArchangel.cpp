@@ -2,7 +2,13 @@
 #include "GL\glew.h"
 #include "Application.h"
 #include <sstream>
+#include "includes/irrKlang.h"
 using namespace std;
+using namespace irrklang;
+
+#pragma comment(lib, "irrklang.lib")
+
+ISoundEngine* soundcontroller = createIrrKlangDevice();
 
 SceneArchangel::SceneArchangel()
 {
@@ -586,6 +592,7 @@ void SceneArchangel::SpawnBullet(double dt)
 				newGO4->vel.Normalize() * 100;
 			}
 			m_player->bullet_delay = 0;
+			soundcontroller->play2D("Sounds/fire.mp3", false);
 		}
 	}
 }
@@ -613,6 +620,7 @@ void SceneArchangel::playerLogic(double dt)
 		else
 			m_player->vel.y += 140;
 		jump = true;
+		soundcontroller->play2D("Sounds/jump grunt.mp3", false);
 	}
 
 	// Movement
@@ -986,6 +994,7 @@ void SceneArchangel::Melee(double dt)
 			GameObject* go = (GameObject*)*it;
 			if (go->active)
 			{
+				soundcontroller->play2D("Sounds/slash grunt.mp3", false);
 				if (go->type == GameObject::GO_DEMON || go->type == GameObject::GO_FALLENANGEL || go->type == GameObject::GO_TERMINATOR || go->type == GameObject::GO_SOLDIER || go->type == GameObject::GO_BARREL || go->type == GameObject::GO_DEMONLORD || go->type == GameObject::GO_METALGEAR)
 				{
 					
