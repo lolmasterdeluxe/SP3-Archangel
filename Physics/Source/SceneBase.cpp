@@ -137,9 +137,9 @@ void SceneBase::Init()
 	meshList[GEO_WIN] = MeshBuilder::GenerateQuad("Win", Color(1, 1, 1), 2.f);
 	meshList[GEO_WIN]->textureID = LoadTGA("Image//winscreen.tga");
 	meshList[GEO_MENU] = MeshBuilder::GenerateQuad("Win", Color(1, 1, 1), 2.f);
-	meshList[GEO_MENU]->textureID = LoadTGA("Image//MenuScrn.tga");
-	meshList[GEO_LOSE] = MeshBuilder::GenerateQuad("Ball Menu", Color(1, 1, 1), 2.f);
-	meshList[GEO_LOSE]->textureID = LoadTGA("Image//LoseScrn.tga");
+	meshList[GEO_MENU]->textureID = LoadTGA("Image//menu.tga");
+	meshList[GEO_LOSE] = MeshBuilder::GenerateQuad("Archangel Menu", Color(1, 1, 1), 2.f);
+	meshList[GEO_LOSE]->textureID = LoadTGA("Image//losescreen.tga");
 
 	meshList[GEO_MISSILE] = MeshBuilder::GenerateQuad("Missile", Color(1, 1, 1), 2.f);
 	meshList[GEO_MISSILE]->textureID = LoadTGA("Image//missile.tga");

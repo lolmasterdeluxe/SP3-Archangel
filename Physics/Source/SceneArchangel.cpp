@@ -525,7 +525,6 @@ void SceneArchangel::SpawnBullet(double dt)
 					else
 						newGO->pos = m_player->pos - m_player->normal + right * 3.4f;
 				}
-
 				newGO->vel = Vector3(x - newGO->pos.x, y - newGO->pos.y, 0);
 				newGO->vel.Normalize() * 100;
 			}
@@ -694,7 +693,7 @@ void SceneArchangel::portalLogic(double dt)
 				GameObject* newGO = FetchGO();
 				newGO->active = true;
 				newGO->type = GameObject::GO_PORTAL_IN;
-				newGO->scale.Set(2.5f, 2, 1);
+				newGO->scale.Set(2, 2, 1);
 				newGO->normal.Set(1, 0, 0);
 				newGO->pos = m_player->pos;
 				newGO->vel = Vector3((x / w * m_screenWidth) + (cameraPos.x - m_screenWidth * .5f) - newGO->pos.x, ((h - y) / h * m_screenHeight) + (cameraPos.y - m_screenHeight * .5f) - newGO->pos.y, 0);
@@ -707,7 +706,7 @@ void SceneArchangel::portalLogic(double dt)
 				GameObject* newGO = FetchGO();
 				newGO->active = true;
 				newGO->type = GameObject::GO_PORTAL_OUT;
-				newGO->scale.Set(2.5f, 2, 1);
+				newGO->scale.Set(2, 2, 1);
 				newGO->normal.Set(1, 0, 0);	
 				newGO->pos = m_player->pos;
 				newGO->vel = Vector3((x / w * m_screenWidth) + (cameraPos.x - m_screenWidth * .5f) - newGO->pos.x, ((h - y) / h * m_screenHeight) + (cameraPos.y - m_screenHeight * .5f) - newGO->pos.y, 0);
@@ -811,14 +810,14 @@ void SceneArchangel::activatePortal(GameObject* go)
 			go->vel = 0;
 			portal_in = true;
 			move_portal_in = true;
-			go->scale.Set(2, 2.5f, 1);
+			go->scale.Set(2, 3.f, 1);
 		}
 		else if (go->type == GameObject::GO_PORTAL_OUT)
 		{
 			go->vel = 0;
 			portal_in = false;
 			move_portal_out = true;
-			go->scale.Set(2, 2.5f, 1);
+			go->scale.Set(2, 3.f, 1);
 		}
 		portal_shot = false;
 	}
@@ -1607,7 +1606,11 @@ void SceneArchangel::terminatorAI(double dt)
 						newGO->active = true;
 						newGO->type = GameObject::GO_ENEMY_BULLET;
 						newGO->scale.Set(0.6f, 0.1f, 0);
-						newGO->pos = go->pos;
+						Vector3 right = go->normal.Cross(Vector3(0, 0, -1));
+						if (go->left)
+							newGO->pos = go->pos + go->normal + right * 0.6f;
+						else
+							newGO->pos = go->pos - go->normal + right * 0.6f;
 						float angle = atan2f(m_player->pos.y - go->pos.y, m_player->pos.x - go->pos.x);
 						newGO->vel = Vector3(cosf(angle), sin(angle), 0);
 						newGO->vel.Normalize() * 100;
@@ -1738,7 +1741,13 @@ void SceneArchangel::soldierAI(double dt)
 						newGO->active = true;
 						newGO->type = GameObject::GO_ENEMY_BULLET;
 						newGO->scale.Set(0.6f, 0.1f, 0);
-						newGO->pos = go->pos;
+						Vector3 right = go->normal.Cross(Vector3(0, 0, -1));
+
+						if (go->left)
+							newGO->pos = go->pos + go->normal + right * 2.f;
+						else
+							newGO->pos = go->pos - go->normal + right * 2.f;
+
 						float angle = atan2f(m_player->pos.y - go->pos.y, m_player->pos.x - go->pos.x);
 						newGO->vel = Vector3(cosf(angle), sin(angle), 0);
 						newGO->vel.Normalize() * 100;
@@ -2634,8 +2643,21 @@ void SceneArchangel::Update(double dt)
 		button1->scale.Set(10, 5, 1);
 		button1->hp = 20;
 
-		state = STATE_MENU;
+		state = STATE_INTRO;
 	} 
+	else if (state == STATE_INTRO)
+	{
+		if (Application::IsKeyPressed(VK_ESCAPE))
+		{ // leave this if condition here even if not needed this function is kinda bugged
+			EndGame();
+		}
+
+		// Space to continue
+		if (Application::IsKeyPressed(VK_SPACE))
+		{
+			state = STATE_MENU;
+		}
+	}
 	else if (state == STATE_MENU || state == STATE_LOSE)
 	{
 		if (Application::IsKeyPressed(VK_ESCAPE))
@@ -3364,25 +3386,24 @@ void SceneArchangel::Render()
 	//RenderMesh(meshList[GEO_AXES], false);
 
 	// Menu state background
-	if (state == STATE_MENU)
+	if (state == STATE_INTRO)
 	{
 		modelStack.PushMatrix();
 		modelStack.Translate(m_worldWidth * .5f, m_worldHeight * .5f, 1);
 		modelStack.Scale(m_worldWidth * .5f, m_worldHeight * .5f, 1);
 		RenderMesh(meshList[GEO_MENU], false);
+		RenderTextOnScreen(meshList[GEO_TEXT], "THE ARCHANGEL", Color(0, 0, 1), 5, 26, 30);
+		RenderTextOnScreen(meshList[GEO_TEXT], "Press [SPACE] to start", Color(0, 0, 1), 3, 30, 25);
 		modelStack.PopMatrix();
-		/*for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
-		{
-			GameObject* go = (GameObject*)*it;
-			if (go->active && go != m_player)
-			{
-				RenderGO(go);
-			}
-		}*/
 	}
-	else if (state == STATE_INITPLAY)
+	else if (state == STATE_MENU)
 	{
-
+		modelStack.PushMatrix();
+		modelStack.Translate(m_worldWidth * .5f, m_worldHeight * .5f, 1);
+		modelStack.Scale(m_worldWidth * .5f, m_worldHeight * .5f, 1);
+		RenderMesh(meshList[GEO_MENU], false);
+		RenderTextOnScreen(meshList[GEO_TEXT], "THE ARCHANGEL", Color(0, 0, 1), 5, 26, 53);
+		modelStack.PopMatrix();
 	}
 	else if (state == STATE_PLAY || state == STATE_PAUSE || state == STATE_WIN_ANIM || state == STATE_LOSE_ANIM)
 	{
@@ -3414,20 +3435,18 @@ void SceneArchangel::Render()
 				RenderGO(go);
 			}
 		}
-	}
-
-	if (state == STATE_PAUSE)
-	{
-		RenderTextOnScreen(meshList[GEO_TEXT], "temporary controls", Color(1, 1, 1), 4, 0, 12); // object Count
-		RenderTextOnScreen(meshList[GEO_TEXT], "esc: resume", Color(1, 1, 1), 4, 0, 8); // object Count
-		RenderTextOnScreen(meshList[GEO_TEXT], "R: restart game", Color(1, 1, 1), 4, 0, 4); // object Count
-		RenderTextOnScreen(meshList[GEO_TEXT], "Q: quit game ", Color(1, 1, 1), 4, 0, 0); // object Count
-	}
-	if (state == STATE_PLAY)
-	{ // render HUD when not paused
-		std::ostringstream ss;
-		std::ostringstream ss2;
-		std::ostringstream ss3;
+		if (state == STATE_PAUSE)
+		{
+			RenderTextOnScreen(meshList[GEO_TEXT], "temporary controls", Color(1, 1, 1), 4, 0, 12);
+			RenderTextOnScreen(meshList[GEO_TEXT], "esc: resume", Color(1, 1, 1), 4, 0, 8);
+			RenderTextOnScreen(meshList[GEO_TEXT], "R: restart game", Color(1, 1, 1), 4, 0, 4);
+			RenderTextOnScreen(meshList[GEO_TEXT], "Q: quit game ", Color(1, 1, 1), 4, 0, 0);
+		}
+		if (state == STATE_PLAY)
+		{ // render HUD when not paused
+			std::ostringstream ss;
+			std::ostringstream ss2;
+			std::ostringstream ss3;
 
 		RenderMeshOnScreen(meshList[GEO_CHARGE], -9.f + (m_player->mana) * 0.36f, 53, 18, 2.f);
 
