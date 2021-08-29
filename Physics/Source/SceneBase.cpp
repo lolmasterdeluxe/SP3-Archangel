@@ -109,7 +109,7 @@ void SceneBase::Init()
 	meshList[GEO_YELLOWBALL] = MeshBuilder::GenerateSphere("yellow ball", Color(1, 1, 0), 10, 10, 1.f);
 	meshList[GEO_GREENBALL] = MeshBuilder::GenerateSphere("green ball", Color(0, 0.502f, 0), 10, 10, 1.f);
 	meshList[GEO_CYANBALL] = MeshBuilder::GenerateSphere("cyan ball", Color(0, 1, 1), 10, 10, 1.f);
-	meshList[GEO_BLUEBALL] = MeshBuilder::GenerateSphere("blue ball", Color(0, 0, 1), 10, 10, 1.f);
+	meshList[GEO_BLUEBALL] = MeshBuilder::GenerateSphere("blue ball", Color(0, 0., 0.545f), 10, 10, 1.f);
 	meshList[GEO_PURPLEBALL] = MeshBuilder::GenerateSphere("purple ball", Color(0.502f, 0.000, 0.502f), 10, 10, 1.f);
 
 	meshList[GEO_CUBE] = MeshBuilder::GenerateCube("cube", Color(1, 1, 1), 2.f);
@@ -118,7 +118,7 @@ void SceneBase::Init()
 	meshList[GEO_YELLOWCUBE] = MeshBuilder::GenerateCube("yellow cube", Color(1, 1, 0), 2.f);
 	meshList[GEO_GREENCUBE] = MeshBuilder::GenerateCube("green cube", Color(0, 0.502f, 0), 2.f);
 	meshList[GEO_CYANCUBE] = MeshBuilder::GenerateCube("cyan cube", Color(0, 1, 1), 2.f);
-	meshList[GEO_BLUECUBE] = MeshBuilder::GenerateCube("blue cube", Color(0, 0, 1), 2.f);
+	meshList[GEO_BLUECUBE] = MeshBuilder::GenerateCube("blue cube", Color(0, 0., 0.545f), 2.f);
 	meshList[GEO_PURPLECUBE] = MeshBuilder::GenerateCube("purple cube", Color(0.502f, 0.000, 0.502f), 2.f);
 
 	meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
@@ -134,8 +134,12 @@ void SceneBase::Init()
 	meshList[GEO_CHARGEBG] = MeshBuilder::GenerateQuad("ChargeBG", Color(0, 0, 0), 1);
 	meshList[GEO_CHARGE] = MeshBuilder::GenerateQuad("Charge", Color(0, 0, 1), 1);
 
-	meshList[GEO_WIN] = MeshBuilder::GenerateQuad("Win", Color(1, 1, 1), 2.f);
-	meshList[GEO_WIN]->textureID = LoadTGA("Image//winscreen.tga");
+	meshList[GEO_WIN1] = MeshBuilder::GenerateQuad("Win", Color(1, 1, 1), 2.f);
+	meshList[GEO_WIN1]->textureID = LoadTGA("Image//diablo.tga");
+	meshList[GEO_WIN2] = MeshBuilder::GenerateQuad("Win", Color(1, 1, 1), 2.f);
+	meshList[GEO_WIN2]->textureID = LoadTGA("Image//metalgearrex.tga");
+	meshList[GEO_WIN3] = MeshBuilder::GenerateQuad("Win", Color(1, 1, 1), 2.f);
+	meshList[GEO_WIN3]->textureID = LoadTGA("Image//winscreen.tga");
 	meshList[GEO_MENU] = MeshBuilder::GenerateQuad("Win", Color(1, 1, 1), 2.f);
 	meshList[GEO_MENU]->textureID = LoadTGA("Image//menu.tga");
 	meshList[GEO_LOSE] = MeshBuilder::GenerateQuad("Archangel Menu", Color(1, 1, 1), 2.f);
