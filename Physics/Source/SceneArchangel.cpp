@@ -1678,6 +1678,7 @@ void SceneArchangel::terminatorAI(double dt)
 						float angle = atan2f(m_player->pos.y - go->pos.y, m_player->pos.x - go->pos.x);
 						newGO->vel = Vector3(cosf(angle), sin(angle), 0);
 						newGO->vel.Normalize() * 100;
+						soundcontroller->play2D("Sounds/fire.mp3", false);
 						go->bullet_delay = 0;
 					}
 					break;
@@ -1816,6 +1817,7 @@ void SceneArchangel::soldierAI(double dt)
 						float angle = atan2f(m_player->pos.y - go->pos.y, m_player->pos.x - go->pos.x);
 						newGO->vel = Vector3(cosf(angle), sin(angle), 0);
 						newGO->vel.Normalize() * 100;
+						soundcontroller->play2D("Sounds/fire.mp3", false);
 						go->bullet_delay = 0;
 					}
 					break;
@@ -2072,6 +2074,7 @@ void SceneArchangel::metalGearAI(double dt)
 						newGO->pos = go->pos + go->normal + right * 2;
 						float angle = atan2f(m_player->pos.y - go->pos.y, m_player->pos.x - go->pos.x);
 						newGO->vel = Vector3(cosf(angle), sin(angle), 0);
+						soundcontroller->play2D("Sounds/fire.mp3", false);
 						newGO->vel.Normalize() * 50;
 
 						GameObject* newGO2 = FetchGO();
@@ -2082,6 +2085,7 @@ void SceneArchangel::metalGearAI(double dt)
 						newGO2->pos = go->pos - go->normal + right2 * 2;
 						float angle2 = atan2f(m_player->pos.y - go->pos.y, m_player->pos.x - go->pos.x);
 						newGO2->vel = Vector3(cosf(angle2), sin(angle2), 0);
+						soundcontroller->play2D("Sounds/fire.mp3", false);
 						newGO2->vel.Normalize() * 50;
 
 						go->bullet_delay = 0;
@@ -2257,6 +2261,7 @@ void SceneArchangel::ramboAI(double dt)
 							float angle = atan2f(m_player->pos.y - go->pos.y, m_player->pos.x - go->pos.x);
 							newGO->vel = Vector3(cosf(angle), sin(angle), 0);
 							newGO->vel.Normalize() * 50;
+							soundcontroller->play2D("Sounds/fire.mp3", false);
 							go->bullet_delay = 0;
 						}
 					}
