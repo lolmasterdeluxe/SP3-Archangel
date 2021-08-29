@@ -59,7 +59,7 @@ void SceneArchangel::Init()
 
 	// Initialize Game state
 	state = STATE_INITMENU;
-
+	realm = REALM_HELL;
 
 	for (int i = 0; i < 150; i++)
 	{
@@ -2333,16 +2333,13 @@ GameObject* SceneArchangel::ObjectOnCursor()
 		GameObject* go = (GameObject*)*it;
 		if (go->active)
 		{
-			m_emptyGO->pos.Set(x, y);
-			m_emptyGO->scale.Set(.01f, .01f, 1);
-			m_emptyGO->type = GameObject::GO_GHOSTBALL;
-			if (CheckCollision(m_emptyGO, go).dist > 0)
-				return go;
-			else if ( // AABB Collision check
-				go->pos.x + go->scale.x >= m_emptyGO->pos.x &&
-				go->pos.x - go->scale.x <= m_emptyGO->pos.x &&
-				go->pos.y + go->scale.y >= m_emptyGO->pos.y &&
-				go->pos.y - go->scale.y >= m_emptyGO->pos.y
+			Vector3 tempScale = go->scale;
+			if (go->normal == Vector3(0, 1)) tempScale.Set(go->scale.y, go->scale.x, go->scale.z);
+			if ( // AABB Collision check
+				go->pos.x + tempScale.x >= x &&
+				go->pos.x - tempScale.x <= x &&
+				go->pos.y + tempScale.y >= y &&
+				go->pos.y - tempScale.y >= y
 				)
 			{
 				return go;
@@ -2689,7 +2686,23 @@ void SceneArchangel::Update(double dt)
 		// Space to continue
 		if (Application::IsKeyPressed(VK_SPACE))
 		{
-			state = STATE_INITPLAY;
+			switch (realm)
+			{
+			case SceneArchangel::REALM_HELL:
+				state = STATE_INITPLAY;
+				realm = REALM_FUTURE;
+				break;
+			case SceneArchangel::REALM_FUTURE:
+				state = STATE_INITPLAY;
+				realm = REALM_MODERN;
+				break;
+			case SceneArchangel::REALM_MODERN:
+				EndGame();
+				break;
+			default:
+				EndGame();
+				break;
+			}
 		}
 	}
 	else if (state == STATE_WIN_ANIM)
@@ -2747,7 +2760,6 @@ void SceneArchangel::Update(double dt)
 		m_player->hp = 12;
 		m_player->mana = 50;
 		m_player->max_hp = 12;
-		realm = REALM_HELL;
 
 		// create new map
 		mapMaker.GenerateMap(realm);
@@ -3332,7 +3344,7 @@ void SceneArchangel::Render()
 	// Model matrix : an identity matrix (model will be at the origin)
 	modelStack.LoadIdentity();
 	
-	RenderMesh(meshList[GEO_AXES], false);
+	//RenderMesh(meshList[GEO_AXES], false);
 
 	// Menu state background
 	if (state == STATE_MENU)
@@ -3651,7 +3663,7 @@ void SceneArchangel::Render()
 		modelStack.PushMatrix();
 		modelStack.Translate(80, 50, 1);
 		modelStack.Scale(80, 50, 1);
-		RenderTextOnScreen(meshList[GEO_TEXT], "YOU WON", Color(1, 1, 1), 8, 0, 30);
+		RenderTextOnScreen(meshList[GEO_TEXT], "YOU WON", Color(1, 1, 1), 8, 20, 30);
 		modelStack.PopMatrix();
 	}
 }
