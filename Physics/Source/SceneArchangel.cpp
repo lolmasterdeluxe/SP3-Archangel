@@ -2815,13 +2815,13 @@ void SceneArchangel::Update(double dt)
 	{
 		if (Application::IsKeyPressed(VK_ESCAPE))
 		{ // leave this if condition here even if not needed this function is kinda bugged
-			EndGame();
+			//EndGame();
 		}
 
 		// Space to continue
 		if (Application::IsKeyPressed(VK_SPACE))
 		{
-			switch (realm)
+			/*switch (realm)
 			{
 			case SceneArchangel::REALM_HELL:
 				state = STATE_INITPLAY;
@@ -2834,11 +2834,43 @@ void SceneArchangel::Update(double dt)
 				realm = REALM_MODERN;
 				break;
 			case SceneArchangel::REALM_MODERN:
-				EndGame();
+				state = STATE_INITPLAY;
+				realm = REALM_HELL;
 				break;
 			default:
 				EndGame();
 				break;
+			}*/
+		}
+		if (Application::IsMousePressed(0))
+		{
+			GameObject* pointed = ObjectOnCursor();
+			if (pointed != nullptr)
+			{
+				if (pointed->goTag == "Restart" || pointed->goTag == "Continue")
+				{
+					switch (realm)
+					{
+					case SceneArchangel::REALM_HELL:
+						state = STATE_INITPLAY;
+						realm = REALM_FUTURE;
+						soundcontroller->stopAllSounds();
+						soundcontroller->play2D("Sounds/futuristic.mp3", true);
+						break;
+					case SceneArchangel::REALM_FUTURE:
+						state = STATE_INITPLAY;
+						realm = REALM_MODERN;
+						break;
+					case SceneArchangel::REALM_MODERN:
+						state = STATE_INITPLAY;
+						realm = REALM_HELL;
+						break;
+					default:
+						EndGame();
+						break;
+					}
+				}
+				else if (pointed->goTag == "Quit") EndGame();
 			}
 		}
 	}
@@ -2850,6 +2882,20 @@ void SceneArchangel::Update(double dt)
 		{
 			state = STATE_WIN;
 			m_screenHeight = SCREEN_HEIGHT;
+			GameObject* button2 = FetchGO();
+			button2->active = true;
+			button2->type = GameObject::GO_BUTTON;
+			button2->pos.Set(cameraPos.x, cameraPos.y - 12);
+			button2->scale.Set(7, 4, 1);
+			if (realm == REALM_MODERN)
+				button2->goTag = "Restart";
+			else button2->goTag = "Continue";
+			GameObject* button3 = FetchGO();
+			button3->active = true;
+			button3->type = GameObject::GO_BUTTON;
+			button3->pos.Set(cameraPos.x, cameraPos.y - 20);
+			button3->scale.Set(7, 4, 1);
+			button3->goTag = "Quit";
 		}
 	}
 	else if (state == STATE_LOSE_ANIM)
@@ -3147,6 +3193,8 @@ void SceneArchangel::RenderGO(GameObject *go)
 			RenderMesh(meshList[GEO_BUTTONRESUME], true);
 		if (go->goTag == "Restart")
 			RenderMesh(meshList[GEO_BUTTONRESTART], true);
+		if (go->goTag == "Continue")
+			RenderMesh(meshList[GEO_BUTTONCONTINUE], true);
 		if (go->goTag == "Quit")
 			RenderMesh(meshList[GEO_BUTTONQUIT], true);
 		modelStack.PopMatrix();
@@ -3966,8 +4014,8 @@ void SceneArchangel::Render()
 			RenderMesh(meshList[GEO_WIN1], false);
 			RenderTextOnScreen(meshList[GEO_TEXT], "YOU HAVE DEFEATED DEMONLORD", Color(1, 0, 0), 4, 17, 35);
 			RenderTextOnScreen(meshList[GEO_TEXT], "TRANSPORTING TO NEXT REALM...", Color(1, 0, 0), 4, 18, 30);
-			RenderTextOnScreen(meshList[GEO_TEXT], "Press [SPACE] to continue", Color(0, 1, 0), 3, 30, 25);
-			RenderTextOnScreen(meshList[GEO_TEXT], "Press [ESC] to quit", Color(0, 1, 0), 3, 32.5f, 20);
+			//RenderTextOnScreen(meshList[GEO_TEXT], "Press [SPACE] to continue", Color(0, 1, 0), 3, 30, 25);
+			//RenderTextOnScreen(meshList[GEO_TEXT], "Press [ESC] to quit", Color(0, 1, 0), 3, 32.5f, 20);
 		}
 		else if (realm == REALM_FUTURE)
 		{
@@ -3975,18 +4023,27 @@ void SceneArchangel::Render()
 			RenderMesh(meshList[GEO_WIN2], false);
 			RenderTextOnScreen(meshList[GEO_TEXT], "YOU HAVE DEFEATED METAL GEAR", Color(0.753f, 0.753f, 0.753f), 4, 17, 35);
 			RenderTextOnScreen(meshList[GEO_TEXT], "TRANSPORTING TO NEXT REALM...", Color(0.753f, 0.753f, 0.753f), 4, 18, 30);
-			RenderTextOnScreen(meshList[GEO_TEXT], "Press [SPACE] to continue", Color(0, 1, 0), 3, 30, 25);
-			RenderTextOnScreen(meshList[GEO_TEXT], "Press [ESC] to quit", Color(0, 1, 0), 3, 32.5f, 20);
+			//RenderTextOnScreen(meshList[GEO_TEXT], "Press [SPACE] to continue", Color(0, 1, 0), 3, 30, 25);
+			//RenderTextOnScreen(meshList[GEO_TEXT], "Press [ESC] to quit", Color(0, 1, 0), 3, 32.5f, 20);
 		}
 		else if (realm == REALM_MODERN)
 		{
 			modelStack.Scale(m_worldWidth * .5f, m_worldHeight * .4f, 1);
 			RenderMesh(meshList[GEO_WIN3], false);
 			RenderTextOnScreen(meshList[GEO_TEXT], "YOU WON", Color(0, 1, 0), 5, 33, 30);
-			RenderTextOnScreen(meshList[GEO_TEXT], "Press [SPACE] to restart", Color(0, 1, 0), 3, 30, 25);
-			RenderTextOnScreen(meshList[GEO_TEXT], "Press [ESC] to quit", Color(0, 1, 0), 3, 32.5f, 20);
+			//RenderTextOnScreen(meshList[GEO_TEXT], "Press [SPACE] to restart", Color(0, 1, 0), 3, 30, 25);
+			//RenderTextOnScreen(meshList[GEO_TEXT], "Press [ESC] to quit", Color(0, 1, 0), 3, 32.5f, 20);
 		}
 		modelStack.PopMatrix();
+
+		for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
+		{
+			GameObject* go = (GameObject*)*it;
+			if (go->active && go->type == GameObject::GO_BUTTON)
+			{
+				RenderGO(go);
+			}
+		}
 	}
 }
 	
