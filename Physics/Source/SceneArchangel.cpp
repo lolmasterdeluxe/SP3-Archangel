@@ -2946,7 +2946,21 @@ void SceneArchangel::RenderGO(GameObject *go)
 				modelStack.PushMatrix();
 				modelStack.Translate(go->pos.x + 2 * x - tempScale.x + ((tempScale.x - x < 1) ? .5f : 1), go->pos.y + 2 * y - tempScale.y + ((tempScale.y - y < 1) ? .5f : 1), go->pos.z);
 				modelStack.Scale((tempScale.x - x < 1) ? .5f : 1, (tempScale.y - y < 1) ? .5f : 1, 1);
-				RenderMesh(meshList[GEO_NETHERBRICK], false);
+				switch (realm)
+				{
+				case SceneArchangel::REALM_HELL:
+					RenderMesh(meshList[GEO_NETHERBRICK], false);
+					break;
+				case SceneArchangel::REALM_FUTURE:
+					RenderMesh(meshList[GEO_FUTUREBLOCK], false);
+					break;
+				case SceneArchangel::REALM_MODERN:
+					RenderMesh(meshList[GEO_CITYBLOCK], false);
+					break;
+				default:
+					RenderMesh(meshList[GEO_PURPLECUBE], false);
+					break;
+				}
 				modelStack.PopMatrix();
 			}
 		}

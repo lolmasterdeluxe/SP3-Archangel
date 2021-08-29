@@ -29,8 +29,13 @@ bool CMapMaker::CheckIfEnteringRight()
 
 void CMapMaker::CreateLeft(CMapStorage::MAP_CATEGORY category)
 {
+	CreateLeft(category, Math::RandIntMinMax(0, MAPS_PER_CATEGORY - 1));
+}
+
+void CMapMaker::CreateLeft(CMapStorage::MAP_CATEGORY category, int lvl)
+{
 	newNode = new CMapNode();
-	newNode->SetMapData(CMapStorage::GetInstance()->GetMapInfo(category, Math::RandIntMinMax(0, MAPS_PER_CATEGORY - 1)));
+	newNode->SetMapData(CMapStorage::GetInstance()->GetMapInfo(category, lvl));
 	current->SetLeft(newNode);
 	newNode->SetRight(current);
 	current = newNode;
@@ -38,8 +43,13 @@ void CMapMaker::CreateLeft(CMapStorage::MAP_CATEGORY category)
 
 void CMapMaker::CreateRight(CMapStorage::MAP_CATEGORY category)
 {
+	CreateRight(category, Math::RandIntMinMax(0, MAPS_PER_CATEGORY - 1));
+}
+
+void CMapMaker::CreateRight(CMapStorage::MAP_CATEGORY category, int lvl)
+{
 	newNode = new CMapNode();
-	newNode->SetMapData(CMapStorage::GetInstance()->GetMapInfo(category, Math::RandIntMinMax(0, MAPS_PER_CATEGORY - 1)));
+	newNode->SetMapData(CMapStorage::GetInstance()->GetMapInfo(category, lvl));
 	current->SetRight(newNode);
 	newNode->SetLeft(current);
 	current = newNode;
@@ -117,7 +127,7 @@ void CMapMaker::GenerateMap(int lvl)
 	if (Math::RandIntMinMax(1, 2) == 1)
 	{
 		CreateLeft(CMapStorage::CAT_LEFT_REST);
-		CreateLeft(CMapStorage::CAT_LEFT_BOSS);
+		CreateLeft(CMapStorage::CAT_LEFT_BOSS, lvl);
 		spawnedBossRoom = true;
 	}
 	else
@@ -137,7 +147,7 @@ void CMapMaker::GenerateMap(int lvl)
 	else
 	{
 		CreateRight(CMapStorage::CAT_RIGHT_REST);
-		CreateRight(CMapStorage::CAT_RIGHT_BOSS);
+		CreateRight(CMapStorage::CAT_RIGHT_BOSS, lvl);
 	}
 
 	current = start;
