@@ -34,7 +34,6 @@ struct GameObject
 
 		// Wall / Interactable Objects GO
 		GO_WALL,
-		GO_PILLAR,
 		GO_PORTAL_IN,
 		GO_PORTAL_OUT,
 		GO_POTION,
