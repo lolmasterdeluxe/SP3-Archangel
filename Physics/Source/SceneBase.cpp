@@ -174,16 +174,46 @@ void SceneBase::Init()
 
 	meshList[GEO_DEMON] = MeshBuilder::GenerateQuad("Demon", Color(1, 1, 1), 2.f);
 	meshList[GEO_DEMON]->textureID = LoadTGA("Image//demon.tga");
+	meshList[GEO_FALLENANGEL] = MeshBuilder::GenerateQuad("Fallen angel", Color(1, 1, 1), 2.f);
+	meshList[GEO_FALLENANGEL]->textureID = LoadTGA("Image//fallenangel.tga");
+	meshList[GEO_SOLDIER] = MeshBuilder::GenerateQuad("Soldier", Color(1, 1, 1), 2.f);
+	meshList[GEO_SOLDIER]->textureID = LoadTGA("Image//soldier.tga");
+	meshList[GEO_TERMINATOR_NEUTRAL] = MeshBuilder::GenerateQuad("Terminator neutral", Color(1, 1, 1), 2.f);
+	meshList[GEO_TERMINATOR_NEUTRAL]->textureID = LoadTGA("Image//Androidneutral.tga");
+	meshList[GEO_TERMINATOR_RAGE] = MeshBuilder::GenerateQuad("Terminator rage", Color(1, 1, 1), 2.f);
+	meshList[GEO_TERMINATOR_RAGE]->textureID = LoadTGA("Image//Androidrage.tga");
+
+	meshList[GEO_DEMONLORD] = MeshBuilder::GenerateQuad("Demon lord", Color(1, 1, 1), 2.f);
+	meshList[GEO_DEMONLORD]->textureID = LoadTGA("Image//demonlord.tga");
+	meshList[GEO_METALGEAR] = MeshBuilder::GenerateQuad("Metal gear", Color(1, 1, 1), 2.f);
+	meshList[GEO_METALGEAR]->textureID = LoadTGA("Image//metalgear.tga");
+	meshList[GEO_RAMBO] = MeshBuilder::GenerateQuad("Rambo", Color(1, 1, 1), 2.f);
+	meshList[GEO_RAMBO]->textureID = LoadTGA("Image//rambo.tga");
 
 	meshList[GEO_FIREBALL] = MeshBuilder::GenerateQuad("Fireball", Color(1, 1, 1), 2.f);
 	meshList[GEO_FIREBALL]->textureID = LoadTGA("Image//fireball.tga");
 
-	meshList[GEO_CITYBLOCK] = MeshBuilder::GenerateQuad("Cityblock", Color(1, 1, 1), 2.f);
-	meshList[GEO_CITYBLOCK]->textureID = LoadTGA("Image//cityblock.tga");
+	meshList[GEO_MODERNBLOCK] = MeshBuilder::GenerateQuad("Cityblock", Color(1, 1, 1), 2.f);
+	meshList[GEO_MODERNBLOCK]->textureID = LoadTGA("Image//cityblock.tga");
 	meshList[GEO_FUTUREBLOCK] = MeshBuilder::GenerateQuad("Futureblock", Color(1, 1, 1), 2.f);
 	meshList[GEO_FUTUREBLOCK]->textureID = LoadTGA("Image//futureblock.tga");
 	meshList[GEO_NETHERBRICK] = MeshBuilder::GenerateQuad("Neatherbrick", Color(1, 1, 1), 2.f);
 	meshList[GEO_NETHERBRICK]->textureID = LoadTGA("Image//netherbrick.tga");
+
+	meshList[GEO_MODERNPLATFORM] = MeshBuilder::GenerateQuad("Modern Platform", Color(1, 1, 1), 2.f);
+	meshList[GEO_MODERNPLATFORM]->textureID = LoadTGA("Image//stoneplatform.tga");
+	meshList[GEO_FUTUREPLATFORM] = MeshBuilder::GenerateQuad("Futureblock", Color(1, 1, 1), 2.f);
+	meshList[GEO_FUTUREPLATFORM]->textureID = LoadTGA("Image//futureplatform.tga");
+	meshList[GEO_NETHERPLATFORM] = MeshBuilder::GenerateQuad("Neatherbrick", Color(1, 1, 1), 2.f);
+	meshList[GEO_NETHERPLATFORM]->textureID = LoadTGA("Image//netherplatform.tga");
+
+	meshList[GEO_JUMPBLOCK] = MeshBuilder::GenerateQuad("Jump platform", Color(1, 1, 1), 2.f);
+	meshList[GEO_JUMPBLOCK]->textureID = LoadTGA("Image//slimeblock.tga");
+
+	meshList[GEO_BLUEPORTAL] = MeshBuilder::GenerateQuad("Blue Portal", Color(1, 1, 1), 2.f);
+	meshList[GEO_BLUEPORTAL]->textureID = LoadTGA("Image//blueportal.tga");
+	meshList[GEO_ORANGEPORTAL] = MeshBuilder::GenerateQuad("Orange Portal", Color(1, 1, 1), 2.f);
+	meshList[GEO_ORANGEPORTAL]->textureID = LoadTGA("Image//orangeportal.tga");
 
 	meshList[GEO_AK47] = MeshBuilder::GenerateQuad("AK47", Color(1, 1, 1), 2.f);
 	meshList[GEO_AK47]->textureID = LoadTGA("Image//AK.tga");
