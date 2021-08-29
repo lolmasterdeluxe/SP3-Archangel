@@ -333,10 +333,19 @@ void SceneBase::Init()
 	meshList[GEO_SWORD6] = MeshBuilder::GenerateQuad("Sword", Color(1, 1, 1), 2.f);
 	meshList[GEO_SWORD6]->textureID = LoadTGA("Image//sword04.tga");
 
+	meshList[GEO_PAUSEBACKGROUND] = MeshBuilder::GenerateQuad("pause", Color(1, 1, 1), 2.f);
+	meshList[GEO_PAUSEBACKGROUND]->textureID = LoadTGA("Image//pausebg.tga");
+
 	meshList[GEO_BUTTONSTART] = MeshBuilder::GenerateQuad("buttonStart", Color(1, 1, 1), 2.f);
 	meshList[GEO_BUTTONSTART]->textureID = LoadTGA("Image//startButton.tga");
+	meshList[GEO_BUTTONRESUME] = MeshBuilder::GenerateQuad("buttonResume", Color(1, 1, 1), 2.f);
+	meshList[GEO_BUTTONRESUME]->textureID = LoadTGA("Image//resumeButton.tga");
+	meshList[GEO_BUTTONRESTART] = MeshBuilder::GenerateQuad("buttonRestart", Color(1, 1, 1), 2.f);
+	meshList[GEO_BUTTONRESTART]->textureID = LoadTGA("Image//restartButton.tga");
 	meshList[GEO_BUTTONQUIT] = MeshBuilder::GenerateQuad("buttonQuit", Color(1, 1, 1), 2.f);
 	meshList[GEO_BUTTONQUIT]->textureID = LoadTGA("Image//quitButton.tga");
+	meshList[GEO_BUTTONCONTINUE] = MeshBuilder::GenerateQuad("buttonContinue", Color(1, 1, 1), 2.f);
+	meshList[GEO_BUTTONCONTINUE]->textureID = LoadTGA("Image//continueButton.tga");
 
 	bLightEnabled = false;
 	DisableMonospace("Image//Arial_N.csv");
