@@ -2804,6 +2804,7 @@ void SceneArchangel::Update(double dt)
 			case SceneArchangel::REALM_HELL:
 				state = STATE_INITPLAY;
 				realm = REALM_FUTURE;
+				soundcontroller->stopAllSounds();
 				soundcontroller->play2D("Sounds/futuristic.mp3", true);
 				break;
 			case SceneArchangel::REALM_FUTURE:
@@ -3895,10 +3896,10 @@ void SceneArchangel::Render()
 	else if (state == STATE_WIN)
 	{
 		modelStack.PushMatrix();
-		modelStack.Translate(m_worldWidth * .3f, m_worldHeight * .3f, 1);
+		modelStack.Translate(m_worldWidth * .5f, m_worldHeight * .5f, 1);
 		if (realm == REALM_HELL)
 		{
-			modelStack.Scale(m_worldWidth * .3f, m_worldHeight * .3f, 1);
+			modelStack.Scale(m_worldWidth * .5f, m_worldHeight * .5f, 1);
 			RenderMesh(meshList[GEO_WIN1], false);
 			RenderTextOnScreen(meshList[GEO_TEXT], "YOU HAVE DEFEATED DEMONLORD", Color(1, 0, 0), 4, 17, 35);
 			RenderTextOnScreen(meshList[GEO_TEXT], "TRANSPORTING TO NEXT REALM...", Color(1, 0, 0), 4, 18, 30);
@@ -3907,7 +3908,7 @@ void SceneArchangel::Render()
 		}
 		else if (realm == REALM_FUTURE)
 		{
-			modelStack.Scale(m_worldWidth * .3f, m_worldHeight * .3f, 1);
+			modelStack.Scale(m_worldWidth * .5f, m_worldHeight * .5f, 1);
 			RenderMesh(meshList[GEO_WIN2], false);
 			RenderTextOnScreen(meshList[GEO_TEXT], "YOU HAVE DEFEATED METAL GEAR", Color(0.753f, 0.753f, 0.753f), 4, 17, 35);
 			RenderTextOnScreen(meshList[GEO_TEXT], "TRANSPORTING TO NEXT REALM...", Color(0.753f, 0.753f, 0.753f), 4, 18, 30);
@@ -3916,7 +3917,7 @@ void SceneArchangel::Render()
 		}
 		else if (realm == REALM_MODERN)
 		{
-			modelStack.Scale(m_worldWidth * .3f, m_worldHeight * .4f, 1);
+			modelStack.Scale(m_worldWidth * .5f, m_worldHeight * .4f, 1);
 			RenderMesh(meshList[GEO_WIN3], false);
 			RenderTextOnScreen(meshList[GEO_TEXT], "YOU WON", Color(0, 1, 0), 5, 33, 30);
 			RenderTextOnScreen(meshList[GEO_TEXT], "Press [SPACE] to restart", Color(0, 1, 0), 3, 30, 25);
