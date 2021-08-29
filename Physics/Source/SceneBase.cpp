@@ -207,6 +207,13 @@ void SceneBase::Init()
 	meshList[GEO_NETHERPLATFORM] = MeshBuilder::GenerateQuad("Neatherbrick", Color(1, 1, 1), 2.f);
 	meshList[GEO_NETHERPLATFORM]->textureID = LoadTGA("Image//netherplatform.tga");
 
+	meshList[GEO_MODERNBACKGROUND] = MeshBuilder::GenerateQuad("Modern Platform", Color(1, 1, 1), 2.f);
+	meshList[GEO_MODERNBACKGROUND]->textureID = LoadTGA("Image//modernbg.tga");
+	meshList[GEO_FUTUREBACKGROUND] = MeshBuilder::GenerateQuad("Futureblock", Color(1, 1, 1), 2.f);
+	meshList[GEO_FUTUREBACKGROUND]->textureID = LoadTGA("Image//futuristicbg.tga");
+	meshList[GEO_NETHERBACKGROUND] = MeshBuilder::GenerateQuad("Neatherbrick", Color(1, 1, 1), 2.f);
+	meshList[GEO_NETHERBACKGROUND]->textureID = LoadTGA("Image//hellbg.tga");
+
 	meshList[GEO_JUMPBLOCK] = MeshBuilder::GenerateQuad("Jump platform", Color(1, 1, 1), 2.f);
 	meshList[GEO_JUMPBLOCK]->textureID = LoadTGA("Image//slimeblock.tga");
 
