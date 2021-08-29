@@ -362,13 +362,6 @@ void SceneArchangel::PhysicsResponse(GameObject* go1, Collision collision)
 				go1->vel.y = 130;
 		}
 	}
-	else if (collision.go->type == GameObject::GO_PILLAR || collision.go->type == GameObject::GO_CIRCLE)
-	{
-		Vector3 N = (collision.go->pos - go1->pos).Normalized();
-		Vector3 u = go1->vel;
-		go1->vel = u - (2 * u).Dot(N) * N;
-		go1->vel.y *= 0.4;
-	}
 	if (go1 == m_player && !phase)
 	{
 		if (collision.go->vel.x >= -0.1f && collision.go->vel.x <= 0.1f)
@@ -427,7 +420,7 @@ void SceneArchangel::PhysicsResponse(GameObject* go1, Collision collision)
 	}
 	if (!portal_shot)
 	{
-		if (go1->type != GameObject::GO_WALL)
+		if (go1->type != GameObject::GO_WALL && go1->type != GameObject::GO_PLATFORM && go1->type != GameObject::GO_BOUNCEPLATFORM)
 		{
 			if (collision.go->type == GameObject::GO_PORTAL_IN)
 			{
@@ -1300,6 +1293,7 @@ void SceneArchangel::demonAI(double dt)
 						newGO->scale.Set(2.f, 1.f, 0);
 						newGO->pos = go->pos;
 						float angle = atan2f(m_player->pos.y - go->pos.y, m_player->pos.x - go->pos.x);
+						soundcontroller->play2D("Sounds/fireball.mp3", false);
 						newGO->vel = Vector3(cosf(angle), sin(angle), 0);
 						newGO->vel.Normalize() * 100;
 						go->bullet_delay = 0;
@@ -1475,6 +1469,7 @@ void SceneArchangel::fallenAngelAI(double dt)
 						newGO->scale.Set(2.f, 1.f, 0);
 						newGO->pos = go->pos;
 						float angle = atan2f(m_player->pos.y - go->pos.y, m_player->pos.x - go->pos.x);
+						soundcontroller->play2D("Sounds/fireball.mp3", false);
 						newGO->vel = Vector3(cosf(angle), sin(angle), 0);
 						newGO->vel.Normalize() * 100;
 						go->bullet_delay = 0;
@@ -1895,6 +1890,7 @@ void SceneArchangel::demonBossAI(double dt)
 						Vector3 right = go->normal.Cross(Vector3(0, 0, -1));
 						newGO->pos = go->pos + go->normal + right * rng;
 						float angle = atan2f(m_player->pos.y - go->pos.y, m_player->pos.x - go->pos.x);
+						soundcontroller->play2D("Sounds/fireball.mp3", false);
 						newGO->vel = Vector3(cosf(angle), sin(angle), 0);
 						newGO->vel.Normalize() * 100;
 						go->bullet_delay = 0;
@@ -2101,7 +2097,7 @@ void SceneArchangel::ramboAI(double dt)
 				Boundary(go, 1);
 				go->FSMCounter += dt;
 				go->bullet_delay += dt;
-				go->speed = 4;
+				go->speed = 6;
 
 				go->left_box->pos.x = go->pos.x - 4.f;
 				go->left_box->pos.y = go->pos.y;
@@ -2116,13 +2112,13 @@ void SceneArchangel::ramboAI(double dt)
 				}
 
 				// Setting speed limiters
-				if (go->vel.x >= 50)
+				if (go->vel.x >= 75)
 				{
-					go->vel.x = 50;
+					go->vel.x = 75;
 				}
-				if (go->vel.x <= -50)
+				if (go->vel.x <= -75)
 				{
-					go->vel.x = -50;
+					go->vel.x = -75;
 				}
 
 				Collision collision = CheckCollision(go, m_player);
@@ -2146,7 +2142,7 @@ void SceneArchangel::ramboAI(double dt)
 					break;
 
 				case go->STATE_CLOSE_ATTACK:
-					go->speed = 6;
+					go->speed = 12;
 					// To the right / left of demon
 					if (go->pos.x > m_player->pos.x)
 					{
@@ -2201,7 +2197,7 @@ void SceneArchangel::ramboAI(double dt)
 					}
 					else if (go->weapon_type == 2)
 					{
-						go->fire_rate = 3.0f;
+						go->fire_rate = 0.5f;
 						if (go->bullet_delay > go->fire_rate / time_manip)
 						{
 							GameObject* newGO = FetchGO();
@@ -2666,7 +2662,7 @@ void SceneArchangel::Update(double dt)
 		cameraPos.Set(m_screenWidth * .5f, m_screenHeight * .5f);
 		m_screenHeight = SCREEN_HEIGHT;
 
-		state = STATE_INTRO;
+		state = STATE_WIN;
 	} 
 	else if (state == STATE_INTRO)
 	{
@@ -2708,7 +2704,11 @@ void SceneArchangel::Update(double dt)
 			GameObject* pointed = ObjectOnCursor();
 			if (pointed != nullptr)
 			{
-				if (pointed->goTag == "Start") state = STATE_INITPLAY;
+				if (pointed->goTag == "Start")
+				{
+					state = STATE_INITPLAY;
+					soundcontroller->play2D("Sounds/hell.mp3", true);
+				}
 				else if (pointed->goTag == "Quit") EndGame();
 			}
 		}
@@ -2748,6 +2748,7 @@ void SceneArchangel::Update(double dt)
 			case SceneArchangel::REALM_HELL:
 				state = STATE_INITPLAY;
 				realm = REALM_FUTURE;
+				soundcontroller->play2D("Sounds/futuristic.mp3", true);
 				break;
 			case SceneArchangel::REALM_FUTURE:
 				state = STATE_INITPLAY;
@@ -2953,6 +2954,7 @@ void SceneArchangel::Update(double dt)
 			}
 		}
 
+		// Debuggers for healing
 		static bool bLButtonState = false;
 		static bool bLButtonState2 = false;
 		if (Application::IsKeyPressed('F') && !bLButtonState)
@@ -2974,6 +2976,7 @@ void SceneArchangel::Update(double dt)
 			bLButtonState2 = false;
 		}
 
+		// Open debug menu
 		if (Application::IsKeyPressed(VK_F1))
 		{
 			for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
@@ -3052,17 +3055,8 @@ void SceneArchangel::RenderGO(GameObject *go)
 	//	modelStack.PopMatrix();
 	//	break;
 
-	case GameObject::GO_PILLAR:
-		// Pillars that attach to cube
-		modelStack.PushMatrix();
-		modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
-		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
-		RenderMesh(meshList[GEO_BALL], true);
-		modelStack.PopMatrix();
-		break;
-	
 	case GameObject::GO_BUTTON:
-		// Pillars that attach to cube
+		// Button
 		modelStack.PushMatrix();
 		modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
 		modelStack.Rotate(180, 1, 0, 0);
@@ -3079,8 +3073,8 @@ void SceneArchangel::RenderGO(GameObject *go)
 		break;
 		
 	case GameObject::GO_WALL:
-		// Cube obstacle
 	{
+		// Cube obstacle
 		Vector3 tempScale = go->scale;
 		if (go->normal == Vector3(0, 1, 0))
 			tempScale.Set(go->scale.y, go->scale.x, go->scale.z);
@@ -3111,39 +3105,56 @@ void SceneArchangel::RenderGO(GameObject *go)
 		}
 	}
 		break;	
-
 	case GameObject::GO_PLATFORM:
-		modelStack.PushMatrix();
-		modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
-	    angle = atan2f(go->normal.y, go->normal.x);
-		modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
-		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
-		switch (realm)
+	{
+		Vector3 tempScale = go->scale;
+		if (go->normal == Vector3(0, 1, 0))
+			tempScale.Set(go->scale.y, go->scale.x, go->scale.z);
+		for (int x = 0; x < tempScale.x; x++)
 		{
-		case SceneArchangel::REALM_HELL:
-			RenderMesh(meshList[GEO_NETHERPLATFORM], false);
-			break;
-		case SceneArchangel::REALM_FUTURE:
-			RenderMesh(meshList[GEO_FUTUREPLATFORM], false);
-			break;
-		case SceneArchangel::REALM_MODERN:
-			RenderMesh(meshList[GEO_MODERNPLATFORM], false);
-			break;
-		default:
-			RenderMesh(meshList[GEO_GREENCUBE], false);
-			break;
+			for (int y = 0; y < tempScale.y; y++)
+			{
+				modelStack.PushMatrix();
+				modelStack.Translate(go->pos.x + 2 * x - tempScale.x + ((tempScale.x - x < 1) ? .5f : 1), go->pos.y + 2 * y - tempScale.y + ((tempScale.y - y < 1) ? .5f : 1), go->pos.z);
+				modelStack.Scale((tempScale.x - x < 1) ? .5f : 1, (tempScale.y - y < 1) ? .5f : 1, 1);
+				switch (realm)
+				{
+				case SceneArchangel::REALM_HELL:
+					RenderMesh(meshList[GEO_NETHERPLATFORM], false);
+					break;
+				case SceneArchangel::REALM_FUTURE:
+					RenderMesh(meshList[GEO_FUTUREPLATFORM], false);
+					break;
+				case SceneArchangel::REALM_MODERN:
+					RenderMesh(meshList[GEO_MODERNPLATFORM], false);
+					break;
+				default:
+					RenderMesh(meshList[GEO_GREENCUBE], false);
+					break;
+				}
+				modelStack.PopMatrix();
+			}
 		}
-		modelStack.PopMatrix();
+	}
 		break;
 		
 	case GameObject::GO_BOUNCEPLATFORM:
-		modelStack.PushMatrix();
-		modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
-	    angle = atan2f(go->normal.y, go->normal.x);
-		modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
-		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
-		RenderMesh(meshList[GEO_JUMPBLOCK], false);
-		modelStack.PopMatrix();
+	{
+		Vector3 tempScale = go->scale;
+		if (go->normal == Vector3(0, 1, 0))
+			tempScale.Set(go->scale.y, go->scale.x, go->scale.z);
+		for (int x = 0; x < tempScale.x; x++)
+		{
+			for (int y = 0; y < tempScale.y; y++)
+			{
+				modelStack.PushMatrix();
+				modelStack.Translate(go->pos.x + 2 * x - tempScale.x + ((tempScale.x - x < 1) ? .5f : 1), go->pos.y + 2 * y - tempScale.y + ((tempScale.y - y < 1) ? .5f : 1), go->pos.z);
+				modelStack.Scale((tempScale.x - x < 1) ? .5f : 1, (tempScale.y - y < 1) ? .5f : 1, 1);
+				RenderMesh(meshList[GEO_JUMPBLOCK], false);
+				modelStack.PopMatrix();
+			}
+		}
+	}
 		break;
 
 	case GameObject::GO_CUBE:
@@ -3583,7 +3594,6 @@ void SceneArchangel::Render()
 				RenderGO(go);
 			}
 		}
-
 		if (state == STATE_PLAY)
 		{ // render HUD when not paused
 			std::ostringstream ss;
@@ -3869,10 +3879,10 @@ void SceneArchangel::Render()
 	else if (state == STATE_WIN)
 	{
 		modelStack.PushMatrix();
-		modelStack.Translate(m_worldWidth * .5f, m_worldHeight * .5f, 1);
+		modelStack.Translate(m_worldWidth * .3f, m_worldHeight * .3f, 1);
 		if (realm == REALM_HELL)
 		{
-			modelStack.Scale(m_worldWidth * .5f, m_worldHeight * .5f, 1);
+			modelStack.Scale(m_worldWidth * .3f, m_worldHeight * .3f, 1);
 			RenderMesh(meshList[GEO_WIN1], false);
 			RenderTextOnScreen(meshList[GEO_TEXT], "YOU HAVE DEFEATED DEMONLORD", Color(1, 0, 0), 4, 17, 35);
 			RenderTextOnScreen(meshList[GEO_TEXT], "TRANSPORTING TO NEXT REALM...", Color(1, 0, 0), 4, 18, 30);
@@ -3881,7 +3891,7 @@ void SceneArchangel::Render()
 		}
 		else if (realm == REALM_FUTURE)
 		{
-			modelStack.Scale(m_worldWidth * .5f, m_worldHeight * .5f, 1);
+			modelStack.Scale(m_worldWidth * .3f, m_worldHeight * .3f, 1);
 			RenderMesh(meshList[GEO_WIN2], false);
 			RenderTextOnScreen(meshList[GEO_TEXT], "YOU HAVE DEFEATED METAL GEAR", Color(0.753f, 0.753f, 0.753f), 4, 17, 35);
 			RenderTextOnScreen(meshList[GEO_TEXT], "TRANSPORTING TO NEXT REALM...", Color(0.753f, 0.753f, 0.753f), 4, 18, 30);
@@ -3890,7 +3900,7 @@ void SceneArchangel::Render()
 		}
 		else if (realm == REALM_MODERN)
 		{
-			modelStack.Scale(m_worldWidth * .5f, m_worldHeight * .6f, 1);
+			modelStack.Scale(m_worldWidth * .3f, m_worldHeight * .4f, 1);
 			RenderMesh(meshList[GEO_WIN3], false);
 			RenderTextOnScreen(meshList[GEO_TEXT], "YOU WON", Color(0, 1, 0), 5, 33, 30);
 			RenderTextOnScreen(meshList[GEO_TEXT], "Press [SPACE] to restart", Color(0, 1, 0), 3, 30, 25);
