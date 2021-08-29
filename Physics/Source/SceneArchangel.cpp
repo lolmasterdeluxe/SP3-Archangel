@@ -2765,6 +2765,7 @@ void SceneArchangel::Update(double dt)
 	}
 	else if (state == STATE_WIN_ANIM)
 	{
+		Application::IsKeyPressed(VK_SPACE);
 		if (m_screenHeight < 100) m_screenHeight += 15 * dt;
 		else
 		{
