@@ -2567,26 +2567,31 @@ void SceneArchangel::SpawnEnemies()
 			if (mapInfo->entityDataList[i]->type == GameObject::GO_DEMON)
 			{
 				go->hp = 30;
+				go->scale.Set(2, 2, 1);
 				setCollisionBox(go);
 			}
 			else if (mapInfo->entityDataList[i]->type == GameObject::GO_FALLENANGEL)
 			{
 				go->hp = 50;
+				go->scale.Set(5, 3.5f, 1);
 				setCollisionBox(go);
 			}
 			else if (mapInfo->entityDataList[i]->type == GameObject::GO_TERMINATOR)
 			{
 				go->hp = 60;
+				go->scale.Set(2.5f, 3, 1);
 				setCollisionBox(go);
 			}
 			else if (mapInfo->entityDataList[i]->type == GameObject::GO_SOLDIER)
 			{
 				go->hp = 45;
+				go->scale.Set(2.5, 3, 1);
 				setCollisionBox(go);
 			}
 			else if (mapInfo->entityDataList[i]->type == GameObject::GO_DEMONLORD)
 			{
 				go->hp = 450;
+				go->scale.Set(6, 6, 1);
 				setCollisionBox(go);
 				GameObject* newGO = FetchGO();
 				newGO->type = GameObject::GO_REALMCHANGER;
@@ -2595,6 +2600,7 @@ void SceneArchangel::SpawnEnemies()
 			else if (mapInfo->entityDataList[i]->type == GameObject::GO_METALGEAR)
 			{
 				go->hp = 600;
+				go->scale.Set(8, 8, 1);
 				setCollisionBox(go);
 				GameObject* newGO = FetchGO();
 				newGO->type = GameObject::GO_REALMCHANGER;
@@ -2603,6 +2609,7 @@ void SceneArchangel::SpawnEnemies()
 			else if (mapInfo->entityDataList[i]->type == GameObject::GO_RAMBO)
 			{
 				go->hp = 500;
+				go->scale.Set(2.5f, 3, 1);
 				setCollisionBox(go);
 				GameObject* newGO = FetchGO();
 				newGO->type = GameObject::GO_REALMCHANGER;
@@ -2972,7 +2979,21 @@ void SceneArchangel::RenderGO(GameObject *go)
 				modelStack.PushMatrix();
 				modelStack.Translate(go->pos.x + 2 * x - tempScale.x + ((tempScale.x - x < 1) ? .5f : 1), go->pos.y + 2 * y - tempScale.y + ((tempScale.y - y < 1) ? .5f : 1), go->pos.z);
 				modelStack.Scale((tempScale.x - x < 1) ? .5f : 1, (tempScale.y - y < 1) ? .5f : 1, 1);
-				RenderMesh(meshList[GEO_NETHERBRICK], false);
+				switch (realm)
+				{
+				case SceneArchangel::REALM_HELL:
+					RenderMesh(meshList[GEO_NETHERBRICK], false);
+					break;
+				case SceneArchangel::REALM_FUTURE:
+					RenderMesh(meshList[GEO_FUTUREBLOCK], false);
+					break;
+				case SceneArchangel::REALM_MODERN:
+					RenderMesh(meshList[GEO_MODERNBLOCK], false);
+					break;
+				default:
+					RenderMesh(meshList[GEO_PURPLECUBE], false);
+					break;
+				}
 				modelStack.PopMatrix();
 			}
 		}
@@ -2985,7 +3006,21 @@ void SceneArchangel::RenderGO(GameObject *go)
 	    angle = atan2f(go->normal.y, go->normal.x);
 		modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
 		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
-		RenderMesh(meshList[GEO_NETHERPLATFORM], false);
+		switch (realm)
+		{
+		case SceneArchangel::REALM_HELL:
+			RenderMesh(meshList[GEO_NETHERPLATFORM], false);
+			break;
+		case SceneArchangel::REALM_FUTURE:
+			RenderMesh(meshList[GEO_FUTUREPLATFORM], false);
+			break;
+		case SceneArchangel::REALM_MODERN:
+			RenderMesh(meshList[GEO_MODERNPLATFORM], false);
+			break;
+		default:
+			RenderMesh(meshList[GEO_GREENCUBE], false);
+			break;
+		}
 		modelStack.PopMatrix();
 		break;
 		

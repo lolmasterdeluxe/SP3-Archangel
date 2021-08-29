@@ -17,7 +17,9 @@ class CMapMaker
 	bool CheckIfEnteringRight();
 
 	void CreateLeft(CMapStorage::MAP_CATEGORY category);
+	void CreateLeft(CMapStorage::MAP_CATEGORY category, int lvl);
 	void CreateRight(CMapStorage::MAP_CATEGORY category);
+	void CreateRight(CMapStorage::MAP_CATEGORY category, int lvl);
 
 	void DeleteMapNodes();
 public:
