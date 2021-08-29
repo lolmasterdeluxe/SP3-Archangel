@@ -52,7 +52,7 @@ void SceneArchangel::Init()
 	m_toggleDebugScreen = false;
 
 	//Calculating aspect ratio
-	m_screenHeight = 60;
+	m_screenHeight = SCREEN_HEIGHT;
 	m_screenWidth = m_screenHeight * (float)Application::GetWindowWidth() / Application::GetWindowHeight();
 	m_worldHeight = 100.f;
 	m_worldWidth = 180;
@@ -2578,16 +2578,25 @@ void SceneArchangel::SpawnEnemies()
 			{
 				go->hp = 450;
 				setCollisionBox(go);
+				GameObject* newGO = FetchGO();
+				newGO->type = GameObject::GO_REALMCHANGER;
+				newGO->pos.Set(1000, 1000);
 			}
 			else if (mapInfo->entityDataList[i]->type == GameObject::GO_METALGEAR)
 			{
 				go->hp = 600;
 				setCollisionBox(go);
+				GameObject* newGO = FetchGO();
+				newGO->type = GameObject::GO_REALMCHANGER;
+				newGO->pos.Set(1000, 1000);
 			}
 			else if (mapInfo->entityDataList[i]->type == GameObject::GO_RAMBO)
 			{
 				go->hp = 500;
 				setCollisionBox(go);
+				GameObject* newGO = FetchGO();
+				newGO->type = GameObject::GO_REALMCHANGER;
+				newGO->pos.Set(1000, 1000);
 			}
 		}
 	}
@@ -2608,6 +2617,7 @@ void SceneArchangel::Update(double dt)
 	if (state == STATE_INITMENU)
 	{
 		cameraPos.Set(m_screenWidth * .5f, m_screenHeight * .5f);
+		m_screenHeight = SCREEN_HEIGHT;
 
 		GameObject* button1 = FetchGO();
 		button1->active = true;
@@ -2631,17 +2641,36 @@ void SceneArchangel::Update(double dt)
 			state = STATE_INITPLAY;
 		}
 	}
-	else if (state == STATE_INITPLAY)
-	{ // to create/restart the entire game. 
-		mapMaker.GenerateMap(0);
-		InitMap();
-		//reset values here
-		m_player->hp = 12;
-		m_player->mana = 50;
-		m_player->max_hp = 12;
+	else if (state == STATE_WIN)
+	{
+		if (Application::IsKeyPressed(VK_ESCAPE))
+		{ // leave this if condition here even if not needed this function is kinda bugged
+			EndGame();
+		}
 
-		//start the game
-		state = STATE_PLAY;
+		// Space to continue
+		if (Application::IsKeyPressed(VK_SPACE))
+		{
+			state = STATE_INITPLAY;
+		}
+	}
+	else if (state == STATE_WIN_ANIM)
+	{
+		if (m_screenHeight < 100) m_screenHeight += 15 * dt;
+		else
+		{
+			state = STATE_WIN;
+			m_screenHeight = SCREEN_HEIGHT;
+		}
+	}
+	else if (state == STATE_LOSE_ANIM)
+	{
+		if (m_screenHeight < 100) m_screenHeight += 15 * dt;
+		else
+		{
+			state = STATE_LOSE;
+			m_screenHeight = SCREEN_HEIGHT;
+		}
 	}
 	else if (state == STATE_PAUSE)
 	{
@@ -2673,6 +2702,21 @@ void SceneArchangel::Update(double dt)
 		{
 			EndGame();
 		}
+	}
+	else if (state == STATE_INITPLAY)
+	{ // to create/restart the entire game. 
+		//reset values here
+		m_player->hp = 12;
+		m_player->mana = 50;
+		m_player->max_hp = 12;
+		realm = REALM_HELL;
+
+		// create new map
+		mapMaker.GenerateMap(realm);
+		InitMap();
+
+		//start the game
+		state = STATE_PLAY;
 	}
 	else if (state == STATE_PLAY)
 	{
@@ -2706,6 +2750,11 @@ void SceneArchangel::Update(double dt)
 		manipTime(dt);
 		runAnimation(dt, GameObject::GO_CUBE, 0, 0.1f, 16);
 
+		if (m_player->hp <= 0)
+		{
+			state = STATE_LOSE_ANIM;
+		}
+
 		if (playState == PLAY_BATTLE)
 		{
 			demonAI(dt);
@@ -2728,7 +2777,12 @@ void SceneArchangel::Update(double dt)
 				FindGameObjectWithType(GameObject::GO_RAMBO) == nullptr
 				)
 			{
-				playState = PLAY_POSTBATTLE;
+				if (FindGameObjectWithType(GameObject::GO_REALMCHANGER) == nullptr)
+					playState = PLAY_POSTBATTLE;
+				else
+				{
+					state = STATE_WIN_ANIM;
+				}
 			}
 		}
 		else if (playState == PLAY_PREBATTLE && m_player->pos.x > 20 && m_player->pos.x < 160)
@@ -3229,7 +3283,7 @@ void SceneArchangel::Render()
 	// Projection matrix : Orthographic Projection
 	Mtx44 projection;
 
-	if (state == STATE_PLAY || state == STATE_PAUSE)
+	if (state == STATE_PLAY || state == STATE_PAUSE || state == STATE_WIN_ANIM || state == STATE_LOSE_ANIM)
 	{
 		projection.SetToOrtho(cameraPos.x - m_screenWidth * .5f, cameraPos.x + m_screenWidth * .5f, cameraPos.y - m_screenHeight * .5f, cameraPos.y + m_screenHeight * .5f, -10, 10);
 	}
@@ -3259,20 +3313,20 @@ void SceneArchangel::Render()
 		modelStack.Scale(m_worldWidth * .5f, m_worldHeight * .5f, 1);
 		RenderMesh(meshList[GEO_MENU], false);
 		modelStack.PopMatrix();
-		for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
+		/*for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
 		{
 			GameObject* go = (GameObject*)*it;
 			if (go->active && go != m_player)
 			{
 				RenderGO(go);
 			}
-		}
+		}*/
 	}
 	else if (state == STATE_INITPLAY)
 	{
 
 	}
-	else if (state == STATE_PLAY || state == STATE_PAUSE)
+	else if (state == STATE_PLAY || state == STATE_PAUSE || state == STATE_WIN_ANIM || state == STATE_LOSE_ANIM)
 	{
 		for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
 		{
@@ -3518,6 +3572,9 @@ void SceneArchangel::Render()
 				ss.str("");
 				ss << "player position: " << m_player->pos;
 				RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 0, 2 * ylvl--); // player pos
+				ss.str("");
+				ss << "player hp: " << m_player->hp;
+				RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 0, 2 * ylvl--); // object on cursor's hp
 				double x, y;
 				Application::GetCursorPos(&x, &y);
 				ss.str("");
@@ -3527,7 +3584,7 @@ void SceneArchangel::Render()
 				ss.str("");
 				ss << "Mouse position (world space): " << x << ", " << y;
 				RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 0, 2 * ylvl--); // cursor pos in screen space
-
+				
 				GameObject* goOnCursor = ObjectOnCursor();
 				if (goOnCursor != nullptr)
 				{
@@ -3560,7 +3617,14 @@ void SceneArchangel::Render()
 		RenderMesh(meshList[GEO_LOSE], false);
 		modelStack.PopMatrix();
 	}
-	
+	else if (state == STATE_WIN)
+	{
+		modelStack.PushMatrix();
+		modelStack.Translate(80, 50, 1);
+		modelStack.Scale(80, 50, 1);
+		RenderTextOnScreen(meshList[GEO_TEXT], "YOU WON", Color(1, 1, 1), 8, 0, 30);
+		modelStack.PopMatrix();
+	}
 }
 
 void SceneArchangel::Exit()
