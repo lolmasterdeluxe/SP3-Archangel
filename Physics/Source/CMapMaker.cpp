@@ -96,19 +96,21 @@ void CMapMaker::GenerateMap(int lvl)
 	start = new CMapNode();
 	//start->SetMapData(CMapStorage::GetInstance()->GetMapInfo(CMapStorage::CAT_SPAWN, 0));
 	start->SetMapData(CMapStorage::GetInstance()->GetMapInfo(CMapStorage::CAT_SPAWN, Math::RandIntMinMax(0, MAPS_PER_CATEGORY - 1)));
-	
+	/*
 	current = start;
 	newNode = new CMapNode();
-	newNode->SetMapData(CMapStorage::GetInstance()->GetMapInfo(CMapStorage::CAT_RIGHT_BOSS, 1));
+	newNode->SetMapData(CMapStorage::GetInstance()->GetMapInfo(CMapStorage::CAT_RIGHT_BOSS, lvl));
 	current->SetRight(newNode);
 	newNode->SetLeft(current);
 	
 	current = start;
 	newNode = new CMapNode();
-	newNode->SetMapData(CMapStorage::GetInstance()->GetMapInfo(CMapStorage::CAT_LEFT_BOSS, 1));
+	newNode->SetMapData(CMapStorage::GetInstance()->GetMapInfo(CMapStorage::CAT_LEFT_BOSS, lvl));
 	current->SetLeft(newNode);
-	newNode->SetRight(current);
-	/*for (unsigned int i = 0; i < Math::RandIntMinMax(1, 2); i++)
+	newNode->SetRight(current);*/
+	
+	current = start;
+	for (unsigned int i = 0; i < Math::RandIntMinMax(1, 2); i++)
 	{
 		CreateLeft(CMapStorage::CAT_LEFT_DUNGEON);
 	}
@@ -124,7 +126,6 @@ void CMapMaker::GenerateMap(int lvl)
 	}
 
 	current = start;
-
 	for (unsigned int i = 0; i < Math::RandIntMinMax(1, 2); i++)
 	{
 		CreateRight(CMapStorage::CAT_RIGHT_DUNGEON);
@@ -137,7 +138,7 @@ void CMapMaker::GenerateMap(int lvl)
 	{
 		CreateRight(CMapStorage::CAT_RIGHT_REST);
 		CreateRight(CMapStorage::CAT_RIGHT_BOSS);
-	}*/
+	}
 
 	current = start;
 }
