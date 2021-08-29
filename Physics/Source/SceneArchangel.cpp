@@ -2860,10 +2860,14 @@ void SceneArchangel::Update(double dt)
 					case SceneArchangel::REALM_FUTURE:
 						state = STATE_INITPLAY;
 						realm = REALM_MODERN;
+						soundcontroller->stopAllSounds();
+						soundcontroller->play2D("Sounds/modern.mp3", true);
 						break;
 					case SceneArchangel::REALM_MODERN:
 						state = STATE_INITPLAY;
 						realm = REALM_HELL;
+						soundcontroller->stopAllSounds();
+						soundcontroller->play2D("Sounds/hell.mp3", true);
 						break;
 					default:
 						EndGame();
@@ -3170,16 +3174,6 @@ void SceneArchangel::RenderGO(GameObject *go)
 		modelStack.PopMatrix();
 
 		break;
-
-	//case GameObject::GO_GHOSTBALL:
-	//	// Ball displayed at top
-	//	modelStack.PushMatrix();
-	//	modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
-	//	modelStack.Rotate(Math::RadianToDegree(atan2(go->dir.y, go->dir.x)), 0, 0, 1);
-	//	modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
-	//	RenderMesh(meshList[GEO_BALL], false);
-	//	modelStack.PopMatrix();
-	//	break;
 
 	case GameObject::GO_BUTTON:
 		// Button
@@ -4014,8 +4008,6 @@ void SceneArchangel::Render()
 			RenderMesh(meshList[GEO_WIN1], false);
 			RenderTextOnScreen(meshList[GEO_TEXT], "YOU HAVE DEFEATED DEMONLORD", Color(1, 0, 0), 4, 17, 35);
 			RenderTextOnScreen(meshList[GEO_TEXT], "TRANSPORTING TO NEXT REALM...", Color(1, 0, 0), 4, 18, 30);
-			//RenderTextOnScreen(meshList[GEO_TEXT], "Press [SPACE] to continue", Color(0, 1, 0), 3, 30, 25);
-			//RenderTextOnScreen(meshList[GEO_TEXT], "Press [ESC] to quit", Color(0, 1, 0), 3, 32.5f, 20);
 		}
 		else if (realm == REALM_FUTURE)
 		{
@@ -4023,16 +4015,12 @@ void SceneArchangel::Render()
 			RenderMesh(meshList[GEO_WIN2], false);
 			RenderTextOnScreen(meshList[GEO_TEXT], "YOU HAVE DEFEATED METAL GEAR", Color(0.753f, 0.753f, 0.753f), 4, 17, 35);
 			RenderTextOnScreen(meshList[GEO_TEXT], "TRANSPORTING TO NEXT REALM...", Color(0.753f, 0.753f, 0.753f), 4, 18, 30);
-			//RenderTextOnScreen(meshList[GEO_TEXT], "Press [SPACE] to continue", Color(0, 1, 0), 3, 30, 25);
-			//RenderTextOnScreen(meshList[GEO_TEXT], "Press [ESC] to quit", Color(0, 1, 0), 3, 32.5f, 20);
 		}
 		else if (realm == REALM_MODERN)
 		{
 			modelStack.Scale(m_worldWidth * .5f, m_worldHeight * .4f, 1);
 			RenderMesh(meshList[GEO_WIN3], false);
 			RenderTextOnScreen(meshList[GEO_TEXT], "YOU WON", Color(0, 1, 0), 5, 33, 30);
-			//RenderTextOnScreen(meshList[GEO_TEXT], "Press [SPACE] to restart", Color(0, 1, 0), 3, 30, 25);
-			//RenderTextOnScreen(meshList[GEO_TEXT], "Press [ESC] to quit", Color(0, 1, 0), 3, 32.5f, 20);
 		}
 		modelStack.PopMatrix();
 
