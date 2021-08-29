@@ -119,7 +119,7 @@ protected:
 	float m_speed, max_vel, fire_rate, time_manip;
 	float m_worldWidth, m_worldHeight, m_screenWidth, m_screenHeight;
 	GameObject * m_ghost, * m_player, * m_emptyGO;
-	int m_objectCount, weapon_dmg, hitpoints[5], heart_count, empty_heart, weapon_choice;
+	int m_objectCount, weapon_dmg, hitpoints[20], heart_count, empty_heart, weapon_choice;
 	bool initPos, jump, portal_in, move_portal_in, move_portal_out, portal_shot, shotgun, time_change, phase;
 	double dmg_delay, mana_delay;
 

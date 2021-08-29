@@ -2,7 +2,13 @@
 #include "GL\glew.h"
 #include "Application.h"
 #include <sstream>
+#include "includes/irrKlang.h"
 using namespace std;
+using namespace irrklang;
+
+#pragma comment(lib, "irrklang.lib")
+
+ISoundEngine* soundcontroller = createIrrKlangDevice();
 
 SceneArchangel::SceneArchangel()
 {
@@ -40,7 +46,7 @@ void SceneArchangel::Init()
 	{
 		hitpoints[i] = 4;
 	}
-	heart_count = 2;
+	heart_count = 3;
 	empty_heart = 0;
 	weapon_choice = 1;
 	dmg_delay = 0;
@@ -586,6 +592,7 @@ void SceneArchangel::SpawnBullet(double dt)
 				newGO4->vel.Normalize() * 100;
 			}
 			m_player->bullet_delay = 0;
+			soundcontroller->play2D("Sounds/fire.mp3", false);
 		}
 	}
 }
@@ -613,6 +620,7 @@ void SceneArchangel::playerLogic(double dt)
 		else
 			m_player->vel.y += 140;
 		jump = true;
+		soundcontroller->play2D("Sounds/jump grunt.mp3", false);
 	}
 
 	// Movement
@@ -685,6 +693,7 @@ void SceneArchangel::portalLogic(double dt)
 	static bool bLButtonState = false;
 	if (Application::IsMousePressed(1) && !portal_shot)
 	{
+		soundcontroller->play2D("Sounds/portal.mp3", false);
 		portal_shot = true;
 		if (m_player->portal_delay > 1)
 		{
@@ -986,6 +995,7 @@ void SceneArchangel::Melee(double dt)
 			GameObject* go = (GameObject*)*it;
 			if (go->active)
 			{
+				soundcontroller->play2D("Sounds/slash grunt.mp3", false);
 				if (go->type == GameObject::GO_DEMON || go->type == GameObject::GO_FALLENANGEL || go->type == GameObject::GO_TERMINATOR || go->type == GameObject::GO_SOLDIER || go->type == GameObject::GO_BARREL || go->type == GameObject::GO_DEMONLORD || go->type == GameObject::GO_METALGEAR)
 				{
 					
@@ -1047,8 +1057,8 @@ void SceneArchangel::heal(bool max_potion)
 		{
 			hitpoints[heart_count - empty_heart + i] = 1;
 		}
-		m_player->max_hp += 4;
-		m_player->hp += 4;
+		m_player->max_hp += 3;
+		m_player->hp += 3;
 	}
 	else
 	{
@@ -2793,6 +2803,14 @@ void SceneArchangel::Update(double dt)
 		m_player->hp = 12;
 		m_player->mana = 50;
 		m_player->max_hp = 12;
+		heart_count = 3;
+		empty_heart = 0;
+		weapon_choice = 1;
+		time_manip = 1;
+		for (int i = 0; i < 20; ++i)
+		{
+			hitpoints[i] = 4;
+		}
 
 		// create new map
 		mapMaker.GenerateMap(realm);
@@ -3095,7 +3113,6 @@ void SceneArchangel::RenderGO(GameObject *go)
 		else
 			modelStack.Rotate(180, 0, 1, 0);
 		
-
 		if (weapon_choice == 0)
 		{
 			modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
@@ -3508,10 +3525,15 @@ void SceneArchangel::Render()
 		}
 		if (state == STATE_PAUSE)
 		{
-			RenderTextOnScreen(meshList[GEO_TEXT], "temporary controls", Color(1, 1, 1), 4, 0, 12);
-			RenderTextOnScreen(meshList[GEO_TEXT], "esc: resume", Color(1, 1, 1), 4, 0, 8);
-			RenderTextOnScreen(meshList[GEO_TEXT], "R: restart game", Color(1, 1, 1), 4, 0, 4);
-			RenderTextOnScreen(meshList[GEO_TEXT], "Q: quit game ", Color(1, 1, 1), 4, 0, 0);
+			modelStack.PushMatrix();
+			modelStack.Translate(m_worldWidth * .5f, m_worldHeight * .5f, 1);
+			modelStack.Scale(m_worldWidth * .1f, m_worldHeight * .5f, 1);
+			RenderMesh(meshList[GEO_BLUECUBE], false);
+			modelStack.PopMatrix();
+			RenderTextOnScreen(meshList[GEO_TEXT], "Pause", Color(1, 1, 0), 4, 35, 55);
+			RenderTextOnScreen(meshList[GEO_TEXT], "ESC: Resume", Color(1, 1, 1), 4, 30, 45);
+			RenderTextOnScreen(meshList[GEO_TEXT], "R: Restart game", Color(1, 1, 1), 4, 30, 35);
+			RenderTextOnScreen(meshList[GEO_TEXT], "Q: Quit game ", Color(1, 1, 1), 4, 30, 25);
 		}
 		if (state == STATE_PLAY)
 		{ // render HUD when not paused
@@ -3551,7 +3573,6 @@ void SceneArchangel::Render()
 						modelStack.Translate(m_player->pos.x - 0.3f, m_player->pos.y + 2.f, m_player->pos.z);
 					if (m_player->frame_count[1] == 5)
 						modelStack.Translate(m_player->pos.x - 0.3f, m_player->pos.y + 2.f, m_player->pos.z);
-
 					modelStack.Rotate(180, 0, 1, 0);
 				}
 				else
@@ -3782,21 +3803,48 @@ void SceneArchangel::Render()
 	else if (state == STATE_LOSE)
 	{
 		modelStack.PushMatrix();
-		modelStack.Translate(80, 50, 1);
-		modelStack.Scale(80, 50, 1);
+		modelStack.Translate(m_worldWidth * .5f, m_worldHeight * .5f, 1);
+		modelStack.Scale(m_worldWidth * .5f, m_worldHeight * .5f, 1);
 		RenderMesh(meshList[GEO_LOSE], false);
+		RenderTextOnScreen(meshList[GEO_TEXT], "YOU DIED", Color(1, 0, 0), 5, 33, 30);
+		RenderTextOnScreen(meshList[GEO_TEXT], "Press [SPACE] to restart", Color(1, 0, 0), 3, 30, 25);
+		RenderTextOnScreen(meshList[GEO_TEXT], "Press [ESC] to quit", Color(1, 0, 0), 3, 32.5f, 20);
 		modelStack.PopMatrix();
 	}
 	else if (state == STATE_WIN)
 	{
 		modelStack.PushMatrix();
-		modelStack.Translate(80, 50, 1);
-		modelStack.Scale(80, 50, 1);
-		RenderTextOnScreen(meshList[GEO_TEXT], "YOU WON", Color(1, 1, 1), 8, 20, 30);
+		modelStack.Translate(m_worldWidth * .5f, m_worldHeight * .5f, 1);
+		if (realm == REALM_HELL)
+		{
+			modelStack.Scale(m_worldWidth * .5f, m_worldHeight * .5f, 1);
+			RenderMesh(meshList[GEO_WIN1], false);
+			RenderTextOnScreen(meshList[GEO_TEXT], "YOU HAVE DEFEATED DEMONLORD", Color(1, 0, 0), 4, 17, 35);
+			RenderTextOnScreen(meshList[GEO_TEXT], "TRANSPORTING TO NEXT REALM...", Color(1, 0, 0), 4, 18, 30);
+			RenderTextOnScreen(meshList[GEO_TEXT], "Press [SPACE] to continue", Color(0, 1, 0), 3, 30, 25);
+			RenderTextOnScreen(meshList[GEO_TEXT], "Press [ESC] to quit", Color(0, 1, 0), 3, 32.5f, 20);
+		}
+		else if (realm == REALM_FUTURE)
+		{
+			modelStack.Scale(m_worldWidth * .5f, m_worldHeight * .5f, 1);
+			RenderMesh(meshList[GEO_WIN2], false);
+			RenderTextOnScreen(meshList[GEO_TEXT], "YOU HAVE DEFEATED METAL GEAR", Color(0.753f, 0.753f, 0.753f), 4, 17, 35);
+			RenderTextOnScreen(meshList[GEO_TEXT], "TRANSPORTING TO NEXT REALM...", Color(0.753f, 0.753f, 0.753f), 4, 18, 30);
+			RenderTextOnScreen(meshList[GEO_TEXT], "Press [SPACE] to continue", Color(0, 1, 0), 3, 30, 25);
+			RenderTextOnScreen(meshList[GEO_TEXT], "Press [ESC] to quit", Color(0, 1, 0), 3, 32.5f, 20);
+		}
+		else if (realm == REALM_MODERN)
+		{
+			modelStack.Scale(m_worldWidth * .5f, m_worldHeight * .6f, 1);
+			RenderMesh(meshList[GEO_WIN3], false);
+			RenderTextOnScreen(meshList[GEO_TEXT], "YOU WON", Color(0, 1, 0), 5, 33, 30);
+			RenderTextOnScreen(meshList[GEO_TEXT], "Press [SPACE] to restart", Color(0, 1, 0), 3, 30, 25);
+			RenderTextOnScreen(meshList[GEO_TEXT], "Press [ESC] to quit", Color(0, 1, 0), 3, 32.5f, 20);
+		}
 		modelStack.PopMatrix();
 	}
 }
-
+	
 void SceneArchangel::Exit()
 {
 	SceneBase::Exit();

@@ -66,7 +66,9 @@ public:
 
 		GEO_BACKGROUND,
 		GEO_LOSE,
-		GEO_WIN,
+		GEO_WIN1,
+		GEO_WIN2,
+		GEO_WIN3,
 		GEO_MENU,
 
 		GEO_MISSILE,
