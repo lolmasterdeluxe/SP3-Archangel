@@ -2314,7 +2314,7 @@ GameObject* SceneArchangel::ObjectOnCursor()
 				go->pos.x + tempScale.x >= x &&
 				go->pos.x - tempScale.x <= x &&
 				go->pos.y + tempScale.y >= y &&
-				go->pos.y - tempScale.y >= y
+				go->pos.y - tempScale.y <= y
 				)
 			{
 				return go;
