@@ -2966,7 +2966,7 @@ void SceneArchangel::RenderGO(GameObject *go)
 					RenderMesh(meshList[GEO_FUTUREBLOCK], false);
 					break;
 				case SceneArchangel::REALM_MODERN:
-					RenderMesh(meshList[GEO_CITYBLOCK], false);
+					RenderMesh(meshList[GEO_MODERNBLOCK], false);
 					break;
 				default:
 					RenderMesh(meshList[GEO_PURPLECUBE], false);
@@ -2984,7 +2984,21 @@ void SceneArchangel::RenderGO(GameObject *go)
 	    angle = atan2f(go->normal.y, go->normal.x);
 		modelStack.Rotate(Math::RadianToDegree(angle), 0, 0, 1);
 		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
-		RenderMesh(meshList[GEO_NETHERPLATFORM], false);
+		switch (realm)
+		{
+		case SceneArchangel::REALM_HELL:
+			RenderMesh(meshList[GEO_NETHERPLATFORM], false);
+			break;
+		case SceneArchangel::REALM_FUTURE:
+			RenderMesh(meshList[GEO_FUTUREPLATFORM], false);
+			break;
+		case SceneArchangel::REALM_MODERN:
+			RenderMesh(meshList[GEO_MODERNPLATFORM], false);
+			break;
+		default:
+			RenderMesh(meshList[GEO_GREENCUBE], false);
+			break;
+		}
 		modelStack.PopMatrix();
 		break;
 		
